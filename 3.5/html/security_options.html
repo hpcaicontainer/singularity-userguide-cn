@@ -1,0 +1,431 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>安全选项 &mdash; Singularity container 3.5 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="_static/favicon.png"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script src="_static/js/ga.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="网络虚拟化" href="networking.html" />
+    <link rel="prev" title="插件" href="plugins.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Singularity container
+          
+
+          
+            
+            <img src="_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">介绍</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html">快速入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security.html">Singularity安全</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="build_a_container.html">Build容器</a></li>
+<li class="toctree-l1"><a class="reference internal" href="definition_files.html">Definition文件</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build_env.html">Build环境</a></li>
+<li class="toctree-l1"><a class="reference internal" href="singularity_and_docker.html">Singularity和Docker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fakeroot.html">Fakeroot</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="signNverify.html">签名和认证</a></li>
+<li class="toctree-l1"><a class="reference internal" href="key_commands.html">Key管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="encryption.html">容器加密</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="endpoint.html">容器仓库</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cloud_library.html">Cloud Library</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="bind_paths_and_mounts.html">路径映射</a></li>
+<li class="toctree-l1"><a class="reference internal" href="persistent_overlays.html">持久化Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="running_services.html">运行服务</a></li>
+<li class="toctree-l1"><a class="reference internal" href="environment_and_metadata.html">环境变量和元数据</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oci_runtime.html">OCI运行时</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugins.html">插件</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">安全选项</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#linux-capabilities">Linux Capabilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#build">Build加密容器</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#security">Security相关的选项</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#add-caps"><code class="docutils literal notranslate"><span class="pre">--add-caps</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#allow-setuid"><code class="docutils literal notranslate"><span class="pre">--allow-setuid</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#keep-privs"><code class="docutils literal notranslate"><span class="pre">--keep-privs</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#drop-caps"><code class="docutils literal notranslate"><span class="pre">--drop-caps</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3"><code class="docutils literal notranslate"><span class="pre">--security</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="networking.html">网络选项</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cgroups.html">Cgroups</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mpi.html">MPI应用</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gpu.html">GPU支持</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="appendix.html">Appendix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Singularity container</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>安全选项</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/sylabs/singularity-userdocs/blob/master/security_options.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="security-options">
+<span id="id1"></span><h1>安全选项<a class="headerlink" href="#security-options" title="Permalink to this headline">¶</a></h1>
+<p id="sec-security-options">Singularity从3.0开始引入很多容器运行时安全相关的选项。这篇将描述使用相关的选项限定容器运行的范围和上下文。</p>
+<div class="section" id="linux-capabilities">
+<h2>Linux Capabilities<a class="headerlink" href="#linux-capabilities" title="Permalink to this headline">¶</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>首先需要意识到，使用 <code class="docutils literal notranslate"><span class="pre">capability</span></code> 命令赋予用户一些Linux capabilities等同于赋予用户一定的root权限。
+很多capabilities意味着用户可以跳出容器，变成host上的root用户。
+所以这个功能主要是针对一些特殊的使用场景，比如在cloud-native的场景下，容器中运行的用户通常都是root，
+使用capabilities可以限制容器中root用户的权限。
+而对于多租户的HPC环境下，给某些用户赋予特殊权限不是一个好办法，这种情况下建议用 <a class="reference internal" href="fakeroot.html#fakeroot"><span class="std std-ref">fakeroot</span></a>。</p>
+</div>
+<p>Singularity支持赋予和撤销对用户和组的Linux capabilities。
+比如，管理员赋予用户（比如叫 <code class="docutils literal notranslate"><span class="pre">pinger</span></code> ）打开raw socket的capability，
+这样这个用户就可以额在容器中使用 <code class="docutils literal notranslate"><span class="pre">ping</span></code> 命令。更多关于管理员怎么管理capability的内容
+<a class="reference external" href="https://sylabs.io/guides/3.5/admin-guide/configfiles.html#capability.json">请参考这里</a>.</p>
+<p>管理员赋予用户某些capability后，用户在执行的时候需要使用 <code class="docutils literal notranslate"><span class="pre">--add-caps</span></code> 选项添加capability才能使用赋予的capability。
+like so:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity exec --add-caps CAP_NET_RAW library://sylabs/tests/ubuntu_ping:v1.0 ping -c 1 8.8.8.8
+PING 8.8.8.8 (8.8.8.8) 56(84) bytes of data.
+64 bytes from 8.8.8.8: icmp_seq=1 ttl=52 time=73.1 ms
+
+--- 8.8.8.8 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 73.178/73.178/73.178/0.000 ms
+</pre></div>
+</div>
+<p>如果管理员决定不再赋予 <code class="docutils literal notranslate"><span class="pre">pinger</span></code> 的打开raw socket的capability，管理员可以撤销用户的capability，这样 <code class="docutils literal notranslate"><span class="pre">pinger</span></code>
+在运行容器的时候就不能添加相应的capability:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity exec --add-caps CAP_NET_RAW library://sylabs/tests/ubuntu_ping:v1.0 ping -c 1 8.8.8.8
+WARNING: not authorized to add capability: CAP_NET_RAW
+ping: socket: Operation not permitted
+</pre></div>
+</div>
+<p>另外一个应用常见是cloud-native的环境下，容器中运行的用户通常都是root，为了防止或者减少攻击的可能，需要撤销用户的某些capabilities。
+使用capabilities可以限制容器中root用户的权限。
+Singularity默认安装下，root用户创建的容器具有root用户的所有capabilities，但是我们可以通过配置文件修改。参考管理员文档中的
+<a class="reference external" href="https://sylabs.io/guides/3.5/admin-guide/configfiles.html#capability.json">capability configuration</a>
+和 <a class="reference external" href="https://sylabs.io/guides/3.5/admin-guide/configfiles.html#setuid-and-capabilities">root default capabilities</a>。</p>
+<p>root用户在在容器中执行命令的时候默认有 <code class="docutils literal notranslate"><span class="pre">CAP_NET_RAW</span></code> 的capability，所以在运行容器的时候可以不使用 –add-caps添加capability。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># singularity exec library://sylabs/tests/ubuntu_ping:v1.0 ping -c 1 8.8.8.8
+PING 8.8.8.8 (8.8.8.8) 56(84) bytes of data.
+64 bytes from 8.8.8.8: icmp_seq=1 ttl=52 time=59.6 ms
+
+--- 8.8.8.8 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 59.673/59.673/59.673/0.000 ms
+</pre></div>
+</div>
+<p>现在我们想容器运行的时候取消掉 <code class="docutils literal notranslate"><span class="pre">CAP_NET_RAW</span></code> 的capability:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># singularity exec --drop-caps CAP_NET_RAW library://sylabs/tests/ubuntu_ping:v1.0 ping -c 1 8.8.8.8
+ping: socket: Operation not permitted
+</pre></div>
+</div>
+<p>这时候在容器内 <code class="docutils literal notranslate"><span class="pre">ping</span></code> 将会失败。</p>
+<p><code class="docutils literal notranslate"><span class="pre">--add-caps</span></code> 和 <code class="docutils literal notranslate"><span class="pre">--drop-caps</span></code> 选项可以接受 <code class="docutils literal notranslate"><span class="pre">all</span></code> （不区分大小写）来赋予或者撤销所有的capability。
+当然，使用这个参数的时候需要小心。</p>
+</div>
+<div class="section" id="build">
+<h2>Build加密容器<a class="headerlink" href="#build" title="Permalink to this headline">¶</a></h2>
+<p>Singularity从3.4.0开始支持build和运行加密容器。 运行容器的时候，容器被解密到内核空间中，这意味着没有任何解密后的数据会留存在硬盘上。
+更多信息请参考 <a class="reference internal" href="encryption.html#encryption"><span class="std std-ref">encrypted containers</span></a>。</p>
+</div>
+<div class="section" id="security">
+<h2>Security相关的选项<a class="headerlink" href="#security" title="Permalink to this headline">¶</a></h2>
+<p>Singularity从3.0开始引入了很多新的标记，这些标记可以传递给 <code class="docutils literal notranslate"><span class="pre">shell</span></code>, <code class="docutils literal notranslate"><span class="pre">exec</span></code>,  <code class="docutils literal notranslate"><span class="pre">run</span></code> 等命令来控制容器运行时的安全。</p>
+<div class="section" id="add-caps">
+<h3><code class="docutils literal notranslate"><span class="pre">--add-caps</span></code><a class="headerlink" href="#add-caps" title="Permalink to this headline">¶</a></h3>
+<p>我们上面已经解释过–add-caps, 管理员通过 <code class="docutils literal notranslate"><span class="pre">capability</span> <span class="pre">add</span></code> 命令设置用用户的capability，
+当容器运行时，<code class="docutils literal notranslate"><span class="pre">--add-caps</span></code> 选项将激活用户的capabilities。
+当运行容器的时候这个选项还支持通过关键字 <code class="docutils literal notranslate"><span class="pre">all</span></code> 来赋值或者取消用户的所有capability。</p>
+</div>
+<div class="section" id="allow-setuid">
+<h3><code class="docutils literal notranslate"><span class="pre">--allow-setuid</span></code><a class="headerlink" href="#allow-setuid" title="Permalink to this headline">¶</a></h3>
+<p>SetUID bit允许这个程序以程序的所有者来被执行。
+大多数情况下，这些程序的owner是root，普通用户需要这个程序以root来执行，就需要用到SetUID。</p>
+<p>由于安全的原因，默认情况下在容器中SetUID是不被允许的。但是通过 <code class="docutils literal notranslate"><span class="pre">--allow-setuid</span></code> 标记，
+root用户可以设置在容器中允许SetUID:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo singularity shell --allow-setuid some_container.sif
+</pre></div>
+</div>
+</div>
+<div class="section" id="keep-privs">
+<h3><code class="docutils literal notranslate"><span class="pre">--keep-privs</span></code><a class="headerlink" href="#keep-privs" title="Permalink to this headline">¶</a></h3>
+<p>管理员可以通过设置 <code class="docutils literal notranslate"><span class="pre">singularity.conf</span></code> 中的 <code class="docutils literal notranslate"><span class="pre">root</span>
+<span class="pre">default</span> <span class="pre">capabilities</span></code> 来修改或者降低root用户默认的capabilities。
+但是root用户可以通过 <code class="docutils literal notranslate"><span class="pre">--keep-privs</span></code> 标记来使用所有的capabilities。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo singularity exec --keep-privs library://centos ping -c 1 8.8.8.8
+PING 8.8.8.8 (8.8.8.8) 56(84) bytes of data.
+64 bytes from 8.8.8.8: icmp_seq=1 ttl=128 time=18.8 ms
+
+--- 8.8.8.8 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 18.838/18.838/18.838/0.000 ms
+</pre></div>
+</div>
+</div>
+<div class="section" id="drop-caps">
+<h3><code class="docutils literal notranslate"><span class="pre">--drop-caps</span></code><a class="headerlink" href="#drop-caps" title="Permalink to this headline">¶</a></h3>
+<p>默认情况下, root用户有一些capabilities，在运行容器的时候你可以通过 <code class="docutils literal notranslate"><span class="pre">--drop-caps</span></code> 来取消某些capability。</p>
+<p>比如可以取消root用户在容器内打开raw socket的capability。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo singularity exec --drop-caps CAP_NET_RAW library://centos ping -c 1 8.8.8.8
+ping: socket: Operation not permitted
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">drop-caps</span></code> 选项可以接受大小写不敏感的 <code class="docutils literal notranslate"><span class="pre">all</span></code> 关键字，来取消所有的capabilities。</p>
+</div>
+<div class="section" id="id3">
+<h3><code class="docutils literal notranslate"><span class="pre">--security</span></code><a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<p>使用 <code class="docutils literal notranslate"><span class="pre">--security</span></code> 标记，root用户可以在容器内使用 security模块，比如SELinux, AppArmor, 和seccomp。
+运行容器时，你也可以修改容器中用户的UID和GID。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo whoami
+root
+
+$ sudo singularity exec --security uid:1000 my_container.sif whoami
+david
+</pre></div>
+</div>
+<p>使用seccomp可以将某些命令加入到黑名单中(如果为了安全，实际上最好所有命令默认都是在黑名单中，只有在白名单中的才能使用) 。
+这个例子运行在Ubuntu上，需要预先安装有 <code class="docutils literal notranslate"><span class="pre">libseccomp-dev</span></code> 和 <code class="docutils literal notranslate"><span class="pre">pkg-config</span></code>。</p>
+<p>首先写一个配置文件。Singularity安装的时候带有一个配置文件的例子，
+通常是 <code class="docutils literal notranslate"><span class="pre">/usr/local/etc/singularity/seccomp-profiles/default.json</span></code>。下面例子中，我们使用配置文件将 <code class="docutils literal notranslate"><span class="pre">mkdir</span></code> 加入黑名单。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>{
+    &quot;defaultAction&quot;: &quot;SCMP_ACT_ALLOW&quot;,
+    &quot;archMap&quot;: [
+        {
+            &quot;architecture&quot;: &quot;SCMP_ARCH_X86_64&quot;,
+            &quot;subArchitectures&quot;: [
+                &quot;SCMP_ARCH_X86&quot;,
+                &quot;SCMP_ARCH_X32&quot;
+            ]
+        }
+    ],
+    &quot;syscalls&quot;: [
+        {
+            &quot;names&quot;: [
+                &quot;mkdir&quot;
+            ],
+            &quot;action&quot;: &quot;SCMP_ACT_KILL&quot;,
+            &quot;args&quot;: [],
+            &quot;comment&quot;: &quot;&quot;,
+            &quot;includes&quot;: {},
+            &quot;excludes&quot;: {}
+        }
+    ]
+}
+</pre></div>
+</div>
+<p>配置文件保存为 <code class="docutils literal notranslate"><span class="pre">/home/david/no_mkdir.json</span></code>， 接着我们可以如下调用容器。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo singularity shell --security seccomp:/home/david/no_mkdir.json my_container.sif
+
+Singularity&gt; mkdir /tmp/foo
+Bad system call (core dumped)
+</pre></div>
+</div>
+<p>这时候使用 <code class="docutils literal notranslate"><span class="pre">mkdir</span></code> 命令会导致core dump。</p>
+<p><code class="docutils literal notranslate"><span class="pre">--security</span></code> 选项能接受的所有的参数如下:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>--security=&quot;seccomp:/usr/local/etc/singularity/seccomp-profiles/default.json&quot;
+--security=&quot;apparmor:/usr/bin/man&quot;
+--security=&quot;selinux:context&quot;
+--security=&quot;uid:1000&quot;
+--security=&quot;gid:1000&quot;
+--security=&quot;gid:1000:1:0&quot; (multiple gids, first is always the primary group)
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="networking.html" class="btn btn-neutral float-right" title="网络虚拟化" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="plugins.html" class="btn btn-neutral float-left" title="插件" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017-2019, Sylabs Inc
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

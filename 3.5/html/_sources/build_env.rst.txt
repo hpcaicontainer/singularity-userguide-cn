@@ -1,0 +1,221 @@
+.. _build-environment:
+
+=================
+Build 环境
+=================
+
+.. _sec:buildenv:
+
+--------
+概述
+--------
+
+你可能想定制化你的build环境。比如你想指定Cache的目录，或者想指定访问docker registry的账号。
+接下来呢，我们就讨论一下build环境相关的问题。
+
+-------------
+Cache目录
+-------------
+
+在build容器的时候为了更快的下载容器和减少重复下载，Singularity使用了cache机制。默认情况下，Singularity将在你的
+``$HOME`` 目录下创建cache目录来保存docker层, Cloud library容器和metadata等。
+
+.. code-block:: none
+
+    $HOME/.singularity/cache/library
+    $HOME/.singularity/cache/oci
+    $HOME/.singularity/cache/oci-tmp
+
+如果你想cache到不同的目录，可以设置环境变量 ``SINGULARITY_CACHEDIR`` 到你期望的目录。
+当你以sudo来build的时候，使用的是root用户的环境变量，因此 ``SINGULARITY_CACHEDIR`` 不在当前用户的 ``$HOME`` 目录下，
+而是在root用户的目录下。当你以root来build的时候，注意，root的 ``$HOME`` 是 ``/root``。
+
+--------------
+Cache命令
+--------------
+
+Singularity 3.1 开始提供清除和查看cache容器文件的命令。
+
+
+.. note::
+
+    以sudo运行cache命令的时候， 默认的cache的目录是 ``/root/.singularity/cache``。 非sudo方式运行cache命令的饿时候，默认的cache目录是 ``~/.singularity/cache``。
+    如果你以sudo来build容器，那么容器的cache存储在 ``/root/.singularity/cache``， 所以你如果要查看容器的cache，你需要以sudo来运行cache命令。
+
+    比如下面的例子，你使用sudo来运行cache命令查看cache:
+
+    .. code-block:: none
+
+        $ sudo singularity cache list
+        NAME                   DATE CREATED           SIZE             TYPE
+        ubuntu_latest.sif      2019-01-31 14:59:32    28.11 Mb         library
+        ubuntu_18.04.sif       2019-01-31 14:58:44    27.98 Mb         library
+
+    接着，你想用清空cache的话，如果不用sudo的话，是不能清除刚才查看的到的cache的:
+
+    .. code-block:: none
+
+        $ sudo singularity cache clean -a
+        NAME                     DATE CREATED           SIZE             TYPE
+
+        There 0 containers using: 0.00 kB, 0 oci blob file(s) using 0.00 kB of space.
+        Total space used: 0.00 kB
+
+列出Cache
+=============
+
+你可以使用命令列出cache的容器文件，能看到他们的类型是Library或者oci。
+
+.. code-block:: none
+
+    $ singularity cache list
+    NAME                   DATE CREATED           SIZE             TYPE
+    ubuntu_latest.sif      2019-01-31 14:59:32    28.11 Mb         library
+    ubuntu_18.04.sif       2019-01-31 14:58:44    27.98 Mb         library
+    alpine_latest.sif      2019-01-31 14:58:24    2.18 Mb          library
+    centos_latest.sif      2019-01-31 14:59:07    72.96 Mb         library
+    centos_latest.sif      2019-01-31 14:59:26    73.45 Mb         oci
+    ubuntu_18.04.sif       2019-01-31 14:58:58    27.99 Mb         oci
+    ubuntu_latest.sif      2019-01-31 14:59:41    27.99 Mb         oci
+    alpine_latest.sif      2019-01-31 14:58:30    2.72 Mb          oci
+
+    There are 15 oci blob file(s) using 112.51 Mb of space. Use: '-T=blob' to list
+
+你可以使用清除指定的一个或多个类型的cache: ``library``, ``oci``, ``blob`` (类型之间以逗号分隔)。
+
+.. code-block:: none
+
+    # clean only library cache
+    $ singularity cache clean --type=library
+
+    # clean only oci cache
+    $ singularity cache clean --type=oci
+
+    # clean only blob cache
+    $ singularity cache clean --type=blob
+
+    # clean only library, and oci cache
+    $ singularity cache clean --type=library,oci
+
+.. note::
+
+    指定类型的方式，在cache的list命令里也可以使用。
+
+清除Cache
+==================
+
+``cache clean`` 和 ``cache list`` 的大多数选项是相同的， (只有 ``--name`` 是只能用在 ``cache clean`` 命令中)。
+
+.. code-block:: none
+
+    $ singularity cache clean
+
+只会清除blob类型的cache。
+
+.. code-block:: none
+
+    $ singularity cache clean --all
+
+清除所有的cache。
+
+-----------------
+临时目录
+-----------------
+
+ .. _sec:temporaryfolders:
+
+在build容器的时候，Singularity使用临时目录来build squashfs文件系统,这个临时目录需要足够大能保存整个容器。
+默认情况下，使用使用 ``/tmp`` 作为临时目录，但是也可以通过环境变量 ``SINGULARITY_TMPDIR`` 设置临时目录的位置。 
+要注意的是，如果用sudo，所有的环境变量都是都是root的环境变量。
+
+当你使用命令直接要运行一个 (``run``, ``exec``, 或者 ``shell``)container library或者OCI registry的容器, 
+Singularity首先在临时目录build这个容器，然后在cache中运行。 例如下面的命令:
+
+.. code-block:: none
+
+    $ singularity exec docker://busybox /bin/sh
+
+这个命令首先会在 ``/tmp`` 下build一个容器。 同时由于Docker的oci blobs会转成SIF的格式, 一个临时的运行目录创建在cache下面:
+
+.. code-block:: none
+
+    $HOME/.singularity/cache/oci-tmp/<sha256-code>/busybox_latest.sif
+
+这个例子中 ``SINGULARITY_TMPDIR`` 和 ``SINGULARITY_CACHEDIR`` 都被用到了。
+
+-----------
+Pull目录
+-----------
+
+Singularit可以指定pull的容器存储的位置，比如你想将pull的容器保存到$HOME/mycontainers:
+
+.. code-block:: none
+
+    $ singularity pull $HOME/mycontainers library://library/default/alpine
+
+默认情况下，如果不指定位置，
+pull的容器的存储位置是 ``SINGULARITY_CACHEDIR`` 设置的位置，所以也可以通过设置 ``SINGULARITY_CACHEDIR`` 来改变默认的位置:
+
+.. code-block:: none
+
+   $ export SINGULARITY_CACHEDIR=$HOME/mycontainers
+   $ singularity pull library://library/default/alpine
+
+
+
+--------------------
+加密容器
+--------------------
+
+从Singularity 3.4.0开始，我们可以build和运行加密容器。 使用加密容器时，加密容器被解密到内核空间，因此，不会有任何解密的数据留在硬盘或者内存当中。
+更多加密容器信息，请参考 :ref:`encrypted containers <encryption>`。
+
+---------------------
+环境变量
+---------------------
+
+#. 如果一个设置在CLI的选项中和环境变量中都设置了，那么CLI选项优先级高于环境变量。 有一个特殊情况是环境变量中 ``SINGULARITY_BIND`` 和 ``SINGULARITY_BINDPATH`` 是和选项 ``--bind`` 是可以同时生效的。
+
+#. 在CLI下，设置环境变量会覆盖默认的值。
+
+#. 在CLI下，没有设置的环境变量会使用默认的值。
+
+
+默认值
+========
+
+下面的变量有默认值，通过环境便令可以修改默认值。
+
+Docker
+------
+
+**SINGULARITY_DOCKER_LOGIN**， 用来交互式的登录Docker Hub。
+
+**SINGULARITY_DOCKER_USERNAME**，Docker用户。
+
+**SINGULARITY_DOCKER_PASSWORD**，Docker密码。
+
+**RUNSCRIPT_COMMAND**， 这个值无法通过设置环境来修改，当Docker的容器没有CMD或者ENTRYPOINT的时候，这个值是"/bin/bash"。
+
+**TAG**， 默认的tag是 ``latest``。
+
+**SINGULARITY_NOHTTPS**， 如果你的Docker registry不支持https，这个环境变量控制使用http和Docker registry交互，
+这通常用于访问本地的Docker registry。
+
+
+Library
+-------
+
+**SINGULARITY_BUILDER**，设置远程builder服务的URL, 默认值是https://cloud.sylabs.io/builder。
+
+**SINGULARITY_LIBRARY**，设置从哪个library来pull容器，默认是https://library.sylabs.io。
+
+**SINGULARITY_REMOTE**，设置是否在远程build容器，默认值是false。 
+
+Encryption
+----------
+
+**SINGULARITY_ENCRYPTION_PASSPHRASE**，设置加密的口令，默认是空， 这个设置在 ``--encrypt`` 的时候使用。 
+
+**SINGULARITY_ENCRYPTION_PEM_PATH**，设置加密用的公钥文件的路径，默认是空， 这个设置在 ``--encrypt`` 的时候使用。 
+

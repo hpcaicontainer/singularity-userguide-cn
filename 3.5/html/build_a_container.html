@@ -1,0 +1,454 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Build容器 &mdash; Singularity container 3.5 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="_static/favicon.png"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script src="_static/js/ga.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Definition文件" href="definition_files.html" />
+    <link rel="prev" title="Singularity安全性" href="security.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Singularity container
+          
+
+          
+            
+            <img src="_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">介绍</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html">快速入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security.html">Singularity安全</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Build容器</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">从Container Library下载容器</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">从Docker Hub下载容器</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sandbox">创建可写的 <code class="docutils literal notranslate"><span class="pre">--sandbox</span></code> 目录</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id4">容器格式的转换</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#singularity-definitionbuild">使用Singularity definition文件build容器</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">build加密容器</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id6">Build命令选项</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#builder"><code class="docutils literal notranslate"><span class="pre">--builder</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#detached"><code class="docutils literal notranslate"><span class="pre">--detached</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#encrypt"><code class="docutils literal notranslate"><span class="pre">--encrypt</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fakeroot"><code class="docutils literal notranslate"><span class="pre">--fakeroot</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#force"><code class="docutils literal notranslate"><span class="pre">--force</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#json"><code class="docutils literal notranslate"><span class="pre">--json</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#library"><code class="docutils literal notranslate"><span class="pre">--library</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#notest"><code class="docutils literal notranslate"><span class="pre">--notest</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#passphrase"><code class="docutils literal notranslate"><span class="pre">--passphrase</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pem-path"><code class="docutils literal notranslate"><span class="pre">--pem-path</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#remote"><code class="docutils literal notranslate"><span class="pre">--remote</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id7"><code class="docutils literal notranslate"><span class="pre">--sandbox</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#section"><code class="docutils literal notranslate"><span class="pre">--section</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#update"><code class="docutils literal notranslate"><span class="pre">--update</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id8">关于容器的其它主题</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="definition_files.html">Definition文件</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build_env.html">Build环境</a></li>
+<li class="toctree-l1"><a class="reference internal" href="singularity_and_docker.html">Singularity和Docker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fakeroot.html">Fakeroot</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="signNverify.html">签名和认证</a></li>
+<li class="toctree-l1"><a class="reference internal" href="key_commands.html">Key管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="encryption.html">容器加密</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="endpoint.html">容器仓库</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cloud_library.html">Cloud Library</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bind_paths_and_mounts.html">路径映射</a></li>
+<li class="toctree-l1"><a class="reference internal" href="persistent_overlays.html">持久化Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="running_services.html">运行服务</a></li>
+<li class="toctree-l1"><a class="reference internal" href="environment_and_metadata.html">环境变量和元数据</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oci_runtime.html">OCI运行时</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugins.html">插件</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security_options.html">安全选项</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networking.html">网络选项</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cgroups.html">Cgroups</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mpi.html">MPI应用</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gpu.html">GPU支持</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="appendix.html">Appendix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Singularity container</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Build容器</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/sylabs/singularity-userdocs/blob/master/build_a_container.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="build">
+<span id="build-a-container"></span><h1>Build容器<a class="headerlink" href="#build" title="Permalink to this headline">¶</a></h1>
+<p id="sec-build-a-container">Singulartiy使用 <code class="docutils literal notranslate"><span class="pre">build</span></code> 命令build容器.
+使用build命令可以从 <a class="reference external" href="https://cloud.sylabs.io/library">Container Library</a> 和 <a class="reference external" href="https://hub.docker.com/">Docker Hub</a> 下载已有容器。
+build命令也支持使用 <a class="reference internal" href="definition_files.html#definitionfiles"><span class="std std-ref">Singularity definition</span></a> 文件从头开始build一个定制化的容器。
+build命令还支持不同容器格式之间的转化。</p>
+<div class="section" id="id1">
+<h2>概述<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">build</span></code> 命令支持从不同的源来创建一个容器。</p>
+<p>下面是 <code class="docutils literal notranslate"><span class="pre">build</span></code> 命令支持的不同的源:</p>
+<ul class="simple">
+<li><p>URI如果以 <strong>library://</strong> 开头，那么将从Container Library下载容器</p></li>
+<li><p>URI如果以 <strong>docker://</strong> 开头， 那么将从Docker Hub下载容器</p></li>
+<li><p>URI如果以 <strong>shub://</strong> 开头，那么将从Singularity Hub下载容器</p></li>
+<li><p>基于本机已经存在的一个容器build容器</p></li>
+<li><p>基于本机sandbox build容器</p></li>
+<li><p>使用 <a class="reference internal" href="definition_files.html#definitionfiles"><span class="std std-ref">Singularity definition file</span></a> 文件build容器</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">build</span></code> 命令产生的容器有两种格式。</p>
+<ul class="simple">
+<li><p><strong>Singularity Image File (SIF)</strong> 格式，只读，容器是压缩的，适用于生产环境，这也是默认的格式。</p></li>
+<li><p>sandbox <strong>(ch)root directory</strong> 格式，支持读写，这适用于交互式的开发使用，使用 <code class="docutils literal notranslate"><span class="pre">--sandbox</span></code> 生成这种格式的容器</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">build</span></code> 命令可以支持这两种格式之间的转换。</p>
+</div>
+<div class="section" id="id2">
+<h2>从Container Library下载容器<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p>你可以使用build命令从Container Library下载容器。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo singularity build lolcow.simg library://sylabs-jms/testing/lolcow
+</pre></div>
+</div>
+<p>第一个参数 <code class="docutils literal notranslate"><span class="pre">lolcow.simg</span></code> 指定生成的容器的名字和路径，
+第二个参数 <code class="docutils literal notranslate"><span class="pre">library://sylabs-jms/testing/lolcow</span></code> 指定从Container Library容器的URI。
+默认情况下，生成的容器是只读的SIF格式，如果要生成可写的容器，需要加上 <code class="docutils literal notranslate"><span class="pre">--sandbox</span></code> 的选项。</p>
+</div>
+<div class="section" id="id3">
+<h2>从Docker Hub下载容器<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<p>你可以使用build命令从Docker Hub下载容器，这个命令实际上是下载docker容器并转为singularity容器.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo singularity build lolcow.sif docker://godlovedc/lolcow
+</pre></div>
+</div>
+</div>
+<div class="section" id="sandbox">
+<span id="create-a-writable-container"></span><h2>创建可写的 <code class="docutils literal notranslate"><span class="pre">--sandbox</span></code> 目录<a class="headerlink" href="#sandbox" title="Permalink to this headline">¶</a></h2>
+<p>如果你需要创建一个可写的目录(这里叫做sandbox)，你需要使用 <code class="docutils literal notranslate"><span class="pre">--sandbox</span></code> 选项。非root用户也可以创建sandbox，但是有些文件权限会有问题，建议使用root用户创建sandbox。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo singularity build --sandbox lolcow/ library://sylabs-jms/testing/lolcow
+</pre></div>
+</div>
+<p>Singularity对sandbox目录的操作使用和对SIF的操作使用是一样的。如果需要修改sandbox容器，那么在操作的时候需要使用 <code class="docutils literal notranslate"><span class="pre">--writable</span></code> 选项。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo singularity shell --writable lolcow/
+</pre></div>
+</div>
+</div>
+<div class="section" id="id4">
+<h2>容器格式的转换<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<p>如果您本地已经有一个容器，你想基于这个容器来创建一个新的容器。这个命令允许你从一种格式转到另外一种格式。
+比如你有一个sandbox叫做 <code class="docutils literal notranslate"><span class="pre">development/</span></code> 你想把它转成SIF格式的 <code class="docutils literal notranslate"><span class="pre">production.sif</span></code>:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo singularity build production.sif development/
+</pre></div>
+</div>
+<p>需要注意的是，当你把sandbox的格式转成SIF格式的时候。
+你在sandbox里面所做的修改并没有记录在定义到Singularity definition文件里面，
+因此最好还是使用Singularity definition文件来创建容器，这样容器是可以重复build和创建的。</p>
+</div>
+<div class="section" id="singularity-definitionbuild">
+<h2>使用Singularity definition文件build容器<a class="headerlink" href="#singularity-definitionbuild" title="Permalink to this headline">¶</a></h2>
+<p>当然也可以使用Singularity definition文件去创建容器容器。关于怎么写Singularity definition文件，可以参考
+<a class="reference internal" href="definition_files.html"><span class="doc">Container Definition</span></a>。让我们假定你已经有一个definition文件叫做 <code class="docutils literal notranslate"><span class="pre">lolcow.def</span></code>,你想用它创建一个SIF的容器。</p>
+<div class="highlight-singularity notranslate"><div class="highlight"><pre><span></span><span class="k">Bootstrap</span>: docker
+<span class="k">From</span>: ubuntu:<span class="m">16.04</span>
+
+<span class="gh">%post</span>
+    apt-get -y update
+    apt-get -y install fortune cowsay lolcat
+
+<span class="gh">%environment</span>
+    <span class="nb">export</span> <span class="nv">LC_ALL</span><span class="o">=</span>C
+    <span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span>/usr/games:<span class="nv">$PATH</span>
+
+<span class="gh">%runscript</span>
+    fortune <span class="p">|</span> cowsay <span class="p">|</span> lolcat
+</pre></div>
+</div>
+<p>使用下面命令创建容器。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo singularity build lolcow.sif lolcow.def
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>需要注意的是，你在一个节点上创建的容器在另外一个节点上可能不工作。这可能是因为默认的压缩程序不同。
+比如，创建容器的节点，它默认的压缩程序是 <code class="docutils literal notranslate"><span class="pre">xz</span></code> ，而CentOS 6上的压缩程序只有 <code class="docutils literal notranslate"><span class="pre">gzip</span></code> ，所以容器不能在CentOS 6上运行。</p>
+</div>
+</div>
+<div class="section" id="id5">
+<h2>build加密容器<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+<p>Singularity从3.4.0开始支持build加密容器。使用加密容器时，加密容器被解密到内核空间，因此，不会有任何解密的数据留在硬盘或者内存当中。
+更多加密容器信息，请参考 <a class="reference internal" href="encryption.html#encryption"><span class="std std-ref">encrypted containers</span></a>。</p>
+</div>
+<div class="section" id="id6">
+<h2>Build命令选项<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="builder">
+<h3><code class="docutils literal notranslate"><span class="pre">--builder</span></code><a class="headerlink" href="#builder" title="Permalink to this headline">¶</a></h3>
+<p>Singularity 3.0 开始支持远程build容器。这个选项允许你指定一个不同的build服务。这个选项必须和 <code class="docutils literal notranslate"><span class="pre">--remote</span></code> 一起使用。</p>
+</div>
+<div class="section" id="detached">
+<h3><code class="docutils literal notranslate"><span class="pre">--detached</span></code><a class="headerlink" href="#detached" title="Permalink to this headline">¶</a></h3>
+<p>这个选项和 <code class="docutils literal notranslate"><span class="pre">--remote</span></code> 一起使用, 这个选项将不再当前的terminal中输出远程的build服务的输出。</p>
+</div>
+<div class="section" id="encrypt">
+<h3><code class="docutils literal notranslate"><span class="pre">--encrypt</span></code><a class="headerlink" href="#encrypt" title="Permalink to this headline">¶</a></h3>
+<p>这个选项用来创建加密容器。创建加密容器时从环境变量
+<code class="docutils literal notranslate"><span class="pre">SINGULARITY_ENCRYPTION_PASSPHRASE</span></code> 或者 <code class="docutils literal notranslate"><span class="pre">SINGULARITY_ENCRYPTION_PEM_PATH</span></code> 中获取加密口令来加密容器 <a class="reference internal" href="encryption.html#encryption"><span class="std std-ref">encrypted
+containers</span></a>。</p>
+</div>
+<div class="section" id="fakeroot">
+<h3><code class="docutils literal notranslate"><span class="pre">--fakeroot</span></code><a class="headerlink" href="#fakeroot" title="Permalink to this headline">¶</a></h3>
+<p>这个选项允许以非特权模式build容器 <a class="reference internal" href="fakeroot.html#fakeroot"><span class="std std-ref">the fakeroot feature</span></a>。</p>
+</div>
+<div class="section" id="force">
+<h3><code class="docutils literal notranslate"><span class="pre">--force</span></code><a class="headerlink" href="#force" title="Permalink to this headline">¶</a></h3>
+<p>这个选项强制删除和覆盖一个已经存在的容器，并且不会有交互性的提示。</p>
+</div>
+<div class="section" id="json">
+<h3><code class="docutils literal notranslate"><span class="pre">--json</span></code><a class="headerlink" href="#json" title="Permalink to this headline">¶</a></h3>
+<p>使用这个这个选项，Singularity会解析一个json格式的definition文件。</p>
+</div>
+<div class="section" id="library">
+<h3><code class="docutils literal notranslate"><span class="pre">--library</span></code><a class="headerlink" href="#library" title="Permalink to this headline">¶</a></h3>
+<p>这个选项允许你指定一个不同的library(默认的library是https://library.sylabs.io)。</p>
+</div>
+<div class="section" id="notest">
+<h3><code class="docutils literal notranslate"><span class="pre">--notest</span></code><a class="headerlink" href="#notest" title="Permalink to this headline">¶</a></h3>
+<p>如果你build容器的时候不想运行definition文件中test这一段，你可以使用这个参数跳过。
+比如当你build一个GPU容器，在生产环境中有GPU，test这一段能正常运行，但是build容器的机子上没有GPU，因此可以使用这个选项来在build容器的时候不运行
+test。</p>
+</div>
+<div class="section" id="passphrase">
+<h3><code class="docutils literal notranslate"><span class="pre">--passphrase</span></code><a class="headerlink" href="#passphrase" title="Permalink to this headline">¶</a></h3>
+<p>这个标记允许你传一个口令来加密容器 <a class="reference internal" href="encryption.html#encryption"><span class="std std-ref">encrypted containers</span></a></p>
+</div>
+<div class="section" id="pem-path">
+<h3><code class="docutils literal notranslate"><span class="pre">--pem-path</span></code><a class="headerlink" href="#pem-path" title="Permalink to this headline">¶</a></h3>
+<p>这个标记允许你传一个公钥的文件的位置来加密容器 <a class="reference internal" href="encryption.html#encryption"><span class="std std-ref">encrypted containers</span></a> 。</p>
+</div>
+<div class="section" id="remote">
+<h3><code class="docutils literal notranslate"><span class="pre">--remote</span></code><a class="headerlink" href="#remote" title="Permalink to this headline">¶</a></h3>
+<p>Singularity 3.0 开始支持在安装有build服务的远程资源上build容器(默认的远程资源是https://cloud.sylabs.io/builder)。</p>
+</div>
+<div class="section" id="id7">
+<h3><code class="docutils literal notranslate"><span class="pre">--sandbox</span></code><a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
+<p>build一个sandbox (chroot directory)的容器，而不是默认的SIF容器。</p>
+</div>
+<div class="section" id="section">
+<h3><code class="docutils literal notranslate"><span class="pre">--section</span></code><a class="headerlink" href="#section" title="Permalink to this headline">¶</a></h3>
+<p>build容器的时候只运行definition文件中的一些段落。这个想象支持以逗号分割的多个段落。
+可用的参数包括 <code class="docutils literal notranslate"><span class="pre">all</span></code>, <code class="docutils literal notranslate"><span class="pre">none</span></code> 或者和面这些段落的任意组合：<code class="docutils literal notranslate"><span class="pre">setup</span></code>, <code class="docutils literal notranslate"><span class="pre">post</span></code>, <code class="docutils literal notranslate"><span class="pre">files</span></code>, <code class="docutils literal notranslate"><span class="pre">environment</span></code>, <code class="docutils literal notranslate"><span class="pre">test</span></code>, <code class="docutils literal notranslate"><span class="pre">labels</span></code>。</p>
+<p>正常的build容器过程中，definition文件被保存到了容器的meta-data中，使用 <code class="docutils literal notranslate"><span class="pre">--section</span></code> build出的容器，由于运行了部分的段落，
+其meta-data和容器实际上是不一致的，因此慎用。</p>
+</div>
+<div class="section" id="update">
+<h3><code class="docutils literal notranslate"><span class="pre">--update</span></code><a class="headerlink" href="#update" title="Permalink to this headline">¶</a></h3>
+<p>这个选项，你可以多次创建sandbox容器 (多次创建的结果不可预测，通常不建议多次创建)。</p>
+<p>默认情况下，当你创建一个sandbox容器的时候，会提示你是否要覆盖已经存在的容器。当使用 <code class="docutils literal notranslate"><span class="pre">--update</span></code> 时，如果有已经存在的容器不会提示，
+Singularity会跳过definition文件中的header部分，将其他部分覆盖到已经存在的容器。</p>
+<p>这个命令只在创建sandbox的时候才能用。</p>
+</div>
+</div>
+<div class="section" id="id8">
+<h2>关于容器的其它主题<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>如果你想指定缓存（Docker层）的存储位置，或者Docker的认证 <a class="reference internal" href="build_env.html#build-environment"><span class="std std-ref">build environment</span></a>。</p></li>
+<li><p>如果你想弄清容器内部格式, 从这个手册开始 <a class="reference external" href="https://sci-f.github.io/tutorials">https://sci-f.github.io/tutorials</a>。</p></li>
+<li><p>如果你想在远程的环境build容器（因为你在本地环境上没有root权限），访问 <a class="reference external" href="https://cloud.sylabs.io/builder">https://cloud.sylabs.io/builder</a>。</p></li>
+<li><p>如果您想创建一个加密的容器 <a class="reference internal" href="encryption.html#encryption"><span class="std std-ref">here</span></a>。</p></li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="definition_files.html" class="btn btn-neutral float-right" title="Definition文件" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="security.html" class="btn btn-neutral float-left" title="Singularity安全性" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017-2019, Sylabs Inc
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

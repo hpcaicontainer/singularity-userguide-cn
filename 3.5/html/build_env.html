@@ -1,0 +1,433 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Build 环境 &mdash; Singularity container 3.5 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="_static/favicon.png"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script src="_static/js/ga.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="支持Docker和OCI容器" href="singularity_and_docker.html" />
+    <link rel="prev" title="Definition文件" href="definition_files.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Singularity container
+          
+
+          
+            
+            <img src="_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">介绍</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html">快速入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security.html">Singularity安全</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="build_a_container.html">Build容器</a></li>
+<li class="toctree-l1"><a class="reference internal" href="definition_files.html">Definition文件</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Build环境</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#sec-buildenv">概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cache">Cache目录</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">Cache命令</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id3">列出Cache</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">清除Cache</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">临时目录</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pull">Pull目录</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id6">加密容器</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id7">环境变量</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id8">默认值</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#docker">Docker</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#library">Library</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#encryption">Encryption</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="singularity_and_docker.html">Singularity和Docker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fakeroot.html">Fakeroot</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="signNverify.html">签名和认证</a></li>
+<li class="toctree-l1"><a class="reference internal" href="key_commands.html">Key管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="encryption.html">容器加密</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="endpoint.html">容器仓库</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cloud_library.html">Cloud Library</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bind_paths_and_mounts.html">路径映射</a></li>
+<li class="toctree-l1"><a class="reference internal" href="persistent_overlays.html">持久化Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="running_services.html">运行服务</a></li>
+<li class="toctree-l1"><a class="reference internal" href="environment_and_metadata.html">环境变量和元数据</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oci_runtime.html">OCI运行时</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugins.html">插件</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security_options.html">安全选项</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networking.html">网络选项</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cgroups.html">Cgroups</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mpi.html">MPI应用</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gpu.html">GPU支持</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="appendix.html">Appendix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Singularity container</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Build 环境</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/sylabs/singularity-userdocs/blob/master/build_env.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="build">
+<span id="build-environment"></span><h1>Build 环境<a class="headerlink" href="#build" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="sec-buildenv">
+<span id="id1"></span><h2>概述<a class="headerlink" href="#sec-buildenv" title="Permalink to this headline">¶</a></h2>
+<p>你可能想定制化你的build环境。比如你想指定Cache的目录，或者想指定访问docker registry的账号。
+接下来呢，我们就讨论一下build环境相关的问题。</p>
+</div>
+<div class="section" id="cache">
+<h2>Cache目录<a class="headerlink" href="#cache" title="Permalink to this headline">¶</a></h2>
+<p>在build容器的时候为了更快的下载容器和减少重复下载，Singularity使用了cache机制。默认情况下，Singularity将在你的
+<code class="docutils literal notranslate"><span class="pre">$HOME</span></code> 目录下创建cache目录来保存docker层, Cloud library容器和metadata等。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$HOME/.singularity/cache/library
+$HOME/.singularity/cache/oci
+$HOME/.singularity/cache/oci-tmp
+</pre></div>
+</div>
+<p>如果你想cache到不同的目录，可以设置环境变量 <code class="docutils literal notranslate"><span class="pre">SINGULARITY_CACHEDIR</span></code> 到你期望的目录。
+当你以sudo来build的时候，使用的是root用户的环境变量，因此 <code class="docutils literal notranslate"><span class="pre">SINGULARITY_CACHEDIR</span></code> 不在当前用户的 <code class="docutils literal notranslate"><span class="pre">$HOME</span></code> 目录下，
+而是在root用户的目录下。当你以root来build的时候，注意，root的 <code class="docutils literal notranslate"><span class="pre">$HOME</span></code> 是 <code class="docutils literal notranslate"><span class="pre">/root</span></code>。</p>
+</div>
+<div class="section" id="id2">
+<h2>Cache命令<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p>Singularity 3.1 开始提供清除和查看cache容器文件的命令。</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>以sudo运行cache命令的时候， 默认的cache的目录是 <code class="docutils literal notranslate"><span class="pre">/root/.singularity/cache</span></code>。 非sudo方式运行cache命令的饿时候，默认的cache目录是 <code class="docutils literal notranslate"><span class="pre">~/.singularity/cache</span></code>。
+如果你以sudo来build容器，那么容器的cache存储在 <code class="docutils literal notranslate"><span class="pre">/root/.singularity/cache</span></code>， 所以你如果要查看容器的cache，你需要以sudo来运行cache命令。</p>
+<p>比如下面的例子，你使用sudo来运行cache命令查看cache:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo singularity cache list
+NAME                   DATE CREATED           SIZE             TYPE
+ubuntu_latest.sif      2019-01-31 14:59:32    28.11 Mb         library
+ubuntu_18.04.sif       2019-01-31 14:58:44    27.98 Mb         library
+</pre></div>
+</div>
+<p>接着，你想用清空cache的话，如果不用sudo的话，是不能清除刚才查看的到的cache的:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo singularity cache clean -a
+NAME                     DATE CREATED           SIZE             TYPE
+
+There 0 containers using: 0.00 kB, 0 oci blob file(s) using 0.00 kB of space.
+Total space used: 0.00 kB
+</pre></div>
+</div>
+</div>
+<div class="section" id="id3">
+<h3>列出Cache<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<p>你可以使用命令列出cache的容器文件，能看到他们的类型是Library或者oci。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity cache list
+NAME                   DATE CREATED           SIZE             TYPE
+ubuntu_latest.sif      2019-01-31 14:59:32    28.11 Mb         library
+ubuntu_18.04.sif       2019-01-31 14:58:44    27.98 Mb         library
+alpine_latest.sif      2019-01-31 14:58:24    2.18 Mb          library
+centos_latest.sif      2019-01-31 14:59:07    72.96 Mb         library
+centos_latest.sif      2019-01-31 14:59:26    73.45 Mb         oci
+ubuntu_18.04.sif       2019-01-31 14:58:58    27.99 Mb         oci
+ubuntu_latest.sif      2019-01-31 14:59:41    27.99 Mb         oci
+alpine_latest.sif      2019-01-31 14:58:30    2.72 Mb          oci
+
+There are 15 oci blob file(s) using 112.51 Mb of space. Use: &#39;-T=blob&#39; to list
+</pre></div>
+</div>
+<p>你可以使用清除指定的一个或多个类型的cache: <code class="docutils literal notranslate"><span class="pre">library</span></code>, <code class="docutils literal notranslate"><span class="pre">oci</span></code>, <code class="docutils literal notranslate"><span class="pre">blob</span></code> (类型之间以逗号分隔)。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># clean only library cache
+$ singularity cache clean --type=library
+
+# clean only oci cache
+$ singularity cache clean --type=oci
+
+# clean only blob cache
+$ singularity cache clean --type=blob
+
+# clean only library, and oci cache
+$ singularity cache clean --type=library,oci
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>指定类型的方式，在cache的list命令里也可以使用。</p>
+</div>
+</div>
+<div class="section" id="id4">
+<h3>清除Cache<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">cache</span> <span class="pre">clean</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cache</span> <span class="pre">list</span></code> 的大多数选项是相同的， (只有 <code class="docutils literal notranslate"><span class="pre">--name</span></code> 是只能用在 <code class="docutils literal notranslate"><span class="pre">cache</span> <span class="pre">clean</span></code> 命令中)。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity cache clean
+</pre></div>
+</div>
+<p>只会清除blob类型的cache。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity cache clean --all
+</pre></div>
+</div>
+<p>清除所有的cache。</p>
+</div>
+</div>
+<div class="section" id="id5">
+<h2>临时目录<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div></div></blockquote>
+<p id="sec-temporaryfolders">在build容器的时候，Singularity使用临时目录来build squashfs文件系统,这个临时目录需要足够大能保存整个容器。
+默认情况下，使用使用 <code class="docutils literal notranslate"><span class="pre">/tmp</span></code> 作为临时目录，但是也可以通过环境变量 <code class="docutils literal notranslate"><span class="pre">SINGULARITY_TMPDIR</span></code> 设置临时目录的位置。
+要注意的是，如果用sudo，所有的环境变量都是都是root的环境变量。</p>
+<p>当你使用命令直接要运行一个 (<code class="docutils literal notranslate"><span class="pre">run</span></code>, <code class="docutils literal notranslate"><span class="pre">exec</span></code>, 或者 <code class="docutils literal notranslate"><span class="pre">shell</span></code>)container library或者OCI registry的容器,
+Singularity首先在临时目录build这个容器，然后在cache中运行。 例如下面的命令:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity exec docker://busybox /bin/sh
+</pre></div>
+</div>
+<p>这个命令首先会在 <code class="docutils literal notranslate"><span class="pre">/tmp</span></code> 下build一个容器。 同时由于Docker的oci blobs会转成SIF的格式, 一个临时的运行目录创建在cache下面:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$HOME/.singularity/cache/oci-tmp/&lt;sha256-code&gt;/busybox_latest.sif
+</pre></div>
+</div>
+<p>这个例子中 <code class="docutils literal notranslate"><span class="pre">SINGULARITY_TMPDIR</span></code> 和 <code class="docutils literal notranslate"><span class="pre">SINGULARITY_CACHEDIR</span></code> 都被用到了。</p>
+</div>
+<div class="section" id="pull">
+<h2>Pull目录<a class="headerlink" href="#pull" title="Permalink to this headline">¶</a></h2>
+<p>Singularit可以指定pull的容器存储的位置，比如你想将pull的容器保存到$HOME/mycontainers:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity pull $HOME/mycontainers library://library/default/alpine
+</pre></div>
+</div>
+<p>默认情况下，如果不指定位置，
+pull的容器的存储位置是 <code class="docutils literal notranslate"><span class="pre">SINGULARITY_CACHEDIR</span></code> 设置的位置，所以也可以通过设置 <code class="docutils literal notranslate"><span class="pre">SINGULARITY_CACHEDIR</span></code> 来改变默认的位置:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ export SINGULARITY_CACHEDIR=$HOME/mycontainers
+$ singularity pull library://library/default/alpine
+</pre></div>
+</div>
+</div>
+<div class="section" id="id6">
+<h2>加密容器<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
+<p>从Singularity 3.4.0开始，我们可以build和运行加密容器。 使用加密容器时，加密容器被解密到内核空间，因此，不会有任何解密的数据留在硬盘或者内存当中。
+更多加密容器信息，请参考 <a class="reference internal" href="encryption.html#encryption"><span class="std std-ref">encrypted containers</span></a>。</p>
+</div>
+<div class="section" id="id7">
+<h2>环境变量<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li><p>如果一个设置在CLI的选项中和环境变量中都设置了，那么CLI选项优先级高于环境变量。 有一个特殊情况是环境变量中 <code class="docutils literal notranslate"><span class="pre">SINGULARITY_BIND</span></code> 和 <code class="docutils literal notranslate"><span class="pre">SINGULARITY_BINDPATH</span></code> 是和选项 <code class="docutils literal notranslate"><span class="pre">--bind</span></code> 是可以同时生效的。</p></li>
+<li><p>在CLI下，设置环境变量会覆盖默认的值。</p></li>
+<li><p>在CLI下，没有设置的环境变量会使用默认的值。</p></li>
+</ol>
+<div class="section" id="id8">
+<h3>默认值<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
+<p>下面的变量有默认值，通过环境便令可以修改默认值。</p>
+<div class="section" id="docker">
+<h4>Docker<a class="headerlink" href="#docker" title="Permalink to this headline">¶</a></h4>
+<p><strong>SINGULARITY_DOCKER_LOGIN</strong>， 用来交互式的登录Docker Hub。</p>
+<p><strong>SINGULARITY_DOCKER_USERNAME</strong>，Docker用户。</p>
+<p><strong>SINGULARITY_DOCKER_PASSWORD</strong>，Docker密码。</p>
+<p><strong>RUNSCRIPT_COMMAND</strong>， 这个值无法通过设置环境来修改，当Docker的容器没有CMD或者ENTRYPOINT的时候，这个值是”/bin/bash”。</p>
+<p><strong>TAG</strong>， 默认的tag是 <code class="docutils literal notranslate"><span class="pre">latest</span></code>。</p>
+<p><strong>SINGULARITY_NOHTTPS</strong>， 如果你的Docker registry不支持https，这个环境变量控制使用http和Docker registry交互，
+这通常用于访问本地的Docker registry。</p>
+</div>
+<div class="section" id="library">
+<h4>Library<a class="headerlink" href="#library" title="Permalink to this headline">¶</a></h4>
+<p><strong>SINGULARITY_BUILDER</strong>，设置远程builder服务的URL, 默认值是https://cloud.sylabs.io/builder。</p>
+<p><strong>SINGULARITY_LIBRARY</strong>，设置从哪个library来pull容器，默认是https://library.sylabs.io。</p>
+<p><strong>SINGULARITY_REMOTE</strong>，设置是否在远程build容器，默认值是false。</p>
+</div>
+<div class="section" id="encryption">
+<h4>Encryption<a class="headerlink" href="#encryption" title="Permalink to this headline">¶</a></h4>
+<p><strong>SINGULARITY_ENCRYPTION_PASSPHRASE</strong>，设置加密的口令，默认是空， 这个设置在 <code class="docutils literal notranslate"><span class="pre">--encrypt</span></code> 的时候使用。</p>
+<p><strong>SINGULARITY_ENCRYPTION_PEM_PATH</strong>，设置加密用的公钥文件的路径，默认是空， 这个设置在 <code class="docutils literal notranslate"><span class="pre">--encrypt</span></code> 的时候使用。</p>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="singularity_and_docker.html" class="btn btn-neutral float-right" title="支持Docker和OCI容器" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="definition_files.html" class="btn btn-neutral float-left" title="Definition文件" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017-2019, Sylabs Inc
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

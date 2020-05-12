@@ -1,0 +1,188 @@
+.. _encryption:
+
+====================
+加密容器
+====================
+
+通过加密root文件系统，用户可以build一个安全可靠的容器环境。
+
+--------
+概述
+--------
+
+Singularity从3.4.0来时支持加密SIF格式的容器， 可以通过输入密码或者RSA公私钥的公钥的PEM文件来加密。
+加密后的镜像即使在运行的时候也不会有解密后的中间文件，临时文件存在硬盘上，解密完全在内核空间中完成。
+
+
+.. note::
+
+        这个功能使用了Linux的 ``dm-crypt`` 和 ``cryptsetup`` 库，cryptsetup的版本必须>= 2.0.0, 
+        Ubuntu 18.04,Debian 10和CentOS/RHEL 7自带的库满足版本要求，
+        但是老版本的Linux可能需要升级库的版本。
+        
+
+----------------------
+加密一个容器
+----------------------
+
+容器可以使用密码或者含有RSA公钥的PEM文件来加密。这两种方法中，其中PEM更安全，因此建议使用PEM来加密。 
+
+.. note::
+
+        Singularity 3.4中，存储在容器中def文件是没被加密的，如果def文件包含有敏感信息，
+        你可以通过 ``singularity sif del 1 myimage.sif`` 将def文件移调。 Metadata的加密在后面的版本中会支持。
+
+``singularity build`` 的时候通过 ``-e|--encrypt`` 选项来加密容器。
+
+在build容器的时候，加密需要的密码或者PEM文件可以通过环境变量或者命令行选项传递给容器. 
+
++------------------------+-------------------------------------------+--------------------------+
+| **Encryption Method**  | **Environment Variable**                  | **Commandline Option**   |
++------------------------+-------------------------------------------+--------------------------+
+| Passphrase             | ``SINGULARITY_ENCRYPTION_PASSPHRASE``     | ``--passphrase``         |
++------------------------+-------------------------------------------+--------------------------+
+| Asymmetric Key (PEM)   | ``SINGULARITY_ENCRYPTION_PEM_PATH``       | ``--pem-path``           | 
++------------------------+-------------------------------------------+--------------------------+
+
+build容器的时候，如果使用了命令行选项传递密码或者PEM文件，那么 ``-e|--encrypt`` 标记不需要加到命令行。
+如果多个加密的选项或者环境变量同时出现，下面是他们的他们的优先级（第一个优先级最高）。
+
+#. ``--pem-path``
+#. ``--passphrase``
+#. ``SINGULARITY_ENCRYPTION_PEM_PATH``
+#. ``SINGULARITY_ENCRYPTION_PASSPHRASE``
+
+通过密码加密
+=====================
+
+.. note::
+
+        通过密码加密没有PEM安全，通过密码加密提供了一种便捷的途径，
+        让用户能比较方便的熟悉加密的流程，但是在生产环境中，鼓励使用PEM加密。
+
+下面分别是通过选项和通过环境变量使用密码加密容器.
+
+使用命令行：
+------------------------------------------
+
+.. code-block:: none
+
+        $ sudo singularity build --passphrase encrypted.sif encrypted.def
+        Enter encryption passphrase: <secret>
+        INFO:    Starting build...
+
+使用环境变量：
+-----------------------------
+
+.. code-block:: none
+
+        $ sudo SINGULARITY_ENCRYPTION_PASSPHRASE=<secret> singularity build --encrypt encrypted.sif encrypted.def
+        Starting build...
+
+通过环境变量加密的时候，命令行需要添加 ``--encrypt`` 这个标记，否则将不会触发加密流程。
+
+当使用环境变量加密容器的时候，确保你的环境变量不要在命令行被记住，比如下面你的例子，
+你可以将密码存在一个文件(比如 ``secret.txt``)，然后像下面一样使用它。
+
+.. code-block:: none
+
+        $ export SINGULARITY_ENCRYPTION_PASSPHRASE=$(cat secret.txt)
+
+        $ sudo -E singularity build --encrypt encrypted.sif encrypted.def
+        Starting build...
+
+PEM加密
+===================
+
+Singularity支持通过RSA公私钥对来加密。公钥用来加密容器，私钥用来解密。公私钥在PEM格式的文件中。 
+
+
+你可以使用 ``ssh-keygen`` 命令生成公私钥对，然后将公私钥保存到pem文件中:
+
+.. code-block:: none
+
+        # Generate a keypair
+        $ ssh-keygen -t rsa -b 2048
+        Generating public/private rsa key pair.
+        Enter file in which to save the key (/home/vagrant/.ssh/id_rsa): rsa
+        Enter passphrase (empty for no passphrase):
+        Enter same passphrase again:
+        [snip...]
+
+        # Convert the public key to PEM PKCS1 format
+        $ ssh-keygen -f ./rsa.pub -e -m pem >rsa_pub.pem
+
+        # Rename the private key (already PEM PKCS1) to a nice name
+        $ mv rsa rsa_pri.pem
+
+接着你可以使用 ``rsa_pub.pem`` 来加密容器，使用 ``rsa_pri.pem`` 来运行容器。
+
+通过命令行参数加密
+--------------------------------------
+
+.. code-block:: none
+
+        $ sudo singularity build --pem-path=rsa_pub.pem encrypted.sif encrypted.def
+        Starting build...
+
+通过环境变量加密
+---------------------------------------
+
+.. code-block:: none
+
+        $ sudo SINGULARITY_ENCRYPTION_PEM_PATH=rsa_pub.pem singularity build --encrypt encrypted.sif encrypted.def
+        Starting build...
+
+通过环境变量加密的时候，命令行需要添加 ``--encrypt`` 这个标记，否则将不会触发加密流程。
+
+------------------------------
+运行一个加密的容器
+------------------------------
+
+使用命令行（ ``run``, ``shell``, 或者 ``exec`` 等）运行加密容器的时候, 需要提供密码或这PEM文件来解密后运行。
+
+运行一个使用密码加密的容器
+===============================================
+
+使用交互的命令行方式输入密码
+---------------------------------------
+
+.. code-block:: none
+
+        $ singularity run --passphrase encrypted.sif
+        Enter passphrase for encrypted container: <secret>
+
+使用环境变量设置解密使用的密码
+----------------------------------------------------
+
+.. code-block:: none
+
+        $ SINGULARITY_ENCRYPTION_PASSPHRASE="secret" singularity run encrypted.sif
+
+当使用环境变量运行容器的时候，确保你的环境变量不要在命令行被记住，比如下面你的例子，
+你可以将密码存在一个文件(e.g. ``secret.txt``)，然后像下面一样使用它。
+
+.. code-block:: none
+
+        $ export SINGULARITY_ENCRYPTION_PASSPHRASE=$(cat secret.txt)
+
+        $ singularity run encrypted.sif
+
+运行一个使用PEM加密的容器
+=============================================
+
+一个私钥的PEM文件要被用来加密容器。
+
+使用命令行选项设置PEM文件的位置
+-----------------------------------
+
+.. code-block:: none
+
+        $ singularity run --pem-path=rsa_pri.pem encrypted.sif
+
+使用环境变量设置PEM文件的位置
+-------------------------------------
+
+.. code-block:: none
+
+        $ SINGULARITY_ENCRYPTION_PEM_PATH=rsa_pri.pem singularity run encrypted.sif

@@ -1,0 +1,209 @@
+.. _cgroups:
+
+=========================================
+使用cgroups限制容器资源
+=========================================
+
+从Singularity 3.0开始, 用户可以使用cgroups限制容器资源。
+
+--------
+概述
+--------
+
+通过TOML文件，我们能配置和使用cgroups来限制容器资源。
+Singularity有一个示例配置文件 ``/usr/local/etc/singularity/cgroups/cgroups.toml``
+（根据安装Singularity方式的不同，这个文件可能在另外的位置，比如 ``/etc/singularity/cgroups/cgroups.toml``），
+你可以根据你的需要复制和修改这个文件，然后使用 ``--apply-cgroups`` 指定使用这个文件中的配置来限制容器资源的资源:
+
+.. code-block:: none
+
+    $ sudo singularity shell --apply-cgroups /path/to/cgroups.toml my_container.sif
+
+使用这个选项 ``--apply-cgroups`` 需要root权限。
+
+
+--------
+举例
+--------
+
+限制内存
+===============
+
+限制容器最多能使用500MB (524288000 bytes)的内存.  首先在你的home下创建一个 ``cgroups.toml`` 文件.
+
+.. code-block:: none
+
+    [memory]
+        limit = 524288000
+
+然后启动容器:
+
+.. code-block:: none
+
+    $ sudo singularity instance start --apply-cgroups /home/$USER/cgroups.toml \
+        my_container.sif instance1
+
+然后你能看到容器限制最多可以用500MB内存(这个例子假定你只有 ``instance1`` 一个实例在运行)。
+
+.. code-block:: none
+
+    $ cat /sys/fs/cgroup/memory/singularity/*/memory.limit_in_bytes
+    524288000
+
+
+然后别忘了清除掉这个运行的实例。
+
+.. code-block:: none
+
+    $ sudo singularity instance stop instance1
+
+同样的，接下来的例子也使用启动实例和检查 ``/sys/fs/cgroup/`` 下子文件夹下内容的方式来测试。
+
+限制CPU
+============
+
+使用下面的一种机制来限制CPU。 配置文件中的 ``cpu`` 段可以用来配置CPU的限制。
+
+shares
+------
+
+这里起作用的实际上是当前cgroups和其它cgroups的比值。通常默认shares的值是 ``1024``，这意味着你如果想
+允许使用单个CPU的50%，你应该设置shares为 ``512``.
+
+.. code-block:: none
+
+    [cpu]
+        shares = 512
+
+shares这个设置只在多个进程进行资源抢占的时候发挥作用，比如两个进程都在抢占CPU，
+那么这个设置能保证每个进程都能分配到50%的CPU时间片。
+如果CPU只被一个进程使用，即便这里设置的shares=512， 这个进程还是能分配到所有的CPU时间片。
+
+
+quota/period
+------------
+
+你可以强制限制分配给一个cgroup的时间片，cgroup的进程不能使用超过设置的时间片。
+``quota`` 用来设置每个period中这个cgroup能使用多少时间片，period的默认值是100ms (100000us)，
+所以你如果想设置在一个period中使用20ms:
+
+.. code-block:: none
+
+    [cpu]
+        period = 100000
+        quota = 20000
+
+cpus/mems
+---------
+
+通过 ``cpus/mems`` 你可以限制容器能使用的特定的CPU和内存:
+
+.. code-block:: none
+
+    [cpu]
+        cpus = "0-1"
+        mems = "0-1"
+
+限制容器只能使用CPU 0和CPU 1（这里的0和1指的是CPU核）。
+
+.. note::
+
+    cpus和mems的值必须是相同的。
+
+更多关于使用cgroups限制CPU的内容，请查看下面的连接：
+
+- `Red Hat resource management guide section 3.2 CPU <https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/6/html/resource_management_guide/sec-cpu/>`_
+
+- `Red Hat resource management guide section 3.4 CPUSET <https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/6/html/resource_management_guide/sec-cpuset>`_
+
+- `Kernel scheduler documentation <https://www.kernel.org/doc/Documentation/scheduler/sched-bwc.txt>`_
+
+限制IO
+===========
+
+使用 ``[blockIO]`` 你可以限制和监控I/O设备的访问:
+
+.. code-block:: none
+
+    [blockIO]
+        weight = 1000
+        leafWeight = 1000
+
+``weight`` 和 ``leafWeight`` 取值范围为 ``10`` 到 ``1000``。
+
+``weight`` 是这个cgroup的默认weight。
+
+``leafWeight`` 是这个cgroup的子cgroup的weight。这两个值可以用来计算当前cgroup和子cgroup的I/O访问的比值。
+
+我们可以针对具体的device设置 ``weight/leafWeight``，下面设置 ``/dev/loop0` `和 ``/dev/loop1`` 的 ``weight/leafWeight``，
+其中major和minor和在一起来标识设备号（可以用ls -l /dev/loop0 查看loop0的设备号）:
+
+.. code-block:: none
+
+    [blockIO]
+        [[blockIO.weightDevice]]
+            major = 7
+            minor = 0
+            weight = 100
+            leafWeight = 50
+        [[blockIO.weightDevice]]
+            major = 7
+            minor = 1
+            weight = 100
+            leafWeight = 50
+
+你可以限制device ``/dev/loop0`` 的读写速度为16MB每秒，rate的单位为byte每秒。
+
+.. code-block:: none
+
+    [blockIO]
+        [[blockIO.throttleReadBpsDevice]]
+            major = 7
+            minor = 0
+            rate = 16777216
+        [[blockIO.throttleWriteBpsDevice]]
+            major = 7
+            minor = 0
+            rate = 16777216
+
+你可以限制device ``/dev/loop0`` 的读写速度为1000 IOPS。
+
+.. code-block:: none
+
+    [blockIO]
+        [[blockIO.throttleReadIOPSDevice]]
+            major = 7
+            minor = 0
+            rate = 1000
+        [[blockIO.throttleWriteIOPSDevice]]
+            major = 7
+            minor = 0
+            rate = 1000
+
+更多关于I/O资源限制的资料, 请参考下面的链接：
+
+- `Red Hat resource management guide section 3.1 blkio <https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/6/html/resource_management_guide/ch-subsystems_and_tunable_parameters#sec-blkio>`_
+
+- `Kernel block IO controller documentation <https://www.kernel.org/doc/Documentation/cgroup-v1/blkio-controller.txt>`_
+
+- `Kernel CFQ scheduler documentation <https://www.kernel.org/doc/Documentation/block/cfq-iosched.txt>`_
+
+限制device
+----------------------
+
+你可以限制容器读，写和创建device。下面这个例子是配置容器读写 ``/dev/null``。
+
+.. code-block:: none
+
+    [[devices]]
+        access = "rwm"
+        allow = false
+    [[devices]]
+        access = "rw"
+        allow = true
+        major = 1
+        minor = 3
+        type = "c"
+
+更多关于限制device的资料，请参考下面的链接：
+`management guide section 3.5 DEVICES <https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/6/html/resource_management_guide/sec-devices>`_.

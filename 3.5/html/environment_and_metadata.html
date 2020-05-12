@@ -1,0 +1,625 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>环境变量和元数据 &mdash; Singularity container 3.5 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="_static/favicon.png"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script src="_static/js/ga.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="OCI Runtime" href="oci_runtime.html" />
+    <link rel="prev" title="运行服务" href="running_services.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Singularity container
+          
+
+          
+            
+            <img src="_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">介绍</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html">快速入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security.html">Singularity安全</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="build_a_container.html">Build容器</a></li>
+<li class="toctree-l1"><a class="reference internal" href="definition_files.html">Definition文件</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build_env.html">Build环境</a></li>
+<li class="toctree-l1"><a class="reference internal" href="singularity_and_docker.html">Singularity和Docker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fakeroot.html">Fakeroot</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="signNverify.html">签名和认证</a></li>
+<li class="toctree-l1"><a class="reference internal" href="key_commands.html">Key管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="encryption.html">容器加密</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="endpoint.html">容器仓库</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cloud_library.html">Cloud Library</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="bind_paths_and_mounts.html">路径映射</a></li>
+<li class="toctree-l1"><a class="reference internal" href="persistent_overlays.html">持久化Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="running_services.html">运行服务</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">环境变量和元数据</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id2">概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">环境变量</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#labels">Labels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#inspect"><code class="docutils literal notranslate"><span class="pre">inspect</span></code> 命令</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id4"><code class="docutils literal notranslate"><span class="pre">--labels</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#deffile"><code class="docutils literal notranslate"><span class="pre">--deffile</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#runscript"><code class="docutils literal notranslate"><span class="pre">--runscript</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#test"><code class="docutils literal notranslate"><span class="pre">--test</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#environment"><code class="docutils literal notranslate"><span class="pre">--environment</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#helpfile"><code class="docutils literal notranslate"><span class="pre">--helpfile</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#json"><code class="docutils literal notranslate"><span class="pre">--json</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">容器元数据</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="oci_runtime.html">OCI运行时</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugins.html">插件</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security_options.html">安全选项</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networking.html">网络选项</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cgroups.html">Cgroups</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mpi.html">MPI应用</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gpu.html">GPU支持</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="appendix.html">Appendix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Singularity container</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>环境变量和元数据</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/sylabs/singularity-userdocs/blob/master/environment_and_metadata.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="environment-and-metadata">
+<span id="id1"></span><h1>环境变量和元数据<a class="headerlink" href="#environment-and-metadata" title="Permalink to this headline">¶</a></h1>
+<p id="sec-envandmetadata">在build容器的时候，你可以将环境变量和labels加入容器。
+参考 <a class="reference internal" href="build_env.html#build-environment"><span class="std std-ref">build environment section</span></a> 来在build的时候设置环境变量。</p>
+<div class="section" id="id2">
+<h2>概述<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p>在def文件中定义的环境变量可以加入到容器中。</p>
+<ul class="simple">
+<li><p>在def文件的 <code class="docutils literal notranslate"><span class="pre">%environment</span></code> 下定义环境变量</p></li>
+</ul>
+<div class="highlight-singularity notranslate"><div class="highlight"><pre><span></span><span class="k">Bootstrap</span>: library
+<span class="k">From</span>: default/alpine
+
+<span class="gh">%environment</span>
+    <span class="nv">VARIABLE_ONE</span> <span class="o">=</span> hello
+    <span class="nv">VARIABLE_TWO</span> <span class="o">=</span> world
+    <span class="nb">export</span> VARIABLE_ONE VARIABLE_TWO
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>或者在def文件的 <code class="docutils literal notranslate"><span class="pre">%post</span></code> 下定义环境变量</p></li>
+</ul>
+<div class="highlight-singularity notranslate"><div class="highlight"><pre><span></span><span class="k">Bootstrap</span>: library
+<span class="k">From</span>: default/alpine
+
+<span class="gh">%post</span>
+    <span class="nb">echo</span> <span class="s1">&#39;export VARIABLE_NAME=variable_value&#39;</span> &gt;&gt;<span class="nv">$SINGULARITY_ENVIRONMENT</span>
+</pre></div>
+</div>
+<p>你可以在def文件的 <code class="docutils literal notranslate"><span class="pre">%labels</span></code> 下加入label。</p>
+<div class="highlight-singularity notranslate"><div class="highlight"><pre><span></span><span class="k">Bootstrap</span>: library
+<span class="k">From</span>: default/alpine
+
+<span class="gh">%labels</span>
+    OWNER Joana
+</pre></div>
+</div>
+<p>使用 <code class="docutils literal notranslate"><span class="pre">inspect</span></code> 命令查看容器的label</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$  singularity inspect mysifimage.sif
+</pre></div>
+</div>
+<p>上述命令的输出为:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>{
+    &quot;OWNER&quot;: &quot;Joana&quot;,
+    &quot;org.label-schema.build-date&quot;: &quot;Monday_07_January_2019_0:01:50_CET&quot;,
+    &quot;org.label-schema.schema-version&quot;: &quot;1.0&quot;,
+    &quot;org.label-schema.usage&quot;: &quot;/.singularity.d/runscript.help&quot;,
+    &quot;org.label-schema.usage.singularity.deffile.bootstrap&quot;: &quot;library&quot;,
+    &quot;org.label-schema.usage.singularity.deffile.from&quot;: &quot;debian:9&quot;,
+    &quot;org.label-schema.usage.singularity.runscript.help&quot;: &quot;/.singularity.d/runscript.help&quot;,
+    &quot;org.label-schema.usage.singularity.version&quot;: &quot;3.0.1-236.g2453fdfe&quot;
+}
+</pre></div>
+</div>
+<p>其中很多label是自动创建的，但是你自定义的label也在容器中。</p>
+<p><code class="docutils literal notranslate"><span class="pre">inspect</span></code> 命令用来查看容器的元数据，关于inspect命令的更多选项，参考 <a class="reference internal" href="#inspect-command"><span class="std std-ref">additional options</span></a>。</p>
+</div>
+<div class="section" id="id3">
+<h2>环境变量<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<p>build容器的时候，可以将环境变量加入容器。下面是通过def文件中%environment加入环境变量。</p>
+<div class="highlight-singularity notranslate"><div class="highlight"><pre><span></span><span class="k">Bootstrap</span>: library
+<span class="k">From</span>: default/alpine
+
+<span class="gh">%environment</span>
+    <span class="c1">#First define the variables</span>
+    <span class="nv">VARIABLE_PATH</span><span class="o">=</span>/usr/local/bootstrap
+    <span class="nv">VARIABLE_VERSION</span><span class="o">=</span><span class="m">3</span>.0
+    <span class="c1">#Then export them</span>
+    <span class="nb">export</span> VARIABLE_PATH VARIABLE_VERSION
+</pre></div>
+</div>
+<p>你也可以在def文件的 <code class="docutils literal notranslate"><span class="pre">%post</span></code> 中加入环境变量。因为有时候你只有在安装完一些软件后才能设置环境变量的值。</p>
+<p><code class="docutils literal notranslate"><span class="pre">%post</span></code> 中加入环境变量使用了 <code class="docutils literal notranslate"><span class="pre">$SINGULARITY_ENVIRONMENT</span></code>。</p>
+<div class="highlight-singularity notranslate"><div class="highlight"><pre><span></span><span class="gh">%post</span>
+    <span class="nb">echo</span> <span class="s1">&#39;export VARIABLE_NAME=variable_value&#39;</span> &gt;&gt;<span class="nv">$SINGULARITY_ENVIRONMENT</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">%environment</span></code> 中为内容会被加入到容器中的文件 <code class="docutils literal notranslate"><span class="pre">/.singularity.d/env/90-environment.sh</span></code>。
+<code class="docutils literal notranslate"><span class="pre">%post</span></code> 中输入$SINGULARITY_ENVIRONMENT的内容会被加入到容器中的文件 <code class="docutils literal notranslate"><span class="pre">/.singularity.d/env/91-environment.sh</span></code>。
+如果 <code class="docutils literal notranslate"><span class="pre">%post</span></code> 中没有输入任何内容到$SINGULARITY_ENVIRONMENT，那么容器中就不会有 <code class="docutils literal notranslate"><span class="pre">/.singularity.d/env/91-environment.sh</span></code>。</p>
+<p>因为在 <code class="docutils literal notranslate"><span class="pre">/.singularity.d/env</span></code> 下的文件会安装字母先后顺序被source，
+因此输入到 <code class="docutils literal notranslate"><span class="pre">$SINGULARITY_ENVIRONMENT</span></code> 的内容比 <code class="docutils literal notranslate"><span class="pre">%environment</span></code> 中内容后被source到，
+<code class="docutils literal notranslate"><span class="pre">$SINGULARITY_ENVIRONMENT</span></code> 的内容比 <code class="docutils literal notranslate"><span class="pre">%environment</span></code> 的内容优先级高。</p>
+<p>当你在运行容器的时候，想要动态的传递一个环境变量给容器，
+你需要设置 <code class="docutils literal notranslate"><span class="pre">SINGULARITYENV_</span></code> 开头的环境变量，在容器中变量前缀会自动被去掉。
+比如你如果要设置变量 <code class="docutils literal notranslate"><span class="pre">HELLO</span></code> 的值为 <code class="docutils literal notranslate"><span class="pre">world</span></code>，你需要像下面这样操作：</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ SINGULARITYENV_HELLO=world singularity exec centos7.img env | grep HELLO
+HELLO=world
+</pre></div>
+</div>
+<p>执行命令的时候 <code class="docutils literal notranslate"><span class="pre">--cleanenv</span></code> 标记可以情况host的环境变量，使得容器运行的时候只使用容器中的环境变量。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity exec --cleanenv centos7.img env
+LD_LIBRARY_PATH=:/usr/local/lib:/usr/local/lib64
+SINGULARITY_NAME=test.img
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+PWD=/home/gmk/git/singularity
+LANG=en_US.UTF-8
+SHLVL=0
+SINGULARITY_INIT=1
+SINGULARITY_CONTAINER=test.img
+</pre></div>
+</div>
+<p>如果没有使用 <code class="docutils literal notranslate"><span class="pre">--cleanenv</span></code> 标记, host上的环境变量在容器内也能使用。</p>
+<p>如果运行容器的时候想修改容器中的 <code class="docutils literal notranslate"><span class="pre">$PATH</span></code>，你可以使用下面几种方式修改：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">SINGULARITYENV_PREPEND_PATH=/good/stuff/at/beginning</span></code> 在 <code class="docutils literal notranslate"><span class="pre">$PATH</span></code> 前面加上/good/stuff/at/beginning</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SINGULARITYENV_APPEND_PATH=/good/stuff/at/end</span></code> 在 <code class="docutils literal notranslate"><span class="pre">$PATH</span></code> 后面加上/good/stuff/at/end</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SINGULARITYENV_PATH=/a/new/path</span></code> 覆盖 <code class="docutils literal notranslate"><span class="pre">$PATH</span></code></p></li>
+</ul>
+</div>
+<div class="section" id="labels">
+<h2>Labels<a class="headerlink" href="#labels" title="Permalink to this headline">¶</a></h2>
+<p>容器中存储的元数据包含build信息，Docker labels和一些在 <code class="docutils literal notranslate"><span class="pre">%labels</span></code> 中自定义的label。</p>
+<p>Singularity从3.0开始，label的展现格式采用 <a class="reference external" href="http://label-schema.org/rc1/">rc1 Label Schema</a>.
+例如:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity inspect jupyter.sif
+    {
+        &quot;OWNER&quot;: &quot;Joana&quot;,
+        &quot;org.label-schema.build-date&quot;: &quot;Friday_21_December_2018_0:49:50_CET&quot;,
+        &quot;org.label-schema.schema-version&quot;: &quot;1.0&quot;,
+        &quot;org.label-schema.usage&quot;: &quot;/.singularity.d/runscript.help&quot;,
+        &quot;org.label-schema.usage.singularity.deffile.bootstrap&quot;: &quot;library&quot;,
+        &quot;org.label-schema.usage.singularity.deffile.from&quot;: &quot;debian:9&quot;,
+        &quot;org.label-schema.usage.singularity.runscript.help&quot;: &quot;/.singularity.d/runscript.help&quot;,
+        &quot;org.label-schema.usage.singularity.version&quot;: &quot;3.0.1-236.g2453fdfe&quot;
+    }
+</pre></div>
+</div>
+<p>你会注意到其中有一个lable <code class="docutils literal notranslate"><span class="pre">OWNER</span></code> 不输入这个schema, 这是在def文件中自定义的label。</p>
+<div class="highlight-singularity notranslate"><div class="highlight"><pre><span></span><span class="k">Bootstrap</span>: docker
+<span class="k">From</span>: ubuntu: latest
+
+<span class="gh">%labels</span>
+  OWNER Joana
+</pre></div>
+</div>
+<p>使用 <code class="docutils literal notranslate"><span class="pre">inspect</span></code> 命令可以查看label和其他的元数据。西面将详细介绍这个命令的一些选项。</p>
+</div>
+<div class="section" id="inspect">
+<h2><code class="docutils literal notranslate"><span class="pre">inspect</span></code> 命令<a class="headerlink" href="#inspect" title="Permalink to this headline">¶</a></h2>
+<p id="inspect-command"><code class="docutils literal notranslate"><span class="pre">inspect</span></code> 命令能打印出通过def文件加入到容器中的label和其他元数据。</p>
+<div class="section" id="id4">
+<h3><code class="docutils literal notranslate"><span class="pre">--labels</span></code><a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<p>这个标记是inspect命令的默认行为。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity inspect --labels jupyter.sif
+
+{
+    &quot;org.label-schema.build-date&quot;: &quot;Friday_21_December_2018_0:49:50_CET&quot;,
+    &quot;org.label-schema.schema-version&quot;: &quot;1.0&quot;,
+    &quot;org.label-schema.usage&quot;: &quot;/.singularity.d/runscript.help&quot;,
+    &quot;org.label-schema.usage.singularity.deffile.bootstrap&quot;: &quot;library&quot;,
+    &quot;org.label-schema.usage.singularity.deffile.from&quot;: &quot;debian:9&quot;,
+    &quot;org.label-schema.usage.singularity.runscript.help&quot;: &quot;/.singularity.d/runscript.help&quot;,
+    &quot;org.label-schema.usage.singularity.version&quot;: &quot;3.0.1-236.g2453fdfe&quot;
+}
+</pre></div>
+</div>
+<p>这个和 <code class="docutils literal notranslate"><span class="pre">singularity</span> <span class="pre">inspect</span> <span class="pre">jupyter.sif</span></code> 是一样的结果。</p>
+</div>
+<div class="section" id="deffile">
+<h3><code class="docutils literal notranslate"><span class="pre">--deffile</span></code><a class="headerlink" href="#deffile" title="Permalink to this headline">¶</a></h3>
+<p>这个标记可以打印出创建镜像的时候使用的def文件。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity inspect --deffile jupyter.sif
+</pre></div>
+</div>
+<p>如下的输出结果:</p>
+<div class="highlight-singularity notranslate"><div class="highlight"><pre><span></span><span class="k">Bootstrap</span>: library
+<span class="k">From</span>: debian:<span class="m">9</span>
+
+<span class="gh">%help</span>
+    Container with Anaconda <span class="m">2</span> <span class="o">(</span>Conda <span class="m">4</span>.5.11 Canary<span class="o">)</span> and Jupyter Notebook <span class="m">5</span>.6.0 <span class="k">for</span> Debian <span class="m">9</span>.x <span class="o">(</span>Stretch<span class="o">)</span>.
+    This installation is based on Python <span class="m">2</span>.7.15
+
+<span class="gh">%environment</span>
+    <span class="nv">JUP_PORT</span><span class="o">=</span><span class="m">8888</span>
+    <span class="nv">JUP_IPNAME</span><span class="o">=</span>localhost
+    <span class="nb">export</span> JUP_PORT JUP_IPNAME
+
+<span class="gh">%startscript</span>
+    <span class="nv">PORT</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+    <span class="k">if</span> <span class="o">[</span> -n <span class="s2">&quot;</span><span class="nv">$JUP_PORT</span><span class="s2">&quot;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+    <span class="nv">PORT</span><span class="o">=</span><span class="s2">&quot;--port=</span><span class="si">${</span><span class="nv">JUP_PORT</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">fi</span>
+
+    <span class="nv">IPNAME</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+    <span class="k">if</span> <span class="o">[</span> -n <span class="s2">&quot;</span><span class="nv">$JUP_IPNAME</span><span class="s2">&quot;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+    <span class="nv">IPNAME</span><span class="o">=</span><span class="s2">&quot;--ip=</span><span class="si">${</span><span class="nv">JUP_IPNAME</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">fi</span>
+
+    <span class="nb">exec</span> jupyter notebook --allow-root <span class="si">${</span><span class="nv">PORT</span><span class="si">}</span> <span class="si">${</span><span class="nv">IPNAME</span><span class="si">}</span>
+
+<span class="gh">%setup</span>
+    <span class="c1">#Create the .condarc file where the environments/channels from conda are specified, these are pulled with preference to root</span>
+    <span class="nb">cd</span> /
+    touch .condarc
+
+<span class="gh">%post</span>
+    <span class="nb">echo</span> <span class="s1">&#39;export RANDOM=123456&#39;</span> &gt;&gt;<span class="nv">$SINGULARITY_ENVIRONMENT</span>
+    <span class="c1">#Installing all dependencies</span>
+    apt-get update <span class="o">&amp;&amp;</span> apt-get -y upgrade
+    apt-get -y install <span class="se">\</span>
+    build-essential <span class="se">\</span>
+    wget <span class="se">\</span>
+    bzip2 <span class="se">\</span>
+    ca-certificates <span class="se">\</span>
+    libglib2.0-0 <span class="se">\</span>
+    libxext6 <span class="se">\</span>
+    libsm6 <span class="se">\</span>
+    libxrender1 <span class="se">\</span>
+    git
+    rm -rf /var/lib/apt/lists/*
+    apt-get clean
+    <span class="c1">#Installing Anaconda 2 and Conda 4.5.11</span>
+    wget -c https://repo.continuum.io/archive/Anaconda2-5.3.0-Linux-x86_64.sh
+    /bin/bash Anaconda2-5.3.0-Linux-x86_64.sh -bfp /usr/local
+    <span class="c1">#Conda configuration of channels from .condarc file</span>
+    conda config --file /.condarc --add channels defaults
+    conda config --file /.condarc --add channels conda-forge
+    conda update conda
+    <span class="c1">#List installed environments</span>
+    conda list
+</pre></div>
+</div>
+<p>上面的是 <code class="docutils literal notranslate"><span class="pre">jupyter.sif</span></code> 容器的def文件。</p>
+</div>
+<div class="section" id="runscript">
+<h3><code class="docutils literal notranslate"><span class="pre">--runscript</span></code><a class="headerlink" href="#runscript" title="Permalink to this headline">¶</a></h3>
+<p>这个标记打印出容器中的runscript。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity inspect --runscript jupyter.sif
+</pre></div>
+</div>
+<p>输出如下:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/sh</span>
+<span class="nv">OCI_ENTRYPOINT</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+<span class="nv">OCI_CMD</span><span class="o">=</span><span class="s2">&quot;bash&quot;</span>
+<span class="c1"># ENTRYPOINT only - run entrypoint plus args</span>
+<span class="k">if</span> <span class="o">[</span> -z <span class="s2">&quot;</span><span class="nv">$OCI_CMD</span><span class="s2">&quot;</span> <span class="o">]</span> <span class="o">&amp;&amp;</span> <span class="o">[</span> -n <span class="s2">&quot;</span><span class="nv">$OCI_ENTRYPOINT</span><span class="s2">&quot;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+<span class="nv">SINGULARITY_OCI_RUN</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">OCI_ENTRYPOINT</span><span class="si">}</span><span class="s2"> </span><span class="nv">$@</span><span class="s2">&quot;</span>
+<span class="k">fi</span>
+
+<span class="c1"># CMD only - run CMD or override with args</span>
+<span class="k">if</span> <span class="o">[</span> -n <span class="s2">&quot;</span><span class="nv">$OCI_CMD</span><span class="s2">&quot;</span> <span class="o">]</span> <span class="o">&amp;&amp;</span> <span class="o">[</span> -z <span class="s2">&quot;</span><span class="nv">$OCI_ENTRYPOINT</span><span class="s2">&quot;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+<span class="k">if</span> <span class="o">[</span> <span class="nv">$#</span> -gt <span class="m">0</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+    <span class="nv">SINGULARITY_OCI_RUN</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$@</span><span class="s2">&quot;</span>
+<span class="k">else</span>
+    <span class="nv">SINGULARITY_OCI_RUN</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">OCI_CMD</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="k">fi</span>
+<span class="k">fi</span>
+
+<span class="c1"># ENTRYPOINT and CMD - run ENTRYPOINT with CMD as default args</span>
+<span class="c1"># override with user provided args</span>
+<span class="k">if</span> <span class="o">[</span> <span class="nv">$#</span> -gt <span class="m">0</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+    <span class="nv">SINGULARITY_OCI_RUN</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">OCI_ENTRYPOINT</span><span class="si">}</span><span class="s2"> </span><span class="nv">$@</span><span class="s2">&quot;</span>
+<span class="k">else</span>
+    <span class="nv">SINGULARITY_OCI_RUN</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">OCI_ENTRYPOINT</span><span class="si">}</span><span class="s2"> </span><span class="si">${</span><span class="nv">OCI_CMD</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="k">fi</span>
+
+<span class="nb">exec</span> <span class="nv">$SINGULARITY_OCI_RUN</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="test">
+<h3><code class="docutils literal notranslate"><span class="pre">--test</span></code><a class="headerlink" href="#test" title="Permalink to this headline">¶</a></h3>
+<p>这个标记打印出容器中的test脚本。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity inspect --test jupyter.sif
+</pre></div>
+</div>
+<p>输出是def文件中 <code class="docutils literal notranslate"><span class="pre">%test</span></code> 部分的内容。</p>
+</div>
+<div class="section" id="environment">
+<h3><code class="docutils literal notranslate"><span class="pre">--environment</span></code><a class="headerlink" href="#environment" title="Permalink to this headline">¶</a></h3>
+<p>这个标记打印出容器中环境变量。包括在def文件中 <code class="docutils literal notranslate"><span class="pre">%environment</span></code> 设置的环境变量( <code class="docutils literal notranslate"><span class="pre">90-environment.sh</span></code> )
+和 <code class="docutils literal notranslate"><span class="pre">SINGULARITY_ENV</span></code> 中设置的环境变量( <code class="docutils literal notranslate"><span class="pre">91-environment.sh</span></code> )。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity inspect --environment jupyter.sif
+</pre></div>
+</div>
+<p>输出如下:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="o">==</span><span class="m">90</span>-environment.sh<span class="o">==</span>
+<span class="c1">#!/bin/sh</span>
+
+<span class="nv">JUP_PORT</span><span class="o">=</span><span class="m">8888</span>
+<span class="nv">JUP_IPNAME</span><span class="o">=</span>localhost
+<span class="nb">export</span> JUP_PORT <span class="nv">JUP_IPNAME</span>
+
+<span class="o">==</span><span class="m">91</span>-environment.sh<span class="o">==</span>
+<span class="nb">export</span> <span class="nv">RANDOM</span><span class="o">=</span><span class="m">123456</span>
+</pre></div>
+</div>
+<p>其中 <code class="docutils literal notranslate"><span class="pre">JUP_PORT</span></code> 和 <code class="docutils literal notranslate"><span class="pre">JUP_IPNAME</span></code> 是在 <code class="docutils literal notranslate"><span class="pre">%environment</span></code> 定义的变量。
+<code class="docutils literal notranslate"><span class="pre">RANDOM</span></code> 是在 <code class="docutils literal notranslate"><span class="pre">%environment</span></code> 中设置的变量.</p>
+</div>
+<div class="section" id="helpfile">
+<h3><code class="docutils literal notranslate"><span class="pre">--helpfile</span></code><a class="headerlink" href="#helpfile" title="Permalink to this headline">¶</a></h3>
+<p>这个标记打印出容器中 <code class="docutils literal notranslate"><span class="pre">%help</span></code> 下面的内容。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity inspect --helpfile jupyter.sif
+</pre></div>
+</div>
+<p>如下的输出:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Container with Anaconda 2 (Conda 4.5.11 Canary) and Jupyter Notebook 5.6.0 for Debian 9.x (Stretch).
+This installation is based on Python 2.7.15
+</pre></div>
+</div>
+</div>
+<div class="section" id="json">
+<h3><code class="docutils literal notranslate"><span class="pre">--json</span></code><a class="headerlink" href="#json" title="Permalink to this headline">¶</a></h3>
+<p>这个标记以json的格式打印出label的内功。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity inspect --json jupyter.sif
+</pre></div>
+</div>
+<p>输出如下：</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>{
+         &quot;attributes&quot;: {
+                 &quot;labels&quot;: &quot;{\n\t\&quot;org.label-schema.build-date\&quot;: \&quot;Friday_21_December_2018_0:49:50_CET\&quot;,\n\t\&quot;org.label-schema.schema-version\&quot;: \&quot;1.0\&quot;,\n\t\&quot;org.label-schema.usage\&quot;: \&quot;/.singularity.d/runscript.help\&quot;,\n\t\&quot;org.label-schema.usage.singularity.deffile.bootstrap\&quot;: \&quot;library\&quot;,\n\t\&quot;org.label-schema.usage.singularity.deffile.from\&quot;: \&quot;debian:9\&quot;,\n\t\&quot;org.label-schema.usage.singularity.runscript.help\&quot;: \&quot;/.singularity.d/runscript.help\&quot;,\n\t\&quot;org.label-schema.usage.singularity.version\&quot;: \&quot;3.0.1-236.g2453fdfe\&quot;\n}&quot;
+         },
+         &quot;type&quot;: &quot;container&quot;
+}
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="id5">
+<h2>容器元数据<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+<p>在容器内部, 元数据存储在 <code class="docutils literal notranslate"><span class="pre">/.singularity.d</span></code> 下面，通常你不需要编辑这些文件，但是知道下面的这些文件是做什么的很有必要。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>/.singularity.d/
+
+├── actions
+│   ├── exec
+│   ├── run
+│   ├── shell
+│   ├── start
+│   └── test
+├── env
+│   ├── 01-base.sh
+|   ├── 10-docker2singularity.sh
+│   ├── 90-environment.sh
+│   ├── 91-environment.sh
+|   ├── 94-appsbase.sh
+│   ├── 95-apps.sh
+│   └── 99-base.sh
+├── labels.json
+├── libs
+├── runscript
+├── runscript.help
+├── Singularity
+└── startscript
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><strong>actions</strong>: 执行命令(<code class="docutils literal notranslate"><span class="pre">exec</span></code> , <code class="docutils literal notranslate"><span class="pre">run</span></code> ， <code class="docutils literal notranslate"><span class="pre">shell</span></code>，等)对应的运行文件, 这些文件在运行时可能会动态改变。</p></li>
+<li><p><strong>env</strong>: 当容器初始化的时候，所有 <code class="docutils literal notranslate"><span class="pre">*.sh</span></code> 文件会安装字母顺序先后被source。为了和老版本兼容， <code class="docutils literal notranslate"><span class="pre">/environment</span></code> 实际上是一个软链，链接到 <code class="docutils literal notranslate"><span class="pre">/.singularity.d/env/90-environment.sh</span></code>。</p></li>
+<li><p><strong>labels.json</strong>: 这个json文件存储了容器的label。</p></li>
+<li><p><strong>libs</strong>: 这个下面保存host上映射到镜像中的库，比如使用 –nv选项的时候会把nvidia的库映射到这里。</p></li>
+<li><p><strong>runscript</strong>: 当执行 <code class="docutils literal notranslate"><span class="pre">run</span></code> 命令或者直接运行容器文件的时候，这个文件会被调用。为了和老版本兼容，<code class="docutils literal notranslate"><span class="pre">/singularity</span></code> 是个软链，链接到这个文件。</p></li>
+<li><p><strong>runscript.help</strong>: 这个文件保存了 <code class="docutils literal notranslate"><span class="pre">%help</span></code> 下添加的内容。</p></li>
+<li><p><strong>Singularity</strong>: 这个是def文件。如果容器是使用多个def文件build生成，那么其它的def文件将按照数字顺序出现在 <code class="docutils literal notranslate"><span class="pre">bootstrap_history</span></code> 文件夹下。</p></li>
+<li><p><strong>startscript</strong>: 当执行 <code class="docutils literal notranslate"><span class="pre">instance</span> <span class="pre">start</span></code> 的时候会调用这个文件。</p></li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="oci_runtime.html" class="btn btn-neutral float-right" title="OCI Runtime" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="running_services.html" class="btn btn-neutral float-left" title="运行服务" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017-2019, Sylabs Inc
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

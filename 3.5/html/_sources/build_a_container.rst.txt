@@ -1,0 +1,242 @@
+.. _build_a_container:
+
+
+=================
+Build容器
+=================
+
+.. _sec:build_a_container:
+
+Singulartiy使用 ``build`` 命令build容器. 
+使用build命令可以从 `Container Library <https://cloud.sylabs.io/library>`_ 和 `Docker Hub <https://hub.docker.com/>`_ 下载已有容器。 
+build命令也支持使用 :ref:`Singularity definition <definitionfiles>` 文件从头开始build一个定制化的容器。
+build命令还支持不同容器格式之间的转化。
+
+
+--------
+概述
+--------
+
+
+``build`` 命令支持从不同的源来创建一个容器。 
+
+下面是 ``build`` 命令支持的不同的源:
+
+
+-  URI如果以 **library://** 开头，那么将从Container Library下载容器
+
+-  URI如果以 **docker://** 开头， 那么将从Docker Hub下载容器
+
+-  URI如果以 **shub://** 开头，那么将从Singularity Hub下载容器
+
+-  基于本机已经存在的一个容器build容器
+
+-  基于本机sandbox build容器
+
+-  使用 :ref:`Singularity definition file <definitionfiles>` 文件build容器
+
+``build`` 命令产生的容器有两种格式。
+
+-  **Singularity Image File (SIF)** 格式，只读，容器是压缩的，适用于生产环境，这也是默认的格式。
+
+-  sandbox **(ch)root directory** 格式，支持读写，这适用于交互式的开发使用，使用 ``--sandbox`` 生成这种格式的容器
+
+``build`` 命令可以支持这两种格式之间的转换。
+
+------------------------------------------------------------
+从Container Library下载容器
+------------------------------------------------------------
+
+你可以使用build命令从Container Library下载容器。
+
+
+.. code-block:: none
+
+    $ sudo singularity build lolcow.simg library://sylabs-jms/testing/lolcow
+
+第一个参数 ``lolcow.simg`` 指定生成的容器的名字和路径，
+第二个参数 ``library://sylabs-jms/testing/lolcow`` 指定从Container Library容器的URI。 
+默认情况下，生成的容器是只读的SIF格式，如果要生成可写的容器，需要加上 ``--sandbox`` 的选项。
+
+-------------------------------------------------
+从Docker Hub下载容器
+-------------------------------------------------
+
+你可以使用build命令从Docker Hub下载容器，这个命令实际上是下载docker容器并转为singularity容器.
+
+.. code-block:: none
+
+    $ sudo singularity build lolcow.sif docker://godlovedc/lolcow
+
+.. _create_a_writable_container:
+
+-------------------------------------------
+创建可写的 ``--sandbox`` 目录
+-------------------------------------------
+
+如果你需要创建一个可写的目录(这里叫做sandbox)，你需要使用 ``--sandbox`` 选项。非root用户也可以创建sandbox，但是有些文件权限会有问题，建议使用root用户创建sandbox。
+
+.. code-block:: none
+
+    $ sudo singularity build --sandbox lolcow/ library://sylabs-jms/testing/lolcow
+
+Singularity对sandbox目录的操作使用和对SIF的操作使用是一样的。如果需要修改sandbox容器，那么在操作的时候需要使用 ``--writable`` 选项。
+
+.. code-block:: none
+
+    $ sudo singularity shell --writable lolcow/
+
+------------------------------------------------
+容器格式的转换
+------------------------------------------------
+
+如果您本地已经有一个容器，你想基于这个容器来创建一个新的容器。这个命令允许你从一种格式转到另外一种格式。
+比如你有一个sandbox叫做 ``development/`` 你想把它转成SIF格式的 ``production.sif``:
+
+.. code-block:: none
+
+    $ sudo singularity build production.sif development/
+
+需要注意的是，当你把sandbox的格式转成SIF格式的时候。
+你在sandbox里面所做的修改并没有记录在定义到Singularity definition文件里面，
+因此最好还是使用Singularity definition文件来创建容器，这样容器是可以重复build和创建的。
+
+-----------------------------------------------------
+使用Singularity definition文件build容器
+-----------------------------------------------------
+
+当然也可以使用Singularity definition文件去创建容器容器。关于怎么写Singularity definition文件，可以参考
+:doc:`Container Definition <definition_files>`。让我们假定你已经有一个definition文件叫做 ``lolcow.def``,你想用它创建一个SIF的容器。
+
+.. code-block:: singularity
+
+    Bootstrap: docker
+    From: ubuntu:16.04
+
+    %post
+        apt-get -y update
+        apt-get -y install fortune cowsay lolcat
+
+    %environment
+        export LC_ALL=C
+        export PATH=/usr/games:$PATH
+
+    %runscript
+        fortune | cowsay | lolcat
+
+使用下面命令创建容器。
+
+.. code-block:: none
+
+    $ sudo singularity build lolcow.sif lolcow.def
+
+
+.. note::
+    需要注意的是，你在一个节点上创建的容器在另外一个节点上可能不工作。这可能是因为默认的压缩程序不同。
+    比如，创建容器的节点，它默认的压缩程序是 ``xz`` ，而CentOS 6上的压缩程序只有 ``gzip`` ，所以容器不能在CentOS 6上运行。
+
+-----------------------------
+build加密容器
+-----------------------------
+Singularity从3.4.0开始支持build加密容器。使用加密容器时，加密容器被解密到内核空间，因此，不会有任何解密的数据留在硬盘或者内存当中。
+更多加密容器信息，请参考 :ref:`encrypted containers <encryption>`。
+
+-------------
+Build命令选项
+-------------
+
+``--builder``
+=============
+
+Singularity 3.0 开始支持远程build容器。这个选项允许你指定一个不同的build服务。这个选项必须和 ``--remote`` 一起使用。
+
+``--detached``
+==============
+
+这个选项和 ``--remote`` 一起使用, 这个选项将不再当前的terminal中输出远程的build服务的输出。
+
+``--encrypt``
+==============
+
+这个选项用来创建加密容器。创建加密容器时从环境变量
+``SINGULARITY_ENCRYPTION_PASSPHRASE`` 或者 ``SINGULARITY_ENCRYPTION_PEM_PATH`` 中获取加密口令来加密容器 :ref:`encrypted 
+containers <encryption>`。 
+
+``--fakeroot``
+==============
+
+这个选项允许以非特权模式build容器 :ref:`the fakeroot feature <fakeroot>`。 
+
+``--force``
+===========
+
+这个选项强制删除和覆盖一个已经存在的容器，并且不会有交互性的提示。
+
+``--json``
+==========
+
+使用这个这个选项，Singularity会解析一个json格式的definition文件。
+
+``--library``
+=============
+
+这个选项允许你指定一个不同的library(默认的library是https://library.sylabs.io)。
+
+``--notest``
+============
+
+如果你build容器的时候不想运行definition文件中test这一段，你可以使用这个参数跳过。
+比如当你build一个GPU容器，在生产环境中有GPU，test这一段能正常运行，但是build容器的机子上没有GPU，因此可以使用这个选项来在build容器的时候不运行
+test。
+
+``--passphrase``
+================
+
+这个标记允许你传一个口令来加密容器 :ref:`encrypted containers <encryption>`   
+
+``--pem-path``
+==============
+
+这个标记允许你传一个公钥的文件的位置来加密容器 :ref:`encrypted containers 
+<encryption>` 。 
+
+``--remote``
+============
+
+Singularity 3.0 开始支持在安装有build服务的远程资源上build容器(默认的远程资源是https://cloud.sylabs.io/builder)。
+
+``--sandbox``
+=============
+
+build一个sandbox (chroot directory)的容器，而不是默认的SIF容器。
+
+``--section``
+=============
+
+build容器的时候只运行definition文件中的一些段落。这个想象支持以逗号分割的多个段落。 
+可用的参数包括 ``all``, ``none`` 或者和面这些段落的任意组合：``setup``, ``post``, ``files``, ``environment``, ``test``, ``labels``。
+
+正常的build容器过程中，definition文件被保存到了容器的meta-data中，使用 ``--section`` build出的容器，由于运行了部分的段落，
+其meta-data和容器实际上是不一致的，因此慎用。
+
+``--update``
+============
+
+这个选项，你可以多次创建sandbox容器 (多次创建的结果不可预测，通常不建议多次创建)。
+
+默认情况下，当你创建一个sandbox容器的时候，会提示你是否要覆盖已经存在的容器。当使用 ``--update`` 时，如果有已经存在的容器不会提示，
+Singularity会跳过definition文件中的header部分，将其他部分覆盖到已经存在的容器。
+
+这个命令只在创建sandbox的时候才能用。
+
+-------------------
+关于容器的其它主题
+-------------------
+
+-  如果你想指定缓存（Docker层）的存储位置，或者Docker的认证 :ref:`build environment <build-environment>`。
+
+-  如果你想弄清容器内部格式, 从这个手册开始 `<https://sci-f.github.io/tutorials>`_。
+
+-  如果你想在远程的环境build容器（因为你在本地环境上没有root权限），访问 `<https://cloud.sylabs.io/builder>`_。
+
+-  如果您想创建一个加密的容器 :ref:`here <encryption>`。

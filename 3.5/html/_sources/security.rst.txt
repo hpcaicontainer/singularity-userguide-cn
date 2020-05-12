@@ -1,0 +1,152 @@
+.. _security:
+
+***********************
+Singularity安全性
+***********************
+
+容器非常流行，相比较VM。它轻量，便捷，极大的减轻了IT资源管理的工作量。
+更重要的是，容器将软件和其各种依赖打包后方便共享和重复生成。
+但是容器也面临一些安全性的挑战。
+
+Singularity满足了容器的一些主要使命：方便共享，重复生成，HPC运行支持，和安全。 
+这一章节将描述Singularity支持的安全相关的特性，特别是和其它容器运行时的对比。
+
+安全策略
+###############
+
+安全不是一个可选可不选的选项。保证安全需要在软件架构的一开始就考虑，并不断改进。
+除了要保证容器运行时不要有提权的漏洞外，还要保证容器是基于可信的用户和代码生成，
+同时用户需要实时监控是不是有新的安全漏洞被公布，需要及时更新软件来fix安全漏洞。
+Sylabs会持续的发现安全漏洞并通过补丁修复这些漏洞。 
+
+如果你发现了Singularity的一个安全漏洞，你可以参照 `Security Policy
+<https://sylabs.io/security-policy>`__ 提交漏洞。以便这个漏洞可以被公开，被研究和修复这个漏洞。
+
+
+
+Singularity PRO - 长期支持 & 安全补丁
+######################################################
+
+安全补丁也会加入到Singularity的开源版本中，所以使用最新的release是非常有必要的。
+
+SingularityPRO是一个专业版，具有license的授权，相比开源版本提供更多安全，稳定性的支持。
+最新版本中修复的安全漏洞和bug，也会在老的PRO版本中支持，这样PRO版本可以提供长期的支持。
+PRO版本的用户会在开源版本发布前先收到安全的补丁 `Sylabs Security Policy <https://sylabs.io/security-policy>`__。
+
+
+Singularity 运行时 & 用户特权
+####################################
+
+Singularity运行时能保证在一个多租户的资源环境上，多个不被信任的用户运行不被信任的容器但不会对资源环境造成破坏和影响。
+这是因为，当运行一个容器时，容器内的用户和host上的用户是同一个用户，
+singularity动态的将UID和GID信息加入容器文件中，这样就保证容器内和容器外的用户是同一用户。
+比如，如果你在容器外是一个普通用户，你在进入容器后还是普通用户。
+
+另外一块是防止用户在容器内部提升权限，容器文件系统以 ``nosuid`` 选项mounted，
+容器内进程以 ``PR_NO_NEW_PRIVS`` 标记开始。 这意味着，你在容器内运行 ``sudo`` 也不能su成其他用户，
+或者获取root的权限。这种方式提供了运行容器的安全的方法，也极大的简化了读写host上数据。
+
+另外重要的是Singularity的设计哲学是 *Integration* 而不是 *Isolation*。 
+其它大多数的容器运行时追求尽可能多的隔离容器和host环境。
+而Singularity认为用户的首要目标是打包共享，重复生成和易用，隔离只是第三位的考虑因素。
+因此, 默认情况下Singularity只隔离mount的namespace，会将host上的 ``$HOME`` 和  ``/tmp`` 映射到容器中。
+当然，如果需要，通过命令选项，singularity也支持更多层次的隔离。
+
+Singularity Image Format (SIF)
+##############################
+
+保证容器安全是一个持续性的过程。SIF文件格式，至少能保证容器在传输和运行过程的一致性。
+
+Singularity将容器打成一个只读的SIF文件。由于SIF文件是只读的，
+并且支持容器签名，签名的内容也会被打到容器中，因此可以保证容器不被修改，并且可以知道谁签名的容器。
+容器签名按照 `OpenPGP <https://www.openpgp.org/>`_ 的标准创建和管理这些签名，以及前面使用的key。
+Build容器以后，可以使用 ``singularity sign`` 签名容器，
+然后将容器和公共的PGP key (存储在 :ref:`Keystore <keystore>`)发布到Library。
+用户可以使用 ``singularity verify`` 开验证签名。  
+:ref:`这个功能 <signNverify>` 是不同团队之间的合作变得更容易。
+
+Singularity从3.4开始, 支持加密容器的root文件系统(存储在SIF文件的squashFS部分)。
+这样的话，没有正确的密码或者key的情况下，容器中的内容不可访问。
+一个共享资源系统下的其它用户就算能看到容器文件，也不看到其里面的内容。
+
+其它的容器平台，在容器运行的时候，需要将多个layer的内容提取到host上的rootfs目录下。
+而Singularity只需要一步，直接从一个只读的SIF文件获取内容。这个减少了layer层的安全攻击。
+
+
+管理员可配置文件
+#########################
+
+Singularity的系统管理员可以使用配置文件设置安全限制，赋予或者撤销用户的capabilities，管理资源和授权容器等。
+
+比如, 使用文件 `ecl.toml <https://sylabs.io/guides/\{adminversion\}/admin-guide/configfiles.html#ecl-toml>`_ 可以设置容器的白名单和黑名单。
+
+`管理员的文档 <https://sylabs.io/guides/\{adminversion\}/admin-guide/configfiles.html>`__ 讲解了配置文件和里面的参数的定义。
+
+cgroups的支持 
+****************
+
+从v3.0开始, Singularity原生提供了对 ``cgroups`` 的支持，
+允许使用Singularity命令限制容器的资源而不需要使用调度器（SLURM，PBS等）。
+这个功能可以帮助防止DoS攻击：当一个容器获取所有可用的操作系统资源，这样其它容器就不能使用。 
+使用这个功能，用户需要首先创建cgroups配置文件，singularity默认安装的时候自带了一个例子配置文件，容器运行时，
+设置 ``--apply-cgroups`` 为配置文件的路径，就可以应用cgroups的配置。更多关于cgroups的支持，请参考 `这里
+<https://sylabs.io/guides/\{adminversion\}/admin-guide/configfiles.html#cgroups-toml>`__。
+
+``--security`` 选项
+***********************
+
+当运行容器的时候，Singularity提供了很多方法来修改安全范围和上下文。 
+这个选项可以应用到 ``shell``, ``exec``,  ``run`` 等命令上。更多信息参考 `这里
+<https://sylabs.io/guides/\{version\}/user-guide/security_options.html>`__。
+
+Sylabs Cloud的安全性
+############################
+
+`Sylabs Cloud <https://cloud.sylabs.io/home>`_ 包含一个 Remote
+Builder, 一个Container Library, 和一个 Keystore。这些服务在一起提供了安全可信的打包和发布容器的方案。
+
+Remote Builder
+**************
+
+我们以前提到过，在一个共享资源的host上，用户一般不可能有root权限，而build容器的时候通常需要一些root权限。 
+这时候用户可以通过 `Build Service <https://cloud.sylabs.io/builder>`_ 远程build容器。
+系统管理员可以监控到哪些用户正在build容器，以及容器的内容。
+Singularity从3.0开始提供了原生的命令支持使用Build Service来远程build容器。 
+另外也可以通过浏览器访问Build Service来使用它build容器。
+
+.. note::
+
+    在HPC的多租户环境下，管理员通过 :ref:`Fakeroot <fakeroot>` 也可以赋予一个用户在容器中特殊的权限。
+    Fakeroot有一些限制, 需要host kernel支持无特权的用户namespace。
+
+Container Library
+*****************
+
+`Container Library <https://cloud.sylabs.io/library>`_ 用来存储和共享用户的
+Singularity Image Format (SIF)容器。通过web浏览器，用户可以访问Container Library，在上面定义projects，编辑容器对应的文档，查询其他人发布的容器。
+
+.. _keystore:
+
+Key Store
+*********
+
+`Key Store <https://cloud.sylabs.io/keystore>`_ 是Sylabs提供的key管理系统。
+Key Store使用OpenPGP来共享和发现PGP的public key，使用public key可以验证容器。
+这个服务基于OpenPGP的 HTTP Keyserver Protocol (HKP), 同时有一些增强:
+
+- 连接使用 Transport Layer Security (TLS)加密。
+- 连接使用基于token的认证，只允许认证的用户添加和修改PGP keys。
+- 提供web页面允许用户使用使用浏览器查看和查询PGP keys。
+
+
+Authentication和encryption
+******************************
+
+1. 连接通过TLS保证了传输内容的安全。
+
+2. 服务之间支持通过加密的Token认证。
+
+3. 服务之间没有隐含的信任关系。每个服务之间的请求都是通过用户请求中带的Token认证。
+
+
+

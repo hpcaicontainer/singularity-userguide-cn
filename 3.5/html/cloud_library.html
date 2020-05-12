@@ -1,0 +1,435 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Cloud Library &mdash; Singularity container 3.5 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="_static/favicon.png"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script src="_static/js/ga.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Bind路径和Mount路径" href="bind_paths_and_mounts.html" />
+    <link rel="prev" title="容器仓库" href="endpoint.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Singularity container
+          
+
+          
+            
+            <img src="_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">介绍</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html">快速入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security.html">Singularity安全</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="build_a_container.html">Build容器</a></li>
+<li class="toctree-l1"><a class="reference internal" href="definition_files.html">Definition文件</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build_env.html">Build环境</a></li>
+<li class="toctree-l1"><a class="reference internal" href="singularity_and_docker.html">Singularity和Docker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fakeroot.html">Fakeroot</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="signNverify.html">签名和认证</a></li>
+<li class="toctree-l1"><a class="reference internal" href="key_commands.html">Key管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="encryption.html">容器加密</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="endpoint.html">容器仓库</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Cloud Library</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id2">概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#make-a-account">创建一个账号</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#access-token">创建access token</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#push">Push容器</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pull">Pull容器</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id6">Pull自己的容器</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#verify-sign">Verify/Sign容器</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#search">Search容器</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id7">使用命令search</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#remote-builder">Remote Builder</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#build-definition">远程build definition文件:</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bind_paths_and_mounts.html">路径映射</a></li>
+<li class="toctree-l1"><a class="reference internal" href="persistent_overlays.html">持久化Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="running_services.html">运行服务</a></li>
+<li class="toctree-l1"><a class="reference internal" href="environment_and_metadata.html">环境变量和元数据</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oci_runtime.html">OCI运行时</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugins.html">插件</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security_options.html">安全选项</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networking.html">网络选项</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cgroups.html">Cgroups</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mpi.html">MPI应用</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gpu.html">GPU支持</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="appendix.html">Appendix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Singularity container</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Cloud Library</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/sylabs/singularity-userdocs/blob/master/cloud_library.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="cloud-library">
+<span id="id1"></span><h1>Cloud Library<a class="headerlink" href="#cloud-library" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id2">
+<h2>概述<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p>你可以 <a class="reference internal" href="#push"><span class="std std-ref">push</span></a> 你的容器到Sylabs Cloud Library，
+这样其他人就可以 <a class="reference internal" href="#pull"><span class="std std-ref">pull</span></a> 容器到本地来使用。</p>
+<p>Sylabs Cloud还提供了:ref:<cite>Remote Builder &lt;remote_builder&gt;</cite> 的功能，
+这样你就可以在本机没有root权限的情况下使用Sylabs Cloud远程build容器。</p>
+</div>
+<div class="section" id="make-a-account">
+<span id="id3"></span><h2>创建一个账号<a class="headerlink" href="#make-a-account" title="Permalink to this headline">¶</a></h2>
+<p>Making an account is easy, and straightforward:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>访问: <a class="reference external" href="https://cloud.sylabs.io/library">https://cloud.sylabs.io/library</a></p></li>
+<li><p>点击 “Sign in to Sylabs” (右上角)</p></li>
+<li><p>选择你登录的方式（Google, GitHub, GitLab, or Microsoft）</p></li>
+<li><p>输入密码</p></li>
+</ol>
+</div></blockquote>
+</div>
+<div class="section" id="access-token">
+<span id="creating-a-access-token"></span><h2>创建access token<a class="headerlink" href="#access-token" title="Permalink to this headline">¶</a></h2>
+<p>在push容器和远程build的时候需要access token。</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>访问: <a class="reference external" href="https://cloud.sylabs.io/">https://cloud.sylabs.io/</a></p></li>
+<li><p>点击 “Sign in to Sylabs”</p></li>
+<li><p>点击你的id</p></li>
+<li><p>在下拉菜单中选择 “Access Tokens”</p></li>
+<li><p>输入你的access token的名字，比如 “test token”</p></li>
+<li><p>点击 “Create a New Access Token” 按钮</p></li>
+<li><p>在”New API Token” 页面点击 “Copy token to Clipboard”</p></li>
+<li><p>运行 <code class="docutils literal notranslate"><span class="pre">singularity</span> <span class="pre">remote</span> <span class="pre">login</span></code>，根据提示输入access token</p></li>
+</ol>
+</div></blockquote>
+<p>现在你已经有自己的token，可以开始push你的容器了。</p>
+</div>
+<div class="section" id="push">
+<span id="id4"></span><h2>Push容器<a class="headerlink" href="#push" title="Permalink to this headline">¶</a></h2>
+<p>使用 <code class="docutils literal notranslate"><span class="pre">singularity</span> <span class="pre">push</span></code> 命令可以push一个容器到到cloud library。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity push my-container.sif library://your-name/project-dir/my-container:latest
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">:latest</span></code> 是容器的tag， tag用来区分一个容器的不同版本。</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>当你push容器的时候，你不需要在容器名字后面加上 <code class="docutils literal notranslate"><span class="pre">.sif</span></code> (Singularity Image Format), 英文在cloud library上所有的容器都是sif格式的。</p>
+</div>
+<p>假定你本地有一个容器(版本是1.0.1), 你想把这个容器push到library，同时又不删除原来的 <code class="docutils literal notranslate"><span class="pre">:latest</span></code> 版本的容器:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity push my-container.sif library://your-name/project-dir/my-container:1.0.1
+</pre></div>
+</div>
+<p>下载容器的时候也可以使用tag指定下载特定的版本。</p>
+</div>
+<div class="section" id="pull">
+<span id="id5"></span><h2>Pull容器<a class="headerlink" href="#pull" title="Permalink to this headline">¶</a></h2>
+<p>使用 <code class="docutils literal notranslate"><span class="pre">singularity</span> <span class="pre">pull</span></code> 命令可以从 <a class="reference external" href="https://cloud.sylabs.io/library">Library</a>
+(<code class="docutils literal notranslate"><span class="pre">library://</span></code>), <a class="reference external" href="https://hub.docker.com/">Docker Hub</a> (<code class="docutils literal notranslate"><span class="pre">docker://</span></code>),
+<a class="reference external" href="https://singularity-hub.org/collections">Shub</a> (<code class="docutils literal notranslate"><span class="pre">shub://</span></code>)下载容器。</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>当你从dockerhub pull容器的时候, pull这个命令会自动的将docker容器转为SIF格式的容器。</p>
+</div>
+<p>下面是pull容器的几个例子:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity pull file-out.sif library://alpine:latest
+
+# or pull from docker:
+
+$ singularity pull file-out.sif docker://alpine:latest
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>如果在容器后面没有跟tag，那么将自动的下载tag是 <code class="docutils literal notranslate"><span class="pre">:latest</span></code> 的容器。</p>
+</div>
+<p>如果要pull一个指定tag的容器，在容器后面加上tag:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity pull file-out.sif library://alpine:3.8
+</pre></div>
+</div>
+<p>上面是pull公共的容器， 你也可以pull自己的容器:</p>
+<div class="section" id="id6">
+<h3>Pull自己的容器<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity pull out-file.sif library://your-name/project-dir/my-container:latest
+
+# or use a different tag:
+
+$ singularity pull out-file.sif library://your-name/project-dir/my-container:1.0.1
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>你 <em>不需要</em> 指定一个输出文件, 这个命令会自动创建, 但是作为一个好的使用习惯，建议你每次都指定输出文件的名字。</p>
+</div>
+</div>
+</div>
+<div class="section" id="verify-sign">
+<h2>Verify/Sign容器<a class="headerlink" href="#verify-sign" title="Permalink to this headline">¶</a></h2>
+<p>你能verify容器，从而查看你下载的容器是不是被别人修改过或者是不是有bit数据的丢失。</p>
+<p>你可以访问 <a class="reference internal" href="signNverify.html#signnverify"><span class="std std-ref">这一页</span></a> 去查看: <a class="reference internal" href="signNverify.html#verify-container-from-library"><span class="std std-ref">verify a container</span></a>,
+<a class="reference internal" href="signNverify.html#sign-your-own-containers"><span class="std std-ref">making PGP key, and sign your own containers</span></a>。</p>
+</div>
+<div class="section" id="search">
+<span id="search-the-library"></span><h2>Search容器<a class="headerlink" href="#search" title="Permalink to this headline">¶</a></h2>
+<p>你可以在: <a class="reference external" href="https://cloud.sylabs.io/library">https://cloud.sylabs.io/library</a> 上search容器，也可以使用search命令 <code class="docutils literal notranslate"><span class="pre">singularity</span> <span class="pre">search</span> <span class="pre">&lt;container/user&gt;</span></code>。</p>
+<div class="section" id="id7">
+<h3>使用命令search<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
+<p>下面是一个search容器 <code class="docutils literal notranslate"><span class="pre">centos</span></code> 的例子:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity search centos
+No users found for &#39;centos&#39;
+
+No collections found for &#39;centos&#39;
+
+Found 6 containers for &#39;centos&#39;
+    library://dtrudg/linux/centos
+            Tags: 6 7 centos6 centos7 latest
+    library://library/default/centos
+            Tags: 6 7 latest
+    library://gmk/demo/centos-vim
+            Tags: latest
+    library://mroche/baseline/centos
+            Tags: 7 7.5 7.5.1804 7.6 7.6.1810 latest
+    library://gmk/default/centos7-devel
+            Tags: latest
+    library://emmeff/default/centos7-python36
+            Tags: 1.0
+</pre></div>
+</div>
+<p>注意，同一容器有不同的tag。</p>
+</div>
+</div>
+<div class="section" id="remote-builder">
+<span id="id8"></span><h2>Remote Builder<a class="headerlink" href="#remote-builder" title="Permalink to this headline">¶</a></h2>
+<p>远程build允许你在cloud library上build容器。</p>
+<p>下面是一个例子:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity build --remote file-out.sif docker://ubuntu:18.04
+</pre></div>
+</div>
+<div class="section" id="build-definition">
+<h3>远程build definition文件:<a class="headerlink" href="#build-definition" title="Permalink to this headline">¶</a></h3>
+<p>本地有一个叫 <code class="docutils literal notranslate"><span class="pre">ubuntu.def</span></code> 的definition文件：</p>
+<div class="highlight-singularity notranslate"><div class="highlight"><pre><span></span><span class="k">bootstrap</span>: library
+<span class="k">from</span>: ubuntu:<span class="m">18.04</span>
+
+<span class="gh">%runscript</span>
+    <span class="nb">echo</span> <span class="s2">&quot;hello world from ubuntu container!&quot;</span>
+</pre></div>
+</div>
+<p>然后使用 <code class="docutils literal notranslate"><span class="pre">--remote</span></code> 标记来远程build容器, 这样不需要root权限或 <code class="docutils literal notranslate"><span class="pre">sudo</span></code> 来build:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity build --remote ubuntu.sif ubuntu.def
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>在远程build前确认你已经有一个 <a class="reference internal" href="#creating-a-access-token"><span class="std std-ref">access token</span></a>, 否则build会失败。</p>
+</div>
+<p>build完成后，你可以测试这个容器:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ ./ubuntu.sif
+hello world from ubuntu container!
+</pre></div>
+</div>
+<p>你也可以使用web GUI来build容器： 首先, 登陆 <a class="reference external" href="https://cloud.sylabs.io/builder">https://cloud.sylabs.io/builder</a>，
+接着拷贝或者上传你的definition文件，然后点击build按钮，build完成后你可以下载容器。</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="bind_paths_and_mounts.html" class="btn btn-neutral float-right" title="Bind路径和Mount路径" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="endpoint.html" class="btn btn-neutral float-left" title="容器仓库" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017-2019, Sylabs Inc
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

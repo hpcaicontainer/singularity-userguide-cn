@@ -1,0 +1,217 @@
+.. _security-options:
+
+================
+安全选项
+================
+
+.. _sec:security_options:
+
+Singularity从3.0开始引入很多容器运行时安全相关的选项。这篇将描述使用相关的选项限定容器运行的范围和上下文。
+
+
+------------------
+Linux Capabilities
+------------------
+
+.. note::
+     首先需要意识到，使用 ``capability`` 命令赋予用户一些Linux capabilities等同于赋予用户一定的root权限。
+     很多capabilities意味着用户可以跳出容器，变成host上的root用户。
+     所以这个功能主要是针对一些特殊的使用场景，比如在cloud-native的场景下，容器中运行的用户通常都是root，
+     使用capabilities可以限制容器中root用户的权限。
+     而对于多租户的HPC环境下，给某些用户赋予特殊权限不是一个好办法，这种情况下建议用 :ref:`fakeroot <fakeroot>`。
+
+Singularity支持赋予和撤销对用户和组的Linux capabilities。 
+比如，管理员赋予用户（比如叫 ``pinger`` ）打开raw socket的capability，
+这样这个用户就可以额在容器中使用 ``ping`` 命令。更多关于管理员怎么管理capability的内容 
+`请参考这里 <https://sylabs.io/guides/\{adminversion\}/admin-guide/configfiles.html#capability.json>`_.
+
+
+管理员赋予用户某些capability后，用户在执行的时候需要使用 ``--add-caps`` 选项添加capability才能使用赋予的capability。
+like so:
+
+.. code-block:: none
+
+    $ singularity exec --add-caps CAP_NET_RAW library://sylabs/tests/ubuntu_ping:v1.0 ping -c 1 8.8.8.8
+    PING 8.8.8.8 (8.8.8.8) 56(84) bytes of data.
+    64 bytes from 8.8.8.8: icmp_seq=1 ttl=52 time=73.1 ms
+
+    --- 8.8.8.8 ping statistics ---
+    1 packets transmitted, 1 received, 0% packet loss, time 0ms
+    rtt min/avg/max/mdev = 73.178/73.178/73.178/0.000 ms
+
+如果管理员决定不再赋予 ``pinger`` 的打开raw socket的capability，管理员可以撤销用户的capability，这样 ``pinger`` 
+在运行容器的时候就不能添加相应的capability:
+
+.. code-block:: none
+
+    $ singularity exec --add-caps CAP_NET_RAW library://sylabs/tests/ubuntu_ping:v1.0 ping -c 1 8.8.8.8
+    WARNING: not authorized to add capability: CAP_NET_RAW
+    ping: socket: Operation not permitted
+
+
+另外一个应用常见是cloud-native的环境下，容器中运行的用户通常都是root，为了防止或者减少攻击的可能，需要撤销用户的某些capabilities。
+使用capabilities可以限制容器中root用户的权限。 
+Singularity默认安装下，root用户创建的容器具有root用户的所有capabilities，但是我们可以通过配置文件修改。参考管理员文档中的
+`capability configuration <https://sylabs.io/guides/\{adminversion\}/admin-guide/configfiles.html#capability.json>`_
+和 `root default capabilities <https://sylabs.io/guides/\{adminversion\}/admin-guide/configfiles.html#setuid-and-capabilities>`_。
+
+root用户在在容器中执行命令的时候默认有 ``CAP_NET_RAW`` 的capability，所以在运行容器的时候可以不使用 --add-caps添加capability。
+
+.. code-block:: none
+
+    # singularity exec library://sylabs/tests/ubuntu_ping:v1.0 ping -c 1 8.8.8.8
+    PING 8.8.8.8 (8.8.8.8) 56(84) bytes of data.
+    64 bytes from 8.8.8.8: icmp_seq=1 ttl=52 time=59.6 ms
+
+    --- 8.8.8.8 ping statistics ---
+    1 packets transmitted, 1 received, 0% packet loss, time 0ms
+    rtt min/avg/max/mdev = 59.673/59.673/59.673/0.000 ms
+
+现在我们想容器运行的时候取消掉 ``CAP_NET_RAW`` 的capability:
+
+.. code-block:: none
+
+    # singularity exec --drop-caps CAP_NET_RAW library://sylabs/tests/ubuntu_ping:v1.0 ping -c 1 8.8.8.8
+    ping: socket: Operation not permitted
+
+这时候在容器内 ``ping`` 将会失败。
+
+``--add-caps`` 和 ``--drop-caps`` 选项可以接受 ``all`` （不区分大小写）来赋予或者撤销所有的capability。
+当然，使用这个参数的时候需要小心。
+
+-----------------------------
+Build加密容器 
+-----------------------------
+Singularity从3.4.0开始支持build和运行加密容器。 运行容器的时候，容器被解密到内核空间中，这意味着没有任何解密后的数据会留存在硬盘上。
+更多信息请参考 :ref:`encrypted containers <encryption>`。
+
+
+-------------------------------
+Security相关的选项
+-------------------------------
+
+Singularity从3.0开始引入了很多新的标记，这些标记可以传递给 ``shell``, ``exec``,  ``run`` 等命令来控制容器运行时的安全。 
+
+``--add-caps``
+==============
+
+我们上面已经解释过--add-caps, 管理员通过 ``capability add`` 命令设置用用户的capability，
+当容器运行时，``--add-caps`` 选项将激活用户的capabilities。
+当运行容器的时候这个选项还支持通过关键字 ``all`` 来赋值或者取消用户的所有capability。
+
+
+``--allow-setuid``
+==================
+
+SetUID bit允许这个程序以程序的所有者来被执行。
+大多数情况下，这些程序的owner是root，普通用户需要这个程序以root来执行，就需要用到SetUID。
+
+由于安全的原因，默认情况下在容器中SetUID是不被允许的。但是通过 ``--allow-setuid`` 标记， 
+root用户可以设置在容器中允许SetUID:
+
+.. code-block:: none
+
+    $ sudo singularity shell --allow-setuid some_container.sif
+
+
+``--keep-privs``
+================
+
+管理员可以通过设置 ``singularity.conf`` 中的 ``root
+default capabilities`` 来修改或者降低root用户默认的capabilities。 
+但是root用户可以通过 ``--keep-privs`` 标记来使用所有的capabilities。
+
+.. code-block:: none
+
+    $ sudo singularity exec --keep-privs library://centos ping -c 1 8.8.8.8
+    PING 8.8.8.8 (8.8.8.8) 56(84) bytes of data.
+    64 bytes from 8.8.8.8: icmp_seq=1 ttl=128 time=18.8 ms
+
+    --- 8.8.8.8 ping statistics ---
+    1 packets transmitted, 1 received, 0% packet loss, time 0ms
+    rtt min/avg/max/mdev = 18.838/18.838/18.838/0.000 ms
+
+
+``--drop-caps``
+================
+
+默认情况下, root用户有一些capabilities，在运行容器的时候你可以通过 ``--drop-caps`` 来取消某些capability。
+
+比如可以取消root用户在容器内打开raw socket的capability。
+
+.. code-block:: none
+
+    $ sudo singularity exec --drop-caps CAP_NET_RAW library://centos ping -c 1 8.8.8.8
+    ping: socket: Operation not permitted
+
+``drop-caps`` 选项可以接受大小写不敏感的 ``all`` 关键字，来取消所有的capabilities。
+
+
+``--security``
+==============
+
+使用 ``--security`` 标记，root用户可以在容器内使用 security模块，比如SELinux, AppArmor, 和seccomp。
+运行容器时，你也可以修改容器中用户的UID和GID。
+
+.. code-block:: none
+
+    $ sudo whoami
+    root
+
+    $ sudo singularity exec --security uid:1000 my_container.sif whoami
+    david
+
+使用seccomp可以将某些命令加入到黑名单中(如果为了安全，实际上最好所有命令默认都是在黑名单中，只有在白名单中的才能使用) 。
+这个例子运行在Ubuntu上，需要预先安装有 ``libseccomp-dev`` 和 ``pkg-config``。
+
+首先写一个配置文件。Singularity安装的时候带有一个配置文件的例子，
+通常是 ``/usr/local/etc/singularity/seccomp-profiles/default.json``。下面例子中，我们使用配置文件将 ``mkdir`` 加入黑名单。
+
+.. code-block:: none
+
+    {
+        "defaultAction": "SCMP_ACT_ALLOW",
+        "archMap": [
+            {
+                "architecture": "SCMP_ARCH_X86_64",
+                "subArchitectures": [
+                    "SCMP_ARCH_X86",
+                    "SCMP_ARCH_X32"
+                ]
+            }
+        ],
+        "syscalls": [
+            {
+                "names": [
+                    "mkdir"
+                ],
+                "action": "SCMP_ACT_KILL",
+                "args": [],
+                "comment": "",
+                "includes": {},
+                "excludes": {}
+            }
+        ]
+    }
+
+配置文件保存为 ``/home/david/no_mkdir.json``， 接着我们可以如下调用容器。
+
+.. code-block:: none
+
+    $ sudo singularity shell --security seccomp:/home/david/no_mkdir.json my_container.sif
+
+    Singularity> mkdir /tmp/foo
+    Bad system call (core dumped)
+
+这时候使用 ``mkdir`` 命令会导致core dump。
+
+``--security`` 选项能接受的所有的参数如下:
+
+.. code-block:: none
+
+    --security="seccomp:/usr/local/etc/singularity/seccomp-profiles/default.json"
+    --security="apparmor:/usr/bin/man"
+    --security="selinux:context"
+    --security="uid:1000"
+    --security="gid:1000"
+    --security="gid:1000:1:0" (multiple gids, first is always the primary group)

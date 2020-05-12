@@ -1,0 +1,280 @@
+.. _mpi:
+
+================================
+MPI应用
+================================
+
+.. _sec-mpi:
+
+`Message Passing Interface (MPI) <https://mpi-forum.org>`_ 是一个接口标准，定义了多节点之间的告诉通信，MPI广泛应用在HPC领域。
+
+MPI有两个主要的开源实现 `OpenMPI <https://www.open-mpi.org/>`_ 和 `MPICH <https://www.mpich.org/>`_,
+singularity这两种MPI都支持，这一页的目标是展示怎么使用singularity容器运行MPI应用。
+
+有几种方式来实现这个目标，最常用的方式是在容器内运行MPI应用，但是依赖host上的MPI。
+这种方式叫做 *Host MPI* 模式或者 *Hybrid* 模式，这种模式host上和容器内都需要安装MPI。 
+
+另外一种方式是只使用host上的mpi，而容器中没有安装MPI，通过映射的方式将host上的mpi映射到容器中使用。
+这种方式叫做 *Bind* 模式。
+
+.. note::
+  *bind* 模式要求mount host上的MPI到容器中。而根据MPI在host上的安装位置，有时候mount需要特权操作，有时还需要访问其他用户的数据。
+
+Hybrid模式
+------------
+
+*Hybrid* 模式下，当你执行一个MPI程序的时候，你需要在host上调用 ``mpiexec`` 或者 ``mpirun`` 等launcher来启动程序。
+
+Open MPI/Singularity的工作流程如下:
+
+1. 资源调度器或者用户直接在shell中调用MPI launcher (比如 ``mpirun``, ``mpiexec``)。
+2. Open MPI的lancher接着调用process management daemon (ORTED)。
+3. ORTED启动singularity容器。 
+4. Singularity初始化容器和运行环境。
+5. Singularity接着在容器内启动MPI程序。
+6. MPI程序导入容器中的Open MPI库。
+7. Open MPI库通过Process Management Interface (PMI)和ORTED交互。
+
+至此，容器内的程序已经运行起来。
+
+这种模式的优势:
+
+  - 和资源调度器（比如Slurm）集成。
+  - 和原生MPI程序执行相同，容器理解
+
+这种模式的缺陷:
+
+  - 容器内的MPI和host上的MPI在版本上必须兼容。
+  - 在性能至关重要的情况下，容器中MPI的配置也必须能优化使用硬件的性能。
+
+因为容器中的MPI必须和host上的MPI版本兼容, 因此在build自己的MPI容器的时候需要考虑host上的MPI。
+
+下面是一个例子,  `mpitest.c` 是一个简单的Hello World:
+
+.. code-block:: c
+
+	#include <mpi.h>
+	#include <stdio.h>
+	#include <stdlib.h>
+
+	int main (int argc, char **argv) {
+		int rc;
+		int size;
+		int myrank;
+
+		rc = MPI_Init (&argc, &argv);
+		if (rc != MPI_SUCCESS) {
+			fprintf (stderr, "MPI_Init() failed");
+			return EXIT_FAILURE;
+		}
+
+		rc = MPI_Comm_size (MPI_COMM_WORLD, &size);
+		if (rc != MPI_SUCCESS) {
+			fprintf (stderr, "MPI_Comm_size() failed");
+			goto exit_with_error;
+		}
+
+		rc = MPI_Comm_rank (MPI_COMM_WORLD, &myrank);
+		if (rc != MPI_SUCCESS) {
+			fprintf (stderr, "MPI_Comm_rank() failed");
+			goto exit_with_error;
+		}
+
+		fprintf (stdout, "Hello, I am rank %d/%d", myrank, size);
+
+		MPI_Finalize();
+
+		return EXIT_SUCCESS;
+
+	 exit_with_error:
+		MPI_Finalize();
+		return EXIT_FAILURE;
+	}
+
+.. note::
+    MPI是一个接口标准, 常见是Fortran和C语言的实现，但是也可以有Python, R等其它类语言的实现。
+
+下面的步骤是通过definition文件build一个MPI容器，这将依赖于host上的mpi。
+
+如果host上的mpi是MPICH, definition文件如下所示:
+
+.. code-block:: none
+
+  Bootstrap: docker
+  From: ubuntu:latest
+
+  %files
+      mpitest.c /opt
+
+  %environment
+      export MPICH_DIR=/opt/mpich-3.3
+      export SINGULARITY_MPICH_DIR=$MPICH_DIR
+      export SINGULARITYENV_APPEND_PATH=$MPICH_DIR/bin
+      export SINGULAIRTYENV_APPEND_LD_LIBRARY_PATH=$MPICH_DIR/lib
+
+  %post
+      echo "Installing required packages..."
+      apt-get update && apt-get install -y wget git bash gcc gfortran g++ make
+
+      # Information about the version of MPICH to use
+      export MPICH_VERSION=3.3
+      export MPICH_URL="http://www.mpich.org/static/downloads/$MPICH_VERSION/mpich-$MPICH_VERSION.tar.gz"
+      export MPICH_DIR=/opt/mpich
+
+      echo "Installing MPICH..."
+      mkdir -p /tmp/mpich
+      mkdir -p /opt
+      # Download
+      cd /tmp/mpich && wget -O mpich-$MPICH_VERSION.tar.gz $MPICH_URL && tar xzf mpich-$MPICH_VERSION.tar.gz
+      # Compile and install
+      cd /tmp/mpich/mpich-$MPICH_VERSION && ./configure --prefix=$MPICH_DIR && make install
+      # Set env variables so we can compile our application
+      export PATH=$MPICH_DIR/bin:$PATH
+      export LD_LIBRARY_PATH=$MPICH_DIR/lib:$LD_LIBRARY_PATH
+      export MANPATH=$MPICH_DIR/share/man:$MANPATH
+
+      echo "Compiling the MPI application..."
+      cd /opt && mpicc -o mpitest mpitest.c
+
+
+如果host MPI是Open MPI,  definition文件如下所示:
+
+.. code-block:: none
+
+  Bootstrap: docker
+  From: ubuntu:latest
+
+  %files
+      mpitest.c /opt
+
+  %environment
+      export OMPI_DIR=/opt/ompi
+      export SINGULARITY_OMPI_DIR=$OMPI_DIR
+      export SINGULARITYENV_APPEND_PATH=$OMPI_DIR/bin
+      export SINGULAIRTYENV_APPEND_LD_LIBRARY_PATH=$OMPI_DIR/lib
+
+  %post
+      echo "Installing required packages..."
+      apt-get update && apt-get install -y wget git bash gcc gfortran g++ make file
+
+      echo "Installing Open MPI"
+      export OMPI_DIR=/opt/ompi
+      export OMPI_VERSION=4.0.1
+      export OMPI_URL="https://download.open-mpi.org/release/open-mpi/v4.0/openmpi-$OMPI_VERSION.tar.bz2"
+      mkdir -p /tmp/ompi
+      mkdir -p /opt
+      # Download
+      cd /tmp/ompi && wget -O openmpi-$OMPI_VERSION.tar.bz2 $OMPI_URL && tar -xjf openmpi-$OMPI_VERSION.tar.bz2
+      # Compile and install
+      cd /tmp/ompi/openmpi-$OMPI_VERSION && ./configure --prefix=$OMPI_DIR && make install
+      # Set env variables so we can compile our application
+      export PATH=$OMPI_DIR/bin:$PATH
+      export LD_LIBRARY_PATH=$OMPI_DIR/lib:$LD_LIBRARY_PATH
+      export MANPATH=$OMPI_DIR/share/man:$MANPATH
+
+      echo "Compiling the MPI application..."
+      cd /opt && mpicc -o mpitest mpitest.c
+
+Bind模式
+----------
+
+和 *Hybrid* 模式类似, 也是从host调用MPI的launcher（`mpirun`， `mpiexec`）。
+不同的是在容器内没有安装MPI，运行的时候你需要将hostMPI绑定到容器中。
+
+技术上来说这需要知道两个两点:
+
+1. Host上MPI的安装位置。
+2. Host上MPI映射到容器中的位置，这个位置需要保证程序在容器内能找到和使用。
+
+这种模式的优势:
+
+  - 和资源调度器（比如Slurm）集成。
+  - 容器中没有安装MPI，因此容器比上一种要小。
+
+这种模式的缺点:
+
+  - 用户必须知道host上MPI的安装位置。
+  - 用户必须确认host上的MPI能映射到容器中。
+  - 用户必须确认host上的MPI和容器中应用要求的MPI是兼容的。
+
+Bind模式创建容器的过程如下:
+
+1. Host上安装需要的MPI，在host上编译MPI程序。
+2. 创建definition文件，将编译好的程序和其依赖拷贝到容器中。
+3. Build容器。
+
+由于我们的程序是在host上编译好后拷贝到容器中的，因此
+当运行容器的时候确保你的host也安装有编译时使用的MPI。
+比如，如果在容器中我们有一个使用MPICH编译好的程序，在运行的时候我们也需要确保host上也安装有MPICH，如果你的host上安装的是Open MPI，映射到容器中并不一定能工作。
+
+
+Bind模式下的definition文件很直观。 下面的例子将host上编译好的应用 ``/tmp/NetPIPE-5.1.4`` 拷贝到容器中。
+
+.. code-block:: none
+
+  Bootstrap: docker
+  From: ubuntu:disco
+
+  %files
+        /tmp/NetPIPE-5.1.4/NPmpi /opt
+
+  %environment
+        MPI_DIR=/opt/mpi
+        export MPI_DIR
+        export SINGULARITY_MPI_DIR=$MPI_DIR
+        export SINGULARITYENV_APPEND_PATH=$MPI_DIR/bin
+        export SINGULARITYENV_APPEND_LD_LIBRARY_PATH=$MPI_DIR/lib
+
+  %post
+        apt-get update && apt-get install -y wget git bash gcc gfortran g++ make file
+        mkdir -p /opt/mpi
+        apt-get clean
+
+这个例子当中，NetPIPE-5.1.4被拷贝到 ``/opt``, 
+同时设置环境变量，这样运行时将host上的mpi映射到镜像中的/opt/mpi后就可以使用MPI运行程序。
+
+运行
+---------
+
+hybrid模式下，标准的运行方式是在host上执行 ``mpirun``。假定你的容器中有mpi和已经编译好的程序，下面是运行的例子:
+
+.. code-block:: none
+
+    $ mpirun -n <NUMBER_OF_RANKS> singularity exec <PATH/TO/MY/IMAGE> </PATH/TO/BINARY/WITHIN/CONTAINER>
+
+实际中, 这个命令将首先启动一个进程初始化 ``mpirun``，接着会在多个不同的计算节点上运行singularity容器，MPI程序被执行。
+
+bind模式下，唯一区别是需要映射mpi到容器中:
+
+.. code-block:: none
+
+    $ mpirun -n <NUMBER_OF_RANKS> singularity exec --bind <PATH/TO/HOST/MPI/DIRECTORY>:<PATH/IN/CONTAINER> <PATH/TO/MY/IMAGE> </PATH/TO/BINARY/WITHIN/CONTAINER>
+
+接着上面的bind模式的例子，假定在host上，MPI安装在 ``/opt/openmpi`` 目录下，那么命令如下：
+
+.. code-block:: none
+
+    $ mpirun -n <NUMBER_OF_RANKS> singularity exec --bind /opt/openmpi:/opt/mpi <PATH/TO/MY/IMAGE> /opt/NPmpi
+
+如果你的系统中安装有资源管理和作业调度器，比如SLURM，你也可以通过一个作业文件来运行MPI应用。
+下面的例子，在调度器SLURM分配的每个节点上使用singularity运行mpi程序。
+对其它的作业调度系统，也是类似。
+
+.. code-block:: none
+
+    $ cat my_job.sh
+    #!/bin/bash
+    #SBATCH --job-name singularity-mpi
+    #SBATCH -N $NNODES # total number of nodes
+    #SBATCH --time=00:05:00 # Max execution time
+
+    mpirun -n $NP singularity exec /var/nfsshare/gvallee/mpich.sif /opt/mpitest
+
+这个例子中，作业通过 ``NNODES`` 环境变量申请需要的节点数， ``NP`` 是MPI程序需要的进程数。
+这个例子假定是hybrid模式的，如果是bind模式，你需要映射mpi。
+
+接着用户就可以使用SLURM的命令提交这个作业。
+
+.. code-block:: none
+
+    $ sbatch my_job.sh

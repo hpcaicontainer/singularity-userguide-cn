@@ -1,0 +1,144 @@
+.. _networking:
+
+======================
+网络虚拟化
+======================
+
+
+.. _sec:networking:
+
+Singularity从3.0开始完全支持 `cni <https://github.com/containernetworking/cni>`_, 其新增的一些特性使得很容易使用网络虚拟化。
+
+``exec``, ``run`` 和 ``shell`` 命令增加了一些新的选项， ``--net`` 标记也进行了更新。这些选项和标记只能被root用户使用。  
+
+``--dns``
+=========
+
+使用 ``--dns`` 选项可以将以逗号分隔的多个DNS servers加入到容器中的 ``/etc/resolv.conf`` 文件中。
+
+.. code-block:: none
+
+    $ nslookup sylabs.io | grep Server
+    Server:		127.0.0.53
+
+    $ sudo singularity exec --dns 8.8.8.8 ubuntu.sif nslookup sylabs.io | grep Server
+    Server:		8.8.8.8
+
+    $ sudo singularity exec --dns 8.8.8.8 ubuntu.sif cat /etc/resolv.conf
+    nameserver 8.8.8.8
+
+
+``--hostname``
+==============
+
+``--hostname`` 可以设置容器中的hostname 
+within the container.
+
+.. code-block:: none
+
+    $ hostname
+    ubuntu-bionic
+
+    $ sudo singularity exec --hostname hal-9000 my_container.sif hostname
+    hal-9000
+
+``--net``
+=========
+
+使用 ``--net`` 标记，容器在初始化的时候会加入一个新的 network namespace。  
+
+.. code-block:: none
+
+    $ hostname -I
+    10.0.2.15
+
+    $ sudo singularity exec --net my_container.sif hostname -I
+    10.22.0.4
+
+
+``--network``
+=============
+
+``--network`` 选项通常和 ``--net`` 标记组合使用。他可以接受以逗号分隔的多种网络类型。  
+每种都会在容器中创建一个专门的网口。 
+
+.. code-block:: none
+
+    $ hostname -I
+    172.16.107.251 10.22.0.1
+
+    $ sudo singularity exec --net --network ptp ubuntu.sif hostname -I
+    10.23.0.6
+
+    $ sudo singularity exec --net --network bridge,ptp ubuntu.sif hostname -I
+    10.22.0.14 10.23.0.7
+
+当使用 ``--network`` 选项时，singularity会从网络配置文件夹(通常是 ``/usr/local/etc/singularity/network/``)下寻找各种网络类型的配置。 
+默认安装下，下面这些网络类型会被配置文件。
+
+    - bridge
+    - ptp
+    - ipvlan
+    - macvlan
+    - none (must be used alone)
+
+``None`` 是唯一一种能被普通用户使用的网络。它在容器中只有一个loopback的网络接口。
+
+管理员也可以定义定制化的网络配置，将配置放在配置文件夹下面。
+
+``--network-args``
+==================
+
+使用 ``--network-args`` 选项可以方便的将参数传递给cni plugin。这个选项也要和 ``--net`` 标记一起使用。
+
+比如你想在容器中启动一个使用80端口的 `NGINX <https://www.nginx.com/>`_，但是你想讲host上的8080端口映射到容器内的80端口。
+
+.. code-block:: none
+
+    $ sudo singularity instance start --writable-tmpfs \
+        --net --network-args "portmap=8080:80/tcp" docker://nginx web2
+
+上面的命令将从Docker Hub的拉取NGINX镜像，并启动一个叫做 ``web2`` 的instance。
+NGINX的instance需要写硬盘，所以添加了 ``--writable-tmpfs`` 标记。  
+使用 ``--network-args`` 选项时，``--net`` 标记是必须的同时使用的。 
+``portmap=8080:80/tcp`` 映射host上的8080端口到容器内的80端口。
+
+下面我们就可以在容器内启动NGINX:
+
+.. code-block:: none
+
+    $ sudo singularity exec instance://web2 nginx
+
+使用 ``curl`` 命令可以验证通过host的8080端口能访问NGINX。
+
+.. code-block:: none
+
+    $ curl localhost:8080
+    10.22.0.1 - - [16/Oct/2018:09:34:25 -0400] "GET / HTTP/1.1" 200 612 "-" "curl/7.58.0" "-"
+    <!DOCTYPE html>
+    <html>
+    <head>
+    <title>Welcome to nginx!</title>
+    <style>
+        body {
+            width: 35em;
+            margin: 0 auto;
+            font-family: Tahoma, Verdana, Arial, sans-serif;
+        }
+    </style>
+    </head>
+    <body>
+    <h1>Welcome to nginx!</h1>
+    <p>If you see this page, the nginx web server is successfully installed and
+    working. Further configuration is required.</p>
+
+    <p>For online documentation and support please refer to
+    <a href="http://nginx.org/">nginx.org</a>.<br/>
+    Commercial support is available at
+    <a href="http://nginx.com/">nginx.com</a>.</p>
+
+    <p><em>Thank you for using nginx.</em></p>
+    </body>
+    </html>
+
+更多关于cni的信息, 请参考 `cni specification <https://github.com/containernetworking/cni/blob/master/SPEC.md>`_。

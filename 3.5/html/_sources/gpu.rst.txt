@@ -1,0 +1,238 @@
+.. _gpu:
+
+====================================
+GPU (NVIDIA CUDA & AMD ROCm)
+====================================
+
+Singularity支持Nvidia的CUDA GPU计算框架和AMD的ROCm。这样在容器内就可以运行需要GPU的
+机器学习框架，TensorFlow。只要在host上安装好了GPU的驱动。那在容器当中就可以使用，
+Cuda和ROCE的,比如我们可以在RHEL 6的host上，运行最新的Ubuntu 18.04的TensorFlow容器。
+
+通过其它的绑定选项，在容器中也可以使用OpenCL来使用GPU卡。
+
+------------------
+NVIDIA GPUs & CUDA
+------------------
+
+``run``，``shell``, ``exec`` 等命令在执行的时候，通过 ``--nv`` 标记可以在容器中通过CUDA使用NVIDIA GPU运行程序。
+``--nv`` 标记:
+
+* 确保host上的GPU设备 ``/dev/nvidiaX`` 在容器内能被访问到。 
+* 如果容器中没有CUDA库，会将host上的CUDA库绑定到容器中，CUDA要和CPU的驱动能兼容。
+* 将CUDA库加入 ``LD_LIBRARY_PATH``。
+
+依赖条件
+============
+
+要使用 ``--nv`` 标记在容器内运行CUDA程序，必须保证:
+
+* Host上必须已经安装了GPU驱动，以及一个相应的NVIDIA/CUDA库。Host上不需要安装X server，除非你想在容器内给中运行图形应用。
+* 需要在 ``PATH`` 下能找到 ``nvidia-container-cli``，或者能在系统的库路径中找到NVIDIA的库。
+* 容器中运行的程序在编译的时候使用的CUDA版本需要和映射进容器的CUDA兼容。
+
+这些条件通常在通过NVIDIA网站安装NVIDIA驱动和CUDA包后就能满足。Linux发行包中可能已经包含了NVIDIA驱动和CUDA包，
+但是通常这些包都是过时的，在程序运行时可能会出问题。
+
+Library搜寻方式
+----------------------
+
+Singularity会使用 ``nvidia-container-cli`` 在host上搜寻NVIDIA/CUDA库并映射到容器，如果 ``nvidia-container-cli`` 不存在，
+则会查找配置文件 ``etc/singularity/nvliblist`` 中列出的库，并将库映射到容器。
+
+我们建议安装 ``nvidia-container-cli`` （`NVIDIA libnvidia-container website <https://nvidia.github.io/libnvidia-container/>`__）
+
+现在的 ``etc/singularity/nvliblist`` 中列出的库是基于host上的CUDA是10.1版本的情况，但是随着CUDA的升级，可能需要映射更多的库，或者移除某些不存在的库，
+这时候就需要修改这个文件。 而 ``nvidia-container-cli`` 列出的库永远都是和host上的CUDA正确对应的。 
+
+例子 - tensorflow-gpu
+========================
+
+TensorFlow是一个流程的机器学习的框架，但是在一些老的系统上安装比较困难，并且TensorFlow升级频繁。 
+而如果在容器中使用TensorFlow就不会安装的问题，并且更方便使用TensorFlow的不同版本。
+
+TensorFlow在Docker Hub的镜像仓库中提供支持NVIDIA GPU的镜像 `tags page on Docker Hub <https://hub.docker.com/r/tensorflow/tensorflow/tags>`__
+
+TensorFlow GPU镜像比较大，所以最好先将docker镜像转成SIF，然后再运行:
+
+.. code-block:: none
+
+    $ singularity pull docker://tensorflow/tensorflow:latest-gpu
+    ...
+    INFO:    Creating SIF file...
+    INFO:    Build complete: tensorflow_latest-gpu.sif
+
+
+.. code-block:: none
+
+    $ singularity run --nv tensorflow_latest-gpu.sif
+
+    ________                               _______________                
+    ___  __/__________________________________  ____/__  /________      __
+    __  /  _  _ \_  __ \_  ___/  __ \_  ___/_  /_   __  /_  __ \_ | /| / /
+    _  /   /  __/  / / /(__  )/ /_/ /  /   _  __/   _  / / /_/ /_ |/ |/ / 
+    /_/    \___//_/ /_//____/ \____//_/    /_/      /_/  \____/____/|__/
+
+
+    You are running this container as user with ID 1000 and group 1000,
+    which should map to the ID and group for your user on the Docker host. Great!
+
+    Singularity>
+
+在容器内，你可以使用tensorflow的 ``list_local_devices()`` 检查GPU是否已经可以使用:
+
+.. code-block:: none
+
+    Singularity> python
+    Python 2.7.15+ (default, Jul  9 2019, 16:51:35) 
+    [GCC 7.4.0] on linux2
+    Type "help", "copyright", "credits" or "license" for more information.
+    >>> from tensorflow.python.client import device_lib
+    >>> print(device_lib.list_local_devices())
+    2019-11-14 15:32:09.743600: I tensorflow/core/platform/cpu_feature_guard.cc:142] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+    2019-11-14 15:32:09.784482: I tensorflow/core/platform/profile_utils/cpu_utils.cc:94] CPU Frequency: 3292620000 Hz
+    2019-11-14 15:32:09.787911: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x565246634360 executing computations on platform Host. Devices:
+    2019-11-14 15:32:09.787939: I tensorflow/compiler/xla/service/service.cc:175]   StreamExecutor device (0): Host, Default Version
+    2019-11-14 15:32:09.798428: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcuda.so.1
+    2019-11-14 15:32:09.842683: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:1006] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+    2019-11-14 15:32:09.843252: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x5652469263d0 executing computations on platform CUDA. Devices:
+    2019-11-14 15:32:09.843265: I tensorflow/compiler/xla/service/service.cc:175]   StreamExecutor device (0): GeForce GT 730, Compute Capability 3.5
+    2019-11-14 15:32:09.843380: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:1006] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+    2019-11-14 15:32:09.843984: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1618] Found device 0 with properties: 
+    name: GeForce GT 730 major: 3 minor: 5 memoryClockRate(GHz): 0.9015
+    ...   
+
+
+多GPU支持
+=============
+
+默认情况下， Singularity保证所有的host设备在容器内都是可用的。
+当使用 ``--contain`` 标记时，Singularity只会在容器内创建一个最小的的 ``/dev`` 树，
+但是 ``--nv`` 标记会确保host上的所有NVIDIA GPU都能被映射到容器中。
+
+这个和 ``nvidia-docker`` 对GPU的操作不太一样，nvidia-docker会根据环境变量 ``NVIDIA_VISIBLE_DEVICES``
+的设置来决定哪些GPU可以被映射到容器中。
+
+使用 ``--nv`` 的时候通过设置 ``SINGULARITYENV_CUDA_VISIBLE_DEVICES`` 来决定在容器内CUDA程序能看到哪些GPU。
+
+
+比如下面只使用host上的第一个GPU来运行tensorflow程序。
+
+.. code-block:: none
+
+    $ SINGULARITYENV_CUDA_VISIBLE_DEVICES=0 singularity run --nv tensorflow_latest-gpu.sif
+
+    # or
+
+    $ export SINGULARITYENV_CUDA_VISIBLE_DEVICES=0
+    $ singularity run tensorflow_latest-gpu.sif
+
+
+常见问题
+===============
+
+如果host上的NVIDIA驱动和CUDA库运行正常，通常在容器中也不会有问题，但是有时候也会看到如下的错误：
+
+CUDA_ERROR_UNKNOWN when everything seems to be correctly configured
+-------------------------------------------------------------------
+
+CUDA依赖于host上的多个kernel modules，在系统启动的时候，这些modules都没被加载。
+其中一些modules在NVIDIA驱动栈初始化的时候会被加载，这个过程通过setuid root加载,
+所以host上的任何用户都可以初始化驱动栈，但是在容器内部，setuid root不被允许，因此不能初始化驱动栈。
+
+所以如果你碰到上面的错误，需要在host上初始化驱动栈。你可以使用 ``modprobe nvidia_uvm`` 命令加载module，
+可以使用 ``nvidia-persistenced`` 防止modules没被加载。
+
+
+---------------
+AMD GPUs & ROCm
+---------------
+
+Singularity从3.5开始通过 ``--rocm`` 标记支持AMD Radeon 来决定在容器内CUDA程序能看到哪些GPU。
+在运行 ``run``，``shell``, ``exec`` 等命令的时候，通过 ``--rocm`` 标记可以在容器中通过ROCm使用Radeon GPU运行程序。
+使用 ``--rocm`` 标记:
+
+* 确保host上的GPU设备 ``/dev/dri/`` 在容器内能被访问到。 
+* 如果容器中没有ROCm库，会将host上的ROCm库绑定到容器中，ROCm要和CPU的驱动能兼容。
+* 将ROCm库加入 ``LD_LIBRARY_PATH``。
+
+
+依赖条件
+============
+
+要使用 ``--rocm`` 标记在容器内运行CUDA程序，必须保证:
+
+* Host上必须已经安装了AMD GPU驱动，以及一个相应的ROCm库。Host上不需要安装X server，除非你想在容器内给中运行图形应用。
+* 需要能在系统的库路径中找到ROCm的库。
+* 容器中运行的程序在编译的时候使用的ROCm版本需要和映射进容器的ROcm兼容。
+
+这些条件通常按照 `ROCm web site <https://rocm.github.io/ROCmInstall.html>`__ 的指导都操作就可以满足。
+
+Singularity在Debian 10上ROCm 2.8/2.9测试通过,在Ubuntu 18.04上ROCm 2.9测试通过。
+
+
+例子 - tensorflow-rocm
+=========================
+
+TensorFlow是一个流程的机器学习的框架，但是在一些老的系统上安装比较困难，并且TensorFlow升级频繁。 
+而如果在容器中使用TensorFlow就不会安装的问题，并且更方便使用TensorFlow的不同版本。
+
+TensorFlow在Docker Hub的镜像仓库中提供支持Radeon GPU的镜像 `tags page on Docker Hub <https://hub.docker.com/r/tensorflow/tensorflow/tags>`__
+
+TensorFlow GPU镜像比较大，所以最好先将docker镜像转成SIF，然后再运行:
+
+.. code-block:: none
+
+    $ singularity pull docker://rocm/tensorflow:latest
+    ...
+    INFO:    Creating SIF file...
+    INFO:    Build complete: tensorflow_latest.sif
+
+
+
+.. code-block:: none
+
+    $ singularity run --rocm tensorflow_latest.sif
+
+
+在容器内，你可以使用tensorflow的 ``list_local_devices()`` 检查GPU是否已经可以使用:
+
+.. code-block:: none
+
+    Singularity> ipython
+    Python 3.5.2 (default, Jul 10 2019, 11:58:48) 
+    Type 'copyright', 'credits' or 'license' for more information
+    IPython 7.8.0 -- An enhanced Interactive Python. Type '?' for help.
+    >>> from tensorflow.python.client import device_lib
+    ...
+    >>> print(device_lib.list_local_devices())
+    ...
+    2019-11-14 16:33:42.750509: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1651] Found device 0 with properties: 
+    name: Lexa PRO [Radeon RX 550/550X]
+    AMDGPU ISA: gfx803
+    memoryClockRate (GHz) 1.183
+    pciBusID 0000:09:00.0
+    ...   
+
+-------------------
+OpenCL应用
+-------------------
+
+使用 ``--rocm`` 和 ``--nv`` 标记都会自动映射一个各自实现的 OpenCL 的库到容器中。
+但是 OpenCL 的应用不会直接使用映射到容器中的 OpenCL 的库，如果要使用映射到容器中的OpenCL的库，
+还需要映射host上的 ``/etc/OpenCL/vendors`` 到容器中。 
+
+因此最简单的是使用 ``--bind /etc/OpenCL`` 将/etc/OpenCL映射进容器。
+
+
+例子 - Blender OpenCL
+========================
+
+`Sylabs examples repository <https://github.com/sylabs/examples>`_ 有一个3D建模的例子'Blender'。
+
+最新版本的Blender支持OpenCL渲染。Sylabs library提供了一个容器，可以使用OpenCL调用Radeon GPU来运行Blender图形应用。 
+
+.. code-block:: none
+
+    $ singularity exec --rocm --bind /etc/OpenCL library://sylabs/examples/blender blender
+
+注意，这里使用 *exec* 而没有使用 *run* 是因为容器中的 *runscript* 是批量的渲染(当然也可以用OpenCL)。

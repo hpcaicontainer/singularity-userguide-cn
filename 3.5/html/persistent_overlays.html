@@ -1,0 +1,410 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>持久化Overlay &mdash; Singularity container 3.5 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="_static/favicon.png"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script src="_static/js/ga.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="运行服务" href="running_services.html" />
+    <link rel="prev" title="Bind路径和Mount路径" href="bind_paths_and_mounts.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Singularity container
+          
+
+          
+            
+            <img src="_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">介绍</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html">快速入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security.html">Singularity安全</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="build_a_container.html">Build容器</a></li>
+<li class="toctree-l1"><a class="reference internal" href="definition_files.html">Definition文件</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build_env.html">Build环境</a></li>
+<li class="toctree-l1"><a class="reference internal" href="singularity_and_docker.html">Singularity和Docker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fakeroot.html">Fakeroot</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="signNverify.html">签名和认证</a></li>
+<li class="toctree-l1"><a class="reference internal" href="key_commands.html">Key管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="encryption.html">容器加密</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="endpoint.html">容器仓库</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cloud_library.html">Cloud Library</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="bind_paths_and_mounts.html">路径映射</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">持久化Overlay</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ext3overlay">ext3文件系统镜像overlay</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">目录overlay</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sifoverlay">嵌入到SIF文件中的镜像overlay</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">总结</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="running_services.html">运行服务</a></li>
+<li class="toctree-l1"><a class="reference internal" href="environment_and_metadata.html">环境变量和元数据</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oci_runtime.html">OCI运行时</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugins.html">插件</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security_options.html">安全选项</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networking.html">网络选项</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cgroups.html">Cgroups</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mpi.html">MPI应用</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gpu.html">GPU支持</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="appendix.html">Appendix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Singularity container</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>持久化Overlay</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/sylabs/singularity-userdocs/blob/master/persistent_overlays.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="overlay">
+<h1>持久化Overlay<a class="headerlink" href="#overlay" title="Permalink to this headline">¶</a></h1>
+<p>持久化overlay添加一个可读写的overlay文件系统到一个只读的容器上。
+你在容器中的修改都保存在持久化的overlay上。</p>
+<div class="section" id="id1">
+<h2>概述<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>持久化overlay是在只读的SIF容器之上的一个文件系统，当你安装软件和修改文件的时候，overlay将保存这些修改。</p>
+<p>如果你要在SIF容器中可以写入内容，那么有三种方式：目录，ext3的文件系统镜像，或者嵌入到SIF中的一个ext3的文件系统镜像。
+接着你在运行命令的时候可以使用 <code class="docutils literal notranslate"><span class="pre">--overlay</span></code> 选项来写入容器, 或者使用 <code class="docutils literal notranslate"><span class="pre">--writable</span></code> 来写入使用嵌有ext3文件系统镜像的SIF。</p>
+<p>如果你想修改容器，但是不想持久化修改的内容，你可以使用 <code class="docutils literal notranslate"><span class="pre">--writable-tmpfs</span></code> 选项，
+这个选项将所有的改动保存在内存文件系统中，当容器结束运行，修改的内容就会被丢掉。</p>
+<p>下面的命令都可以使用持久化overlay:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">run</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">exec</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">shell</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">instance.start</span></code></p></li>
+</ul>
+</div>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<p>使用持久化overlay, 必须先有一个容器。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo singularity build ubuntu.sif library://ubuntu
+</pre></div>
+</div>
+<div class="section" id="ext3overlay">
+<h3>ext3文件系统镜像overlay<a class="headerlink" href="#ext3overlay" title="Permalink to this headline">¶</a></h3>
+<p>你可以使用 <code class="docutils literal notranslate"><span class="pre">dd</span></code> 和 <code class="docutils literal notranslate"><span class="pre">mkfs.ext3</span></code> 创建一个空的ext3的文件系统镜像，这个镜像文件将会保存你在容器中所做的所有修改。</p>
+<p>需要写大量小文件的应用，HPC的并行文件系统上使用单个的overlay image文件比一个目录具有更高的性能。
+每次写入操作都是一个单一文件的本地操作，不需要大量的并行文件系统元数据的修改。</p>
+<p>创建一个空的，大小为500MB的overlay镜像:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ dd if=/dev/zero of=overlay.img bs=1M count=500 &amp;&amp; \
+    mkfs.ext3 overlay.img
+</pre></div>
+</div>
+<p>现在你能在容器中使用这个overlay了, 当然你的用户在容器中的权限仍然决定你能在哪些目录下写入文件。
+所以如果你需要在容器中的 <code class="docutils literal notranslate"><span class="pre">/</span></code> 下写入内容, 你需要使用 <code class="docutils literal notranslate"><span class="pre">sudo</span></code> 运行容器。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo singularity shell --overlay overlay.img ubuntu.sif
+</pre></div>
+</div>
+<p>为了管理overlay的权限，从而让普通用户也可以在容器内写入文件，你可以创建一个文件目录，设置好你需要的权限，
+然后将通过 <code class="docutils literal notranslate"><span class="pre">mkfs.ext3</span></code> 的 <code class="docutils literal notranslate"><span class="pre">-d</span></code> 选项将其包含在overlay中。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ mkdir -p overlay/upper
+$ dd if=/dev/zero of=overlay.img bs=1M count=500 &amp;&amp; \
+     mkfs.ext3 -d overlay overlay.img
+</pre></div>
+</div>
+<p>现在作为一个普通用户，我们可以在容器中写入文件。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity shell --overlay overlay.img ubuntu.sif
+Singularity&gt; echo $USER
+dtrudg
+Singularity&gt; echo &quot;Hello&quot; &gt; /hello
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">mkfs.ext3</span></code> 的 <code class="docutils literal notranslate"><span class="pre">-d</span></code> 选项不支持 <code class="docutils literal notranslate"><span class="pre">uid</span></code> 或者 <code class="docutils literal notranslate"><span class="pre">gid</span></code> 大于65535的用户或组。
+如果要允许uid或者gid比较大的用户能写入容器，你可以修改目录的权限为777 <code class="docutils literal notranslate"><span class="pre">mkdir</span> <span class="pre">-p</span> <span class="pre">-m</span> <span class="pre">777</span> <span class="pre">overlay/upper</span></code>。
+这时候，这些用户就可以在容器中写入文件，但是由于目录权限为777，没法控制只让某些用户写入数据。</p>
+</div>
+</div>
+<div class="section" id="id2">
+<h3>目录overlay<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<p>目录overlay比镜像overley要简单，但是由于是一个目录下，因此分享的时候比如一个overlay文件方便。</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>由于安全方面的原因，使用目录overlay的时候你必须是root用户。而镜像overlay，可以被普通用户使用。</p>
+</div>
+<p>创建一个目录:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ mkdir my_overlay
+</pre></div>
+</div>
+<p>使用目录overlay。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo singularity shell --overlay my_overlay/ ubuntu.sif
+
+Singularity ubuntu.sif:~&gt; mkdir /data
+
+Singularity ubuntu.sif:~&gt; chown user /data
+
+Singularity ubuntu.sif:~&gt; apt-get update &amp;&amp; apt-get install -y vim
+
+Singularity ubuntu.sif:~&gt; which vim
+/usr/bin/vim
+
+Singularity ubuntu.sif:~&gt; exit
+</pre></div>
+</div>
+</div>
+<div class="section" id="sifoverlay">
+<h3>嵌入到SIF文件中的镜像overlay<a class="headerlink" href="#sifoverlay" title="Permalink to this headline">¶</a></h3>
+<p>可以将一个overlay镜像嵌入SIF文件中，这样一个只读的SIF就可以支持写文件。
+首先创建一个overlay镜像:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ dd if=/dev/zero of=overlay.img bs=1M count=500 &amp;&amp; \
+    mkfs.ext3 overlay.img
+</pre></div>
+</div>
+<p>接着你可以使用,``sif``命令将overlay镜像加入SIF容器。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity sif add --datatype 4 --partfs 2 --parttype 4 --partarch 2 --groupid 1 ubuntu_latest.sif overlay.img
+</pre></div>
+</div>
+<p>上面命令中:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">datatype</span></code> 设置加入的是什么类型的对象，比如
+definition文件, 环境变量, 签名等.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">partfs</span></code> 设置partition的文件系统的类型，比如是SquashFS, ext3, raw。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">parttype</span></code> 设置partition的类型，这里是overlay。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">partarch</span></code> 设置partition的架构，这里设置为 <code class="docutils literal notranslate"><span class="pre">amd64</span></code>。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">groupid</span></code> 设置容器镜像组的ID，绝大多数情况下，不会多余一个组，因此这里我们设置为1。</p></li>
+</ul>
+<p>这些选项的详情可以使用 <code class="docutils literal notranslate"><span class="pre">singularity</span> <span class="pre">sif</span> <span class="pre">add</span> <span class="pre">--help</span></code> 查看。</p>
+<p>上述步骤完成后，你就可以使用 <code class="docutils literal notranslate"><span class="pre">--writable</span></code> 选项写入SIF容器。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo singularity shell --writable ubuntu_latest.sif
+</pre></div>
+</div>
+</div>
+<div class="section" id="id3">
+<h3>总结<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<p>通过持久化的overlay，你将可以写入容器。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity shell --overlay my_overlay/ ubuntu.sif
+
+Singularity ubuntu.sif:~&gt; ls -lasd /data
+4 drwxr-xr-x 2 user root 4096 Apr  9 10:21 /data
+
+Singularity ubuntu.sif:~&gt; which vim
+/usr/bin/vim
+
+Singularity ubuntu.sif:~&gt; exit
+</pre></div>
+</div>
+<p>如果你没有使用 <code class="docutils literal notranslate"><span class="pre">--overlay</span></code>，你的修改将会丢失。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity shell ubuntu.sif
+
+Singularity ubuntu.sif:~&gt; ls /data
+ls: cannot access &#39;data&#39;: No such file or directory
+
+Singularity ubuntu.sif:~&gt; which vim
+
+Singularity ubuntu.sif:~&gt; exit
+</pre></div>
+</div>
+<p>修改overlay的大小, 可以使用能操作ext3的的工具修改overlay的大小。
+比如将500MB的文件扩到700MB，你可以使用 <code class="docutils literal notranslate"><span class="pre">e2fsck</span></code> 和 <code class="docutils literal notranslate"><span class="pre">resize2fs</span></code>。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ e2fsck -f my_overlay &amp;&amp; \
+    resize2fs my_overlay 700M
+</pre></div>
+</div>
+<p>关于如果创建和操作ext3的镜像，有很多在线的例子，本手册中不包含这部分的详细内容。</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="running_services.html" class="btn btn-neutral float-right" title="运行服务" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="bind_paths_and_mounts.html" class="btn btn-neutral float-left" title="Bind路径和Mount路径" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017-2019, Sylabs Inc
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

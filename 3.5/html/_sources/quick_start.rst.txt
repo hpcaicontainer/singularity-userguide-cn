@@ -1,0 +1,631 @@
+.. _quick-start:
+
+===========
+入门教程
+===========
+
+.. _sec:quickstart:
+
+这个指导需要需要你在运行的计算机上有root的权限，指导将从源代码安装singularity。
+其它安装方式，比如build RPM，使用非root用户安装在 `installation section of the admin guide
+<https://sylabs.io/guides/\{adminversion\}/admin-guide/installation.html>`__ 中讨论。
+
+如果你需要在一个多人共享的计算机上安装，根据 :ref:`requesting an installation <installation-request>` 的指导发送相应的信息给系统的管理员。
+
+如果需要更多的帮助，请联系Sylabs团队:
+https://www.sylabs.io/contact/
+
+
+.. _quick-installation:
+
+------------------------
+快速安装步骤
+------------------------
+
+你需要有一个Linux系统来运行Singularity，关于怎么在Mac和Windows上安装Singularity，请参考 `installation section of the
+admin guide <https://sylabs.io/guides/\{adminversion\}/admin-guide/installation.html>`__。
+
+安装依赖包
+===========================
+
+你必须首先安装依赖包，假定你在使用Ubuntu (RHEL安装命令类似):
+
+.. code-block:: none
+
+    $ sudo apt-get update && sudo apt-get install -y \
+        build-essential \
+        libssl-dev \
+        uuid-dev \
+        libgpgme11-dev \
+        squashfs-tools \
+        libseccomp-dev \
+        wget \
+        pkg-config \
+        git \
+        cryptsetup
+
+.. note::
+    ``squashfs-tools`` 这个包只会在build容器的时候使用。很明显Singuarity的 ``build`` 命令依赖于 ``squashfs-tools``, 
+    但是其它的一些命令，比如从Docker Hub下载的容器也需要。
+
+简单来讲，安装Singularity有三个步骤:
+
+1. :ref:`安装Go <install>`
+2. :ref:`下载Singularity代码 <download>`
+3. :ref:`编译Singularity代码 <compile>`
+
+.. _install:
+
+安装Go
+==========
+
+Singularity v3以及以上的版本使用Go语言编写，所以你首先需要安装Go。 
+
+这是一种 `安装和配置Go <https://golang.org/doc/install>`_ 的方式。
+
+.. note::
+
+   如果你以前从网上下载和安装Go，而不是使用操作系统自带的包，在安装一个新版本以前，你需要先删除 ``go`` 目录 ``rm -r /usr/local/go``。 
+   如果不删除的话，安装的新版本的Go在变异Go代码的时候可能会出错。
+
+访问 `Go Downloads page <https://golang.org/dl/>`_ 下载包。下载完以后，解压到 ``/usr/local`` (或者安装go网站给出的指导安装)。 你也可以按照下面的命令安装:
+
+.. code-block:: none
+
+    $ export VERSION=1.13 OS=linux ARCH=amd64 && \  # Replace the values as needed
+      wget https://dl.google.com/go/go$VERSION.$OS-$ARCH.tar.gz && \ # Downloads the required Go package
+      sudo tar -C /usr/local -xzvf go$VERSION.$OS-$ARCH.tar.gz && \ # Extracts the archive
+      rm go$VERSION.$OS-$ARCH.tar.gz    # Deletes the ``tar`` file
+
+将Go加入 ``PATH`` 中:
+
+.. code-block:: none
+
+    $ echo 'export PATH=/usr/local/go/bin:$PATH' >> ~/.bashrc && \
+      source ~/.bashrc
+
+.. _download:
+
+下载Singularity代码
+===================================
+
+你可以找到 `Singularity的所有发布包 <https://github.com/sylabs/singularity/releases>`_，选择一个版本，然后使用下面命令下载发布包。
+
+.. code-block:: none
+
+    $ export VERSION={InstallationVersion} && # adjust this as necessary \
+        wget https://github.com/sylabs/singularity/releases/download/v${VERSION}/singularity-${VERSION}.tar.gz && \
+        tar -xzf singularity-${VERSION}.tar.gz && \
+        cd singularity
+
+.. _compile:
+
+编译Singularity代码
+===================================
+
+现在需要build Singularity，一些依赖会自动被下载:
+
+.. code-block:: none
+
+    $ ./mconfig && \
+        make -C builddir && \
+        sudo make -C builddir install
+
+Singularity需要以root用户安装。
+
+-------------------------------------
+Singularity命令概述
+-------------------------------------
+
+使用Singularity的 :ref:`command line interface <cli>` 可以build和使用容器。 
+使用这些命令你可以很方便的在容器内运行程序，可以方便的将host删的IO, 用户，参数，文件，端口等映射进容器使用。
+
+``help`` 命令可以看到Singularity的命令和选项。
+
+.. code-block:: none
+
+    $ singularity help
+
+    Linux container platform optimized for High Performance Computing (HPC) and
+    Enterprise Performance Computing (EPC)
+
+    Usage:
+      singularity [global options...]
+
+    Description:
+      Singularity containers provide an application virtualization layer enabling
+      mobility of compute via both application and environment portability. With
+      Singularity one is capable of building a root file system that runs on any
+      other Linux system where Singularity is installed.
+
+    Options:
+      -d, --debug     print debugging information (highest verbosity)
+      -h, --help      help for singularity
+          --nocolor   print without color output (default False)
+      -q, --quiet     suppress normal output
+      -s, --silent    only print errors
+      -v, --verbose   print additional information
+
+    Available Commands:
+      build       Build a Singularity image
+      cache       Manage the local cache
+      capability  Manage Linux capabilities for users and groups
+      exec        Run a command within a container
+      help        Help about any command
+      inspect     Show metadata for an image
+      instance    Manage containers running as services
+      key         Manage OpenPGP keys
+      oci         Manage OCI containers
+      plugin      Manage singularity plugins
+      pull        Pull an image from a URI
+      push        Upload image to the provided library (default is "cloud.sylabs.io")
+      remote      Manage singularity remote endpoints
+      run         Run the user-defined default command within a container
+      run-help    Show the user-defined help for an image
+      search      Search a Container Library for images
+      shell       Run a shell within a container
+      sif         siftool is a program for Singularity Image Format (SIF) file manipulation
+      sign        Attach a cryptographic signature to an image
+      test        Run the user-defined tests within a container
+      verify      Verify cryptographic signatures attached to an image
+      version     Show the version for Singularity
+
+  Examples:
+    $ singularity help <command> [<subcommand>]
+    $ singularity help build
+    $ singularity help instance start
+
+
+  For additional help or support, please visit https://www.sylabs.io/docs/
+
+
+子命令也可以使用 ``help`` 命令查看其帮助信息。
+
+.. code-block:: none
+
+    $ singularity help verify
+    Verify cryptographic signatures on container
+
+    Usage:
+      singularity verify [verify options...] <image path>
+
+    Description:
+      The verify command allows a user to verify cryptographic signatures on SIF
+      container files. There may be multiple signatures for data objects and
+      multiple data objects signed. By default the command searches for the primary
+      partition signature. If found, a list of all verification blocks applied on
+      the primary partition is gathered so that data integrity (hashing) and
+      signature verification is done for all those blocks.
+
+    Options:
+      -g, --groupid uint32   group ID to be verified
+      -h, --help             help for verify
+      -i, --id uint32        descriptor ID to be verified
+      -l, --local            only verify with local keys
+      -u, --url string       key server URL (default "https://keys.sylabs.io")
+
+
+    Examples:
+      $ singularity verify container.sif
+
+
+    For additional help or support, please visit https://www.sylabs.io/docs/
+
+Singularity的命令和选项使用positional语法，全局的选项会影响主命令，而子命令的选项和参数会影响子命令。
+
+比如, singularity主命令下使用 ``--debug`` 选项来使用debug方式运行容器:
+
+.. code-block:: none
+
+    $ singularity --debug run library://sylabsed/examples/lolcow
+
+``run`` 命令的选项 ``--containall`` 以隔离方式运行容器:
+
+.. code-block:: none
+
+    $ singularity run --containall library://sylabsed/examples/lolcow
+
+Singularity 2.4引入了命令组的概念，比如列出一个用的Linxu capabilities， 你需要使用到 ``capability`` 命令组的  ``list`` 命令。
+
+.. code-block:: none
+
+    $ singularity capability list dave
+
+容器的作者有可能也会在容器中提供了一些帮助文档，如果这些容器中提供了帮助文档，
+你可以使用下面命令查看。
+
+.. code-block:: none
+
+    $ singularity inspect --helpfile container.sif  # See the container's help, if provided
+
+    $ singularity inspect --helpfile --app=foo foo.sif  # See the help for foo, if provided
+
+-------------------------
+下载build好的容器
+-------------------------
+
+你可以使用 ``search`` 命令从 `Container Library <https://cloud.sylabs.io/library>`_ 搜索build好的容器。
+
+.. code-block:: none
+
+    $ singularity search alp
+    No users found for 'alp'
+
+    Found 1 collections for 'alp'
+    	library://jchavez/alpine
+
+    Found 5 containers for 'alp'
+    	library://jialipassion/official/alpine
+    		Tags: latest
+    	library://dtrudg/linux/alpine
+    		Tags: 3.2 3.3 3.4 3.5 3.6 3.7 3.8 edge latest
+    	library://sylabsed/linux/alpine
+    		Tags: 3.6 3.7 latest
+    	library://library/default/alpine
+    		Tags: 3.1 3.2 3.3 3.4 3.5 3.6 3.7 3.8 latest
+    	library://sylabsed/examples/alpine
+    		Tags: latest
+
+你可以使用命令 `pull <https://www.sylabs.io/guides/\{version\}/user-guide/cli/singularity_pull.html>`_ 和
+`build <https://www.sylabs.io/guides/\{version\}/user-guide/cli/singularity_build.html>`_
+从外部资源下载容器，比如 `Container Library <https://cloud.sylabs.io/library>`_ 或者 `Docker Hub <https://hub.docker.com/>`_。
+
+当你需要从Container Library下载一个Singularity容器的时候，``pull`` 只是下载容器到本地。
+
+.. code-block:: none
+
+    $ singularity pull library://sylabsed/linux/alpine
+
+当你从Docker registry下载容器的时候， ``pull`` 命令不是只是下载Docker的镜像文件，还需要将其转换为Singularity容器的格式。 
+
+.. code-block:: none
+
+    $ singularity pull docker://godlovedc/lolcow
+
+下载Docker的镜像减少了重复造轮子的工作。如果我们今天pull一个docker镜像，6个月以后再次pull这个镜像，那么这两次的镜像可能是不同的。 
+如果可复现对你特别重要，尽量从Container Library下载镜像。
+
+你也可以使用 ``build`` 命令从外部资源下载容器，当你使用 ``build`` 的时候，你必须给容器指定一个名字。 
+
+.. code-block:: none
+
+    $ singularity build ubuntu.sif library://ubuntu
+
+    $ singularity build lolcow.sif docker://godlovedc/lolcow
+
+和 ``pull`` 不同， ``build`` 命令在下载外部的容器镜像后，会将其转换成最新的Singularity容器格式。
+``build`` 想瑞士军刀一样多用途，除了下载容器，使用 ``build`` 你还可以从其他容器创建新容器，
+从 :ref:`definition file <definitionfiles>` 创建新容器。 你也可以使用 ``build`` 将Singularity容器从一种格式转换为另一种格式。
+:ref:`这一章节 <sec:deffile-vs-dockerfile>` 对Singularity definition文件和Dockerfile进行了比较。
+
+
+.. _cowimage:
+
+--------------------
+交互访问容器
+--------------------
+
+有几种方式可以交互的访问容器，每种交互方式既可以使用本地的容器也可以使用一个url。
+
+下面的示例中，我们将使用 ``lolcow_latest.sif`` 容器，这个容器是从Container Library下载到本地的:
+
+.. code-block:: none
+
+    $ singularity pull library://sylabsed/examples/lolcow
+
+Shell
+=====
+
+`shell <https://www.sylabs.io/guides/\{version\}/user-guide/cli/singularity_shell.html>`_
+命令将在容器中启动一个shell，允许你使用shell和容器交互，体验就想使用一个小的虚拟机。
+
+.. code-block:: none
+
+    $ singularity shell lolcow_latest.sif
+
+    Singularity lolcow_latest.sif:~>
+
+
+命令执行时后会提示你已经进入容器内。
+
+你在容器内的用户和在host上的用户是一样的。
+
+.. code-block:: none
+
+    Singularity lolcow_latest.sif:~> whoami
+    david
+
+    Singularity lolcow_latest.sif:~> id
+    uid=1000(david) gid=1000(david) groups=1000(david),4(adm),24(cdrom),27(sudo),30(dip),46(plugdev),116(lpadmin),126(sambashare)
+
+``shell``也可以从url（``library://``, ``docker://``, ``shub://`` 等）下载镜像并使用。 这会创建一个临时容器，当shell退出时容器会消失。 
+
+.. code-block:: none
+
+    $ singularity shell library://sylabsed/examples/lolcow
+
+Exec
+==================
+
+使用 `exec <https://www.sylabs.io/guides/\{version\}/user-guide/cli/singularity_exec.html>`_
+命令可以在容器中运行一个指定的命令。 比如在容器 ``lolcow_latest.sif`` 中运行一个 ``cowsay`` 的程序。
+
+.. code-block:: none
+
+    $ singularity exec lolcow_latest.sif cowsay moo
+     _____
+    < moo >
+     -----
+            \   ^__^
+             \  (oo)\_______
+                (__)\       )\/\
+                    ||----w |
+                    ||     ||
+
+``exec`` 也可以从url（``library://``, ``docker://``, ``shub://`` 等）下载镜像并使用。 这会创建一个临时容器，当命令执行完容器会消失。
+
+.. code-block:: none
+
+    $ singularity exec library://sylabsed/examples/lolcow cowsay "Fresh from the library!"
+     _________________________
+    < Fresh from the library! >
+     -------------------------
+            \   ^__^
+             \  (oo)\_______
+                (__)\       )\/\
+                    ||----w |
+                    ||     ||
+
+.. _runcontainer:
+
+Run
+===================
+
+Singularity容器中可以包含 :ref:`runscripts <runscript>`，runscript是用户定义的当容器时会运行的脚本。
+这个脚本在运行 `run <https://www.sylabs.io/guides/\{version\}/user-guide/cli/singularity_run.html>`_ 命令，
+或者直接执行容器文件的时候会被执行。
+
+.. code-block:: none
+
+    $ singularity run lolcow_latest.sif
+     _____________________________________
+    / You have been selected for a secret \
+    \ mission.                            /
+     -------------------------------------
+            \   ^__^
+             \  (oo)\_______
+                (__)\       )\/\
+                    ||----w |
+                    ||     ||
+
+    $ ./lolcow_latest.sif
+     ____________________________________
+    / Q: What is orange and goes "click, \
+    \ click?" A: A ball point carrot.    /
+     ------------------------------------
+            \   ^__^
+             \  (oo)\_______
+                (__)\       )\/\
+                    ||----w |
+                    ||     ||
+
+
+``run`` 也可以从url（``library://``, ``docker://``, ``shub://`` 等）下载镜像并使用。 这会创建一个临时容器，当脚本执行完容器会消失。
+
+.. code-block:: none
+
+    $ singularity run library://sylabsed/examples/lolcow
+     ____________________________________
+    / Is that really YOU that is reading \
+    \ this?                              /
+     ------------------------------------
+            \   ^__^
+             \  (oo)\_______
+                (__)\       )\/\
+                    ||----w |
+                    ||     ||
+
+-------------------
+访问Host文件
+-------------------
+
+在容器内可以访问host上的文件。
+
+.. code-block:: none
+
+    $ echo "Hello from inside the container" > $HOME/hostfile.txt
+
+    $ singularity exec lolcow_latest.sif cat $HOME/hostfile.txt
+
+    Hello from inside the container
+
+这个例子中 ``hostfile.txt`` 在用户的home目录下，默认情况下，singularity会把 ``/home/$USER``, ``/tmp``, 和 ``$PWD`` 映射进容器中。
+
+你可以通过 ``--bind`` 选项将更多的目录映射到容器中，下面这个例子中，我们将host上的 ``data`` 目录映射到容器中的 ``/mnt`` 目录。
+
+.. code-block:: none
+
+    $ echo "Drink milk (and never eat hamburgers)." > /data/cow_advice.txt
+
+    $ singularity exec --bind /data:/mnt lolcow_latest.sif cat /mnt/cow_advice.txt
+    Drink milk (and never eat hamburgers).
+
+Pipes和redirects 在singularity的命令中也是有效的，就想他们对大多数标准Linux程序有效一样。
+
+.. code-block:: none
+
+    $ cat /data/cow_advice.txt | singularity exec lolcow_latest.sif cowsay
+     ________________________________________
+    < Drink milk (and never eat hamburgers). >
+     ----------------------------------------
+            \   ^__^
+             \  (oo)\_______
+                (__)\       )\/\
+                    ||----w |
+                    ||     ||
+
+.. _build-images-from-scratch:
+
+-------------------------
+从零开始build容器
+-------------------------
+
+.. _sec:buildimagesfromscratch:
+
+Singularity v3.0开始的容器格式是只读的Singularity Image File (SIF)。
+这样可以保证在发布容器时候保证容器的不可修改，可以实现容器的签名，加密等。
+
+但是，当测试和调试的时候，我们想要对容器进行写操作，这样我们就可以 ``shell`` 进容器安装需要的软件和依赖，知道满足我们需求位置。 
+对于这些场景，Singularity也支持 ``sandbox`` 格式（就是一个文件目录）。
+
+Sandbox 
+===================
+
+build一个 ``sandbox`` 容器，你可以使用 ``build --sandbox`` 命令:
+
+.. code-block:: none
+
+    $ sudo singularity build --sandbox ubuntu/ library://ubuntu
+
+这个命令会创建一个 ``ubuntu/`` 的目录，然后整个Ubuntu操作系统的内容和一些Singularity的元数据都保存在这个目录下。
+
+然后你可以使用 ``shell``, ``exec`` , 和 ``run`` 等命令操作这个目录。 
+如果你在这些命令后面添加 ``--writable`` 标记就可以写容器了。
+
+
+.. code-block:: none
+
+    $ sudo singularity exec --writable ubuntu touch /foo
+
+    $ singularity exec ubuntu/ ls /foo
+    /foo
+
+容器格式转换
+============================================
+
+``build`` 命令可以从一个存在的容器build一个新的容器，这意味这你可以将容器从一种格式转换为另一种格式。
+比如你已经创建了一个sandbox，想把它转换成Singularity默认的只读的SIF格式：
+
+.. code-block:: none
+
+    $ singularity build new-sif sandbox
+
+当然由于你在sandbox可能做了修改，并且没有通过definition文件修改，你修改了哪些东西对别人是黑盒，
+因此建议sandbox在练习的时候使用。
+
+Singularity Definition文件
+============================
+
+为了可重现性，可验证性，以及build产品级别的容器，你应该使用definition文件build只读的SIF格式的容器。
+使用definition文件，在基础容器上，你可以很简单的添加文件，设置环境变量，安装软件。
+
+Definition文件有header和body， header设置容器的基础容器，body被分成几个段落来执行软件安装，环境变量设置，从host拷贝文件到容器中等。
+
+下面是一个definition文件的例子:
+
+.. code-block:: singularity
+
+    BootStrap: library
+    From: ubuntu:16.04
+
+    %post
+        apt-get -y update
+        apt-get -y install fortune cowsay lolcat
+
+    %environment
+        export LC_ALL=C
+        export PATH=/usr/games:$PATH
+
+    %runscript
+        fortune | cowsay | lolcat
+
+    %labels
+        Author GodloveD
+
+
+下面命令使用definition文件（lolcow.def）build出一个叫做lolcow.sif的容器：
+
+.. code-block:: none
+
+    $ sudo singularity build lolcow.sif lolcow.def
+
+这个例子中，header告诉singularity使用来自Container Library的Ubuntu 16.04作为基础容器
+
+-  ``%post`` 段落下面的内容是基础容器准备好后在容器中执行的命令，这一段落主要在容器中安装各种软件和应用。
+
+-  ``%environment`` 段落设置容器运行时需要的一些环境变量。
+
+- ``%runscript`` 段落定义了容器文件直接被运行时将被执行的容器内脚本。
+
+-  ``%labels`` 段落可以添加一些元数据到容器中。 
+
+这是一个使用 :ref:`definition file <definitionfiles>` build容器的一个简单的例子。
+除了从Container Library获取基础容器，你也可以从Docker Hub，从Ubuntu, Debian, CentOS, Arch, BusyBox等的官方仓库获取基础容器。
+你也可以使用本地的一个容器作为基础容器。 
+
+如果你没有root权限，但又想build容器，你可以使用 `Remote Builder <https://cloud.sylabs.io/builder>`_。
+
+这个入门教程快速的过了一下Singularity的基本功能，更多更详细的功能，请查看其它章节。
+
+如果你需要更多的帮助，请联系https://www.sylabs.io/contact/
+
+
+.. _installation-request:
+
+在一个共享的环境上安装Singularity
+---------------------------------
+
+可能你在共享的环境上只是一个用户，你想让管理员安装Singularity。或者你是共享环境的管理员，
+你在犹豫是否安装singularity。
+
+这个文档和管理员文档提供了你很多问题的答案。
+
+如果你需要向管理员请求安装Singularity，你可能需要准备一个和下面类似的信息。
+
+.. code-block:: none
+
+    Dear shared resource administrator,
+
+    We are interested in having Singularity (https://www.sylabs.io/docs/)
+    installed on our shared resource. Singularity containers will allow us to
+    build encapsulated environments, meaning that our work is reproducible and
+    we are empowered to choose all dependencies including libraries, operating
+    system, and custom software. Singularity is already in use on many of the
+    top HPC centers around the world. Examples include:
+
+        Texas Advanced Computing Center
+        GSI Helmholtz Center for Heavy Ion Research
+        Oak Ridge Leadership Computing Facility
+        Purdue University
+        National Institutes of Health HPC
+        UFIT Research Computing at the University of Florida
+        San Diego Supercomputing Center
+        Lawrence Berkeley National Laboratory
+        University of Chicago
+        McGill HPC Centre/Calcul Québec
+        Barcelona Supercomputing Center
+        Sandia National Lab
+        Argonne National Lab
+
+    Importantly, it has a vibrant team of developers, scientists, and HPC
+    administrators that invest heavily in the security and development of the
+    software, and are quick to respond to the needs of the community. To help
+    learn more about Singularity, I thought these items might be of interest:
+
+        - Security: A discussion of security concerns is discussed at
+        https://www.sylabs.io/guides/{adminversion}/admin-guide/admin_quickstart.html
+
+        - Installation:
+        https://www.sylabs.io/guides/{adminversion}/admin-guide/installation.html
+
+    If you have questions about any of the above, you can email the open source
+    list (singularity@lbl.gov), join the open source slack channel
+    (singularity-container.slack.com), or contact the organization that supports
+    Singularity directly (sylabs.io/contact). I can do
+    my best to facilitate this interaction if help is needed.
+
+    Thank you kindly for considering this request!
+
+    Best,
+
+    User

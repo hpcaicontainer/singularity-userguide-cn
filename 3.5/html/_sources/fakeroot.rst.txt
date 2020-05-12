@@ -1,0 +1,122 @@
+.. _fakeroot:
+
+================
+Fakeroot
+================
+
+--------
+概述
+--------
+
+Fakeroot(也叫做rootless)允许host上的一个非root用户在容器中看起来像是root用户。 这是基于linux的 
+`user namespace UID/GID mapping <http://man7.org/linux/man-pages/man7/user_namespaces.7.html>`_ 实现。
+
+.. note:: 
+
+	Fakeroot需要Linux内核 >= 3.8，推荐是 >= 3.18
+
+Fakeroot只在容器内并且请求的namespaces内看起来像有root权限:
+
+  - 能对自己是owner的文件设置新的user和group
+  - 使用su/sudo命令可以修改user/group的id
+  - 容器内，在请求到的namespace(network, ipc, uts)下具有root权限
+
+---------------------
+安全性和限制
+---------------------
+
+文件系统
+==========
+
+容器内fakeroot用户不能访问和修改原来在host上他本就不能访问的文件，
+所以 fakeroot用户不能访问host上的 ``/etc/shadow`` 和 ``/root`` 目录。
+
+另外, fakeroot用户在容器内创建的文件在容器内看到的owner是 ``root:root``，但是在容器外，你会看到文件的owner变成了 ``user:group``。
+下面的例子中，host上的用户 "user"映射为容器内的fakeroot用户。
+
++----------------------+-----------------------+
+| UID inside container | UID outside container |
++======================+=======================+
+| 0 (root)             | 1000 (user)           |
++----------------------+-----------------------+
+| 1 (daemon)           | 131072 (non-existent) |
++----------------------+-----------------------+
+| 2 (bin)              | 131073 (non-existent) |
++----------------------+-----------------------+
+| ...                  | ...                   |
++----------------------+-----------------------+
+| 65536                | 196607                |
++----------------------+-----------------------+
+
+这意味这在容器内，如果以容器内的用户 ``bin`` 创建了一个文件, 那么你在容器外看到的owner将是 ``131073:131073``。
+Singularity管理员要确保容器内外用户的UID/GID没有重叠。
+
+网络
+=======
+
+如果singualrity在运行命令的时候没有加上 ``--net`` 标记, 容器内的fakeroot用户将不能 ``ping`` 或者绑定一个容器服务到1024以下的端口。
+
+加上 ``--net`` 标记， 在容器内，fakeroot用户就有网络的所有权限，用户可以绑定1024以下的端口，
+可以ping，可以管理防火墙规则等。在容器中做的任何网络上的改动不会影响host网络。 
+
+.. note:: 
+    当然，一个非root用户也不能西永下面的命令映射1024以下的端口: ``--network-args="portmap=80:80/tcp"``。
+
+.. warning::
+    非root安装的singularity，或者 ``singularity.conf`` 文件中 ``allow setuid = no`` 的情况下，将不能使用 ``fakeroot`` 网络。
+
+----------------------------
+依赖和配置
+----------------------------
+
+Fakeroot 依赖于用户的映射  ``/etc/subuid`` 和做的映射 ``/etc/subgid``, 所以你的名字需要在这两个文件中正确映射(详见管理员文档)，
+如果你不能编辑这两个文件，告诉管理员。
+
+Singularity 3.5 提供了一个新的命令 ``singularity config fakeroot`` 来配置 ``/etc/subuid`` 和 ``/etc/subgid``。
+mappings from the Singularity command line. 你需要是root用户或使用 ``sudo`` 去运行 ``config fakeroot`` 命令,
+更多细节，请查看管理员文档。
+
+-----
+使用
+-----
+
+如果你的用户和组在 ``subuid`` 和 ``subgid`` 已经映射好，你可以通过选项 ``--fakeroot`` 或者 ``-f`` 使用fakeroot特性。
+
+下面这些命令可以使用 ``--fakeroot`` 选项:
+
+  - ``shell``
+  - ``exec``
+  - ``run``
+  - ``instance start``
+  - ``build``
+
+Build
+=====
+
+使用fakeroot，一个普通用户就有可能从definition文件build容器。
+使用fakeroot，有些bootstrap在创建块设备的时候(比如 ``/dev/null``)可能不能成功，Singularity使用seccomp告诉程序
+块设备创建是否成功。 bootstrap是 ``yum`` 的时候是可以成功的，可能其它的 bootstraps也能成功，但已知 ``debootstrap`` 是不能成功的。
+
+例子
+========
+
+从definition文件build容器:
+-----------------------------
+
+.. code-block:: none
+
+    singularity build --fakeroot /tmp/test.sif /tmp/test.def
+
+容器内ping:
+--------------------
+
+.. code-block:: none
+
+    singularity exec --fakeroot --net docker://alpine ping -c1 8.8.8.8
+
+Http服务器:
+------------
+
+.. code-block:: none
+
+    singularity run --fakeroot --net --network-args="portmap=8080:80/tcp" -w docker://nginx

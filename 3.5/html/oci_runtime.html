@@ -1,0 +1,1035 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>OCI Runtime &mdash; Singularity container 3.5 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="_static/favicon.png"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script src="_static/js/ga.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="插件" href="plugins.html" />
+    <link rel="prev" title="环境变量和元数据" href="environment_and_metadata.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Singularity container
+          
+
+          
+            
+            <img src="_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">介绍</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html">快速入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security.html">Singularity安全</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="build_a_container.html">Build容器</a></li>
+<li class="toctree-l1"><a class="reference internal" href="definition_files.html">Definition文件</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build_env.html">Build环境</a></li>
+<li class="toctree-l1"><a class="reference internal" href="singularity_and_docker.html">Singularity和Docker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fakeroot.html">Fakeroot</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="signNverify.html">签名和认证</a></li>
+<li class="toctree-l1"><a class="reference internal" href="key_commands.html">Key管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="encryption.html">容器加密</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="endpoint.html">容器仓库</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cloud_library.html">Cloud Library</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="bind_paths_and_mounts.html">路径映射</a></li>
+<li class="toctree-l1"><a class="reference internal" href="persistent_overlays.html">持久化Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="running_services.html">运行服务</a></li>
+<li class="toctree-l1"><a class="reference internal" href="environment_and_metadata.html">环境变量和元数据</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">OCI运行时</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#sec-oci-runtime-overview">概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mounted-oci-bundle">Mounted OCI Bundle</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#mount-oci-bundle">Mount OCI Bundle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#oci-filesystem-bundle">OCI Filesystem Bundle的内容</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#oci">创建OCI容器实例</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#unmoun-oci-bundle">Unmoun OCI Bundle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#kubernetes">和Kubernetes集成</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="plugins.html">插件</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security_options.html">安全选项</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networking.html">网络选项</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cgroups.html">Cgroups</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mpi.html">MPI应用</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gpu.html">GPU支持</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="appendix.html">Appendix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Singularity container</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>OCI Runtime</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/sylabs/singularity-userdocs/blob/master/oci_runtime.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <span class="target" id="oci-runtime"></span><div class="section" id="id1">
+<h1>OCI Runtime<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="sec-oci-runtime-overview">
+<span id="id2"></span><h2>概述<a class="headerlink" href="#sec-oci-runtime-overview" title="Permalink to this headline">¶</a></h2>
+<p>OCI是 <a class="reference external" href="https://www.opencontainers.org/">Open Containers Initiative</a> 首字母的缩写，
+OCI是一个独立的组织，目标是开发关于容器化的开放标准。</p>
+<p>Singularity通过所有和OCI有关的操作通过 <code class="docutils literal notranslate"><span class="pre">oci</span></code> 命令组进行，尽管这个命令组可以提供一个OCI的runtime供终端用户直接使用，
+但是这一章我们还是主要描述Singularity提供的的OCI怎么在kubernetes中使用 <a class="reference external" href="https://www.sylabs.io/guides/cri/1.0/user-guide/index.html">Singularity Container Runtime Interface</a>。</p>
+<p>我们下面主要关注：</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Mount和unmount OCI bundle</p></li>
+<li><p>创建OCI容器实例</p></li>
+</ul>
+</div></blockquote>
+<p>在最后，我们会讲一下Singularity怎么通过Singularity CRI和Kubernetes做集成。</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>所有 <code class="docutils literal notranslate"><span class="pre">oci</span></code> 命令组下的命令都需要root权限。</p>
+</div>
+</div>
+<div class="section" id="mounted-oci-bundle">
+<h2>Mounted OCI Bundle<a class="headerlink" href="#mounted-oci-bundle" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="mount-oci-bundle">
+<h3>Mount OCI Bundle<a class="headerlink" href="#mount-oci-bundle" title="Permalink to this headline">¶</a></h3>
+<p>下面的讲述使用 <a class="reference external" href="https://busybox.net/about.html">BusyBox</a> 作为例子。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity pull docker://busybox
+INFO:    Starting build...
+Getting image source signatures
+Copying blob sha256:fc1a6b909f82ce4b72204198d49de3aaf757b3ab2bb823cb6e47c416b97c5985
+ 738.13 KiB / 738.13 KiB [==================================================] 0s
+Copying config sha256:5fffaf1f2c1830a6a8cf90eb27c7a1a8476b8c49b4b6261a20d6257d031ce4f3
+ 575 B / 575 B [============================================================] 0s
+Writing manifest to image destination
+Storing signatures
+INFO:    Creating SIF file...
+INFO:    Build complete: busybox_latest.sif
+</pre></div>
+</div>
+<p>上面只是一种下载容器的方式，更多方式可参考 <a class="reference internal" href="singularity_and_docker.html#singularity-and-docker"><span class="std std-ref">Support for Docker and OCI</span></a>。</p>
+<p>为了使用OCI容器，需要首先mount容器的SIF文件：</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo singularity oci mount ./busybox_latest.sif /var/tmp/busybox
+</pre></div>
+</div>
+<p>通过 <code class="docutils literal notranslate"><span class="pre">mount</span></code> 命令, <code class="docutils literal notranslate"><span class="pre">busybox_latest.sif</span></code> 中的文件会作为 <code class="docutils literal notranslate"><span class="pre">overlay</span></code> 被mount到 <code class="docutils literal notranslate"><span class="pre">/var/tmp/busybox</span></code>。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo df -k
+Filesystem                   1K-blocks    Used Available Use% Mounted on
+udev                            475192       0    475192   0% /dev
+tmpfs                           100916    1604     99312   2% /run
+/dev/mapper/vagrant--vg-root  19519312 2620740  15883996  15% /
+tmpfs                           504560       0    504560   0% /dev/shm
+tmpfs                             5120       0      5120   0% /run/lock
+tmpfs                           504560       0    504560   0% /sys/fs/cgroup
+tmpfs                           100912       0    100912   0% /run/user/900
+overlay                       19519312 2620740  15883996  15% /var/tmp/busybox/rootfs
+</pre></div>
+</div>
+<p>文件权限如下:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo ls -ld /var/tmp/busybox
+drwx------ 4 root root 4096 Apr  4 14:30 /var/tmp/busybox
+</pre></div>
+</div>
+</div>
+<div class="section" id="oci-filesystem-bundle">
+<h3>OCI Filesystem Bundle的内容<a class="headerlink" href="#oci-filesystem-bundle" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo ls -la /var/tmp/busybox
+total 28
+drwx------ 4 root root 4096 Apr  4 14:30 .
+drwxrwxrwt 4 root root 4096 Apr  4 14:30 ..
+-rw-rw-rw- 1 root root 9879 Apr  4 14:30 config.json
+drwx------ 4 root root 4096 Apr  4 14:30 overlay
+drwx------ 1 root root 4096 Apr  4 14:30 rootfs
+</pre></div>
+</div>
+<p>将一个singularity容器转为一个 <strong>filesystem bundle</strong>，转换后的 <strong>filesystem bundle</strong>
+包含满足OCI标准 <a class="reference external" href="https://github.com/opencontainers/runtime-spec/blob/master/bundle.md">OCI runtime specification</a> 的数据和元数据。
+这些数据和元数据在一个文件目录下:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">config.json</span></code>- 这是一个配置文件包含配置信息，必须在bundle的根目录下。</p></li>
+<li><p>容器的根目录rootfs</p></li>
+</ol>
+</div></blockquote>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>因为目录本身 <code class="docutils literal notranslate"><span class="pre">/var/tmp/busybox</span></code> 并不是bundle的一部分，所以mount的时候mount到的路径可以任意选择。</p>
+</div>
+<p>查看 <code class="docutils literal notranslate"><span class="pre">config.json</span></code> 的内容， <code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">sudo</span> <span class="pre">cat</span> <span class="pre">/var/tmp/busybox/config.json</span> <span class="pre">|</span> <span class="pre">jq</span></code>:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="nt">&quot;ociVersion&quot;</span><span class="p">:</span> <span class="s2">&quot;1.0.1-dev&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;process&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;user&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;uid&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+      <span class="nt">&quot;gid&quot;</span><span class="p">:</span> <span class="mi">0</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;args&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="s2">&quot;/.singularity.d/actions/run&quot;</span>
+    <span class="p">],</span>
+    <span class="nt">&quot;env&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="s2">&quot;PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;TERM=xterm&quot;</span>
+    <span class="p">],</span>
+    <span class="nt">&quot;cwd&quot;</span><span class="p">:</span> <span class="s2">&quot;/&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;capabilities&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;bounding&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;CAP_CHOWN&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_DAC_OVERRIDE&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_FSETID&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_FOWNER&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_MKNOD&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_NET_RAW&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_SETGID&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_SETUID&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_SETFCAP&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_SETPCAP&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_NET_BIND_SERVICE&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_SYS_CHROOT&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_KILL&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_AUDIT_WRITE&quot;</span>
+      <span class="p">],</span>
+      <span class="nt">&quot;effective&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;CAP_CHOWN&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_DAC_OVERRIDE&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_FSETID&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_FOWNER&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_MKNOD&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_NET_RAW&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_SETGID&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_SETUID&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_SETFCAP&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_SETPCAP&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_NET_BIND_SERVICE&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_SYS_CHROOT&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_KILL&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_AUDIT_WRITE&quot;</span>
+      <span class="p">],</span>
+      <span class="nt">&quot;inheritable&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;CAP_CHOWN&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_DAC_OVERRIDE&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_FSETID&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_FOWNER&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_MKNOD&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_NET_RAW&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_SETGID&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_SETUID&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_SETFCAP&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_SETPCAP&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_NET_BIND_SERVICE&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_SYS_CHROOT&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_KILL&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_AUDIT_WRITE&quot;</span>
+      <span class="p">],</span>
+      <span class="nt">&quot;permitted&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;CAP_CHOWN&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_DAC_OVERRIDE&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_FSETID&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_FOWNER&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_MKNOD&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_NET_RAW&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_SETGID&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_SETUID&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_SETFCAP&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_SETPCAP&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_NET_BIND_SERVICE&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_SYS_CHROOT&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_KILL&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_AUDIT_WRITE&quot;</span>
+      <span class="p">],</span>
+      <span class="nt">&quot;ambient&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;CAP_CHOWN&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_DAC_OVERRIDE&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_FSETID&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_FOWNER&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_MKNOD&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_NET_RAW&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_SETGID&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_SETUID&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_SETFCAP&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_SETPCAP&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_NET_BIND_SERVICE&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_SYS_CHROOT&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_KILL&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CAP_AUDIT_WRITE&quot;</span>
+      <span class="p">]</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;rlimits&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="p">{</span>
+        <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;RLIMIT_NOFILE&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;hard&quot;</span><span class="p">:</span> <span class="mi">1024</span><span class="p">,</span>
+        <span class="nt">&quot;soft&quot;</span><span class="p">:</span> <span class="mi">1024</span>
+      <span class="p">}</span>
+    <span class="p">]</span>
+  <span class="p">},</span>
+  <span class="nt">&quot;root&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;path&quot;</span><span class="p">:</span> <span class="s2">&quot;/var/tmp/busybox/rootfs&quot;</span>
+  <span class="p">},</span>
+  <span class="nt">&quot;hostname&quot;</span><span class="p">:</span> <span class="s2">&quot;mrsdalloway&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;mounts&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="nt">&quot;destination&quot;</span><span class="p">:</span> <span class="s2">&quot;/proc&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;proc&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;source&quot;</span><span class="p">:</span> <span class="s2">&quot;proc&quot;</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+      <span class="nt">&quot;destination&quot;</span><span class="p">:</span> <span class="s2">&quot;/dev&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;tmpfs&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;source&quot;</span><span class="p">:</span> <span class="s2">&quot;tmpfs&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;options&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;nosuid&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;strictatime&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;mode=755&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;size=65536k&quot;</span>
+      <span class="p">]</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+      <span class="nt">&quot;destination&quot;</span><span class="p">:</span> <span class="s2">&quot;/dev/pts&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;devpts&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;source&quot;</span><span class="p">:</span> <span class="s2">&quot;devpts&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;options&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;nosuid&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;noexec&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;newinstance&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ptmxmode=0666&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;mode=0620&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;gid=5&quot;</span>
+      <span class="p">]</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+      <span class="nt">&quot;destination&quot;</span><span class="p">:</span> <span class="s2">&quot;/dev/shm&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;tmpfs&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;source&quot;</span><span class="p">:</span> <span class="s2">&quot;shm&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;options&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;nosuid&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;noexec&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;nodev&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;mode=1777&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;size=65536k&quot;</span>
+      <span class="p">]</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+      <span class="nt">&quot;destination&quot;</span><span class="p">:</span> <span class="s2">&quot;/dev/mqueue&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;mqueue&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;source&quot;</span><span class="p">:</span> <span class="s2">&quot;mqueue&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;options&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;nosuid&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;noexec&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;nodev&quot;</span>
+      <span class="p">]</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+      <span class="nt">&quot;destination&quot;</span><span class="p">:</span> <span class="s2">&quot;/sys&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;sysfs&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;source&quot;</span><span class="p">:</span> <span class="s2">&quot;sysfs&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;options&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;nosuid&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;noexec&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;nodev&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ro&quot;</span>
+      <span class="p">]</span>
+    <span class="p">}</span>
+  <span class="p">],</span>
+  <span class="nt">&quot;linux&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;resources&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;devices&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+          <span class="nt">&quot;allow&quot;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+          <span class="nt">&quot;access&quot;</span><span class="p">:</span> <span class="s2">&quot;rwm&quot;</span>
+        <span class="p">}</span>
+      <span class="p">]</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;namespaces&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="p">{</span>
+        <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;pid&quot;</span>
+      <span class="p">},</span>
+      <span class="p">{</span>
+        <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;network&quot;</span>
+      <span class="p">},</span>
+      <span class="p">{</span>
+        <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;ipc&quot;</span>
+      <span class="p">},</span>
+      <span class="p">{</span>
+        <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;uts&quot;</span>
+      <span class="p">},</span>
+      <span class="p">{</span>
+        <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;mount&quot;</span>
+      <span class="p">}</span>
+    <span class="p">],</span>
+    <span class="nt">&quot;seccomp&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;defaultAction&quot;</span><span class="p">:</span> <span class="s2">&quot;SCMP_ACT_ERRNO&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;architectures&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;SCMP_ARCH_X86_64&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;SCMP_ARCH_X86&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;SCMP_ARCH_X32&quot;</span>
+      <span class="p">],</span>
+      <span class="nt">&quot;syscalls&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+          <span class="nt">&quot;names&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;accept&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;accept4&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;access&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;alarm&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;bind&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;brk&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;capget&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;capset&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;chdir&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;chmod&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;chown&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;chown32&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;clock_getres&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;clock_gettime&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;clock_nanosleep&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;close&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;connect&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;copy_file_range&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;creat&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;dup&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;dup2&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;dup3&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;epoll_create&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;epoll_create1&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;epoll_ctl&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;epoll_ctl_old&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;epoll_pwait&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;epoll_wait&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;epoll_wait_old&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;eventfd&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;eventfd2&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;execve&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;execveat&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;exit&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;exit_group&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;faccessat&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fadvise64&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fadvise64_64&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fallocate&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fanotify_mark&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fchdir&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fchmod&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fchmodat&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fchown&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fchown32&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fchownat&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fcntl&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fcntl64&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fdatasync&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fgetxattr&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;flistxattr&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;flock&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fork&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fremovexattr&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fsetxattr&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fstat&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fstat64&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fstatat64&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fstatfs&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fstatfs64&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fsync&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ftruncate&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ftruncate64&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;futex&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;futimesat&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;getcpu&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;getcwd&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;getdents&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;getdents64&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;getegid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;getegid32&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;geteuid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;geteuid32&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;getgid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;getgid32&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;getgroups&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;getgroups32&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;getitimer&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;getpeername&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;getpgid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;getpgrp&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;getpid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;getppid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;getpriority&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;getrandom&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;getresgid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;getresgid32&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;getresuid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;getresuid32&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;getrlimit&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;get_robust_list&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;getrusage&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;getsid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;getsockname&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;getsockopt&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;get_thread_area&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;gettid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;gettimeofday&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;getuid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;getuid32&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;getxattr&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;inotify_add_watch&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;inotify_init&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;inotify_init1&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;inotify_rm_watch&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;io_cancel&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ioctl&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;io_destroy&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;io_getevents&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ioprio_get&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ioprio_set&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;io_setup&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;io_submit&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ipc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;kill&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;lchown&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;lchown32&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;lgetxattr&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;link&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;linkat&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;listen&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;listxattr&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;llistxattr&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;_llseek&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;lremovexattr&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;lseek&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;lsetxattr&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;lstat&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;lstat64&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;madvise&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;memfd_create&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;mincore&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;mkdir&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;mkdirat&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;mknod&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;mknodat&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;mlock&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;mlock2&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;mlockall&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;mmap&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;mmap2&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;mprotect&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;mq_getsetattr&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;mq_notify&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;mq_open&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;mq_timedreceive&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;mq_timedsend&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;mq_unlink&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;mremap&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;msgctl&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;msgget&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;msgrcv&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;msgsnd&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;msync&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;munlock&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;munlockall&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;munmap&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;nanosleep&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;newfstatat&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;_newselect&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;open&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;openat&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pause&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pipe&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pipe2&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;poll&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ppoll&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;prctl&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pread64&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;preadv&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;prlimit64&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pselect6&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pwrite64&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pwritev&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;read&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;readahead&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;readlink&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;readlinkat&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;readv&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;recv&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;recvfrom&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;recvmmsg&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;recvmsg&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;remap_file_pages&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;removexattr&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;rename&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;renameat&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;renameat2&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;restart_syscall&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;rmdir&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;rt_sigaction&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;rt_sigpending&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;rt_sigprocmask&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;rt_sigqueueinfo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;rt_sigreturn&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;rt_sigsuspend&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;rt_sigtimedwait&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;rt_tgsigqueueinfo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sched_getaffinity&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sched_getattr&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sched_getparam&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sched_get_priority_max&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sched_get_priority_min&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sched_getscheduler&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sched_rr_get_interval&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sched_setaffinity&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sched_setattr&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sched_setparam&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sched_setscheduler&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sched_yield&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;seccomp&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;select&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;semctl&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;semget&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;semop&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;semtimedop&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;send&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sendfile&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sendfile64&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sendmmsg&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sendmsg&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sendto&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;setfsgid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;setfsgid32&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;setfsuid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;setfsuid32&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;setgid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;setgid32&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;setgroups&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;setgroups32&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;setitimer&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;setpgid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;setpriority&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;setregid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;setregid32&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;setresgid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;setresgid32&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;setresuid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;setresuid32&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;setreuid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;setreuid32&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;setrlimit&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;set_robust_list&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;setsid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;setsockopt&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;set_thread_area&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;set_tid_address&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;setuid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;setuid32&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;setxattr&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;shmat&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;shmctl&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;shmdt&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;shmget&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;shutdown&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sigaltstack&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;signalfd&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;signalfd4&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sigreturn&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;socket&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;socketcall&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;socketpair&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;splice&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;stat&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;stat64&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;statfs&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;statfs64&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;symlink&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;symlinkat&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sync&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sync_file_range&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;syncfs&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sysinfo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;syslog&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;tee&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;tgkill&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;time&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;timer_create&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;timer_delete&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;timerfd_create&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;timerfd_gettime&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;timerfd_settime&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;timer_getoverrun&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;timer_gettime&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;timer_settime&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;times&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;tkill&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;truncate&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;truncate64&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ugetrlimit&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;umask&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;uname&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;unlink&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;unlinkat&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;utime&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;utimensat&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;utimes&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;vfork&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;vmsplice&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;wait4&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;waitid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;waitpid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;write&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;writev&quot;</span>
+          <span class="p">],</span>
+          <span class="nt">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;SCMP_ACT_ALLOW&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+          <span class="nt">&quot;names&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;personality&quot;</span>
+          <span class="p">],</span>
+          <span class="nt">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;SCMP_ACT_ALLOW&quot;</span><span class="p">,</span>
+          <span class="nt">&quot;args&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+              <span class="nt">&quot;index&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+              <span class="nt">&quot;value&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+              <span class="nt">&quot;op&quot;</span><span class="p">:</span> <span class="s2">&quot;SCMP_CMP_EQ&quot;</span>
+            <span class="p">},</span>
+            <span class="p">{</span>
+              <span class="nt">&quot;index&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+              <span class="nt">&quot;value&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+              <span class="nt">&quot;op&quot;</span><span class="p">:</span> <span class="s2">&quot;SCMP_CMP_EQ&quot;</span>
+            <span class="p">},</span>
+            <span class="p">{</span>
+              <span class="nt">&quot;index&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+              <span class="nt">&quot;value&quot;</span><span class="p">:</span> <span class="mi">4294967295</span><span class="p">,</span>
+              <span class="nt">&quot;op&quot;</span><span class="p">:</span> <span class="s2">&quot;SCMP_CMP_EQ&quot;</span>
+            <span class="p">}</span>
+          <span class="p">]</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+          <span class="nt">&quot;names&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;chroot&quot;</span>
+          <span class="p">],</span>
+          <span class="nt">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;SCMP_ACT_ALLOW&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+          <span class="nt">&quot;names&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;clone&quot;</span>
+          <span class="p">],</span>
+          <span class="nt">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;SCMP_ACT_ALLOW&quot;</span><span class="p">,</span>
+          <span class="nt">&quot;args&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+              <span class="nt">&quot;index&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+              <span class="nt">&quot;value&quot;</span><span class="p">:</span> <span class="mi">2080505856</span><span class="p">,</span>
+              <span class="nt">&quot;op&quot;</span><span class="p">:</span> <span class="s2">&quot;SCMP_CMP_MASKED_EQ&quot;</span>
+            <span class="p">}</span>
+          <span class="p">]</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+          <span class="nt">&quot;names&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;arch_prctl&quot;</span>
+          <span class="p">],</span>
+          <span class="nt">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;SCMP_ACT_ALLOW&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+          <span class="nt">&quot;names&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;modify_ldt&quot;</span>
+          <span class="p">],</span>
+          <span class="nt">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;SCMP_ACT_ALLOW&quot;</span>
+        <span class="p">}</span>
+      <span class="p">]</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>下面命令可以查看root.path下的属性, <code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">sudo</span> <span class="pre">cat</span> <span class="pre">/var/tmp/busybox/config.json</span> <span class="pre">|</span> <span class="pre">jq</span> <span class="pre">[.root.path]</span></code>：</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
+        <span class="s2">&quot;/var/tmp/busybox/rootfs&quot;</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">/var/tmp/busybox/rootfs</span></code> 是容器的root目录， 其下面的内容包括:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo ls /var/tmp/busybox/rootfs
+bin  dev  environment  etc  home  proc  root  singularity  sys  tmp  usr  var
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">environment</span></code> 和 <code class="docutils literal notranslate"><span class="pre">singularity</span></code> 软链到 <code class="docutils literal notranslate"><span class="pre">.singularity.d</span></code> 目录。</p>
+</div>
+<p>bundle的定义只关心一个容器和它的配置数据怎样存储在本地的文件系统，以便OCI的runtime能使用它。除了 <code class="docutils literal notranslate"><span class="pre">root.path</span></code>,  <code class="docutils literal notranslate"><span class="pre">config.json</span></code> 还包含多个其它的属性，比如:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ociVersion</span></code> - 一个必须的属性，其用来说明这个bundle兼容的OCI标准的版本。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">process</span></code> - 这是一个可选的属性，用来指定容器的进程，当容器运行（start，run）时，其会运行 <code class="docutils literal notranslate"><span class="pre">args</span></code> 属性中执行的程序。比如 <code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">sudo</span> <span class="pre">cat</span> <span class="pre">/var/tmp/busybox/config.json</span> <span class="pre">|</span> <span class="pre">jq</span> <span class="pre">[.process.args]</span></code>:</p></li>
+</ul>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>[
+  [
+    &quot;/.singularity.d/actions/run&quot;
+  ]
+]
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">run</span></code> 就是我们singularity容器中熟悉的runscript，如果这个容器是通过Docker镜像或者OCI创建，singularity会使用镜像中的 <code class="docutils literal notranslate"><span class="pre">ENTRYPOINT</span></code> 和 <code class="docutils literal notranslate"><span class="pre">CMD</span></code> 作为runscript; 更多信息请参考 <a class="reference internal" href="singularity_and_docker.html#singularity-and-docker"><span class="std std-ref">Support for Docker and OCI</span></a> 中的 <a class="reference internal" href="singularity_and_docker.html#sec-def-files-execution"><span class="std std-ref">Directing Execution</span></a>。</p>
+<p>如果需要更输入的了解 <code class="docutils literal notranslate"><span class="pre">config.json</span></code> 中属性的意思, 请参考 <a class="reference external" href="https://github.com/opencontainers/runtime-spec/blob/master/config.md">implementation guide</a>。
+技术上来说, <code class="docutils literal notranslate"><span class="pre">overlay</span></code> 目录不是一个OCI标准需要的，但是overlay  <a class="reference external" href="https://www.sylabs.io/guides/3.0/user-guide/persistent_overlays.html">Persistent Overlays</a>
+允许在一个只读的容器中写入内容。</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>SIF是一种可扩展的格式， 符合OCI标准的filesystem bundle就是它的一种扩展。</p>
+</div>
+</div>
+</div>
+<div class="section" id="oci">
+<h2>创建OCI容器实例<a class="headerlink" href="#oci" title="Permalink to this headline">¶</a></h2>
+<p>通过 ‘OCI mounting’将一个SIF文件解压为一个OCI的filesystem bundle后，我们就可以使用创建OCI容器的实例。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo singularity oci create -b /var/tmp/busybox busybox1
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>如果SIF文件是通过Docker和OCI镜像创建的， <code class="docutils literal notranslate"><span class="pre">config.json</span></code> 文件是包含在SIF文件中的。
+如果SIF文件是通过其他途径创建的，那么在调用 <code class="docutils literal notranslate"><span class="pre">singularity</span> <span class="pre">oci</span> <span class="pre">mount</span> <span class="pre">...</span></code> 命令的时候，会自动的在filesystem bundle目录下创建一个 <code class="docutils literal notranslate"><span class="pre">config.json</span></code>。</p>
+<p><code class="docutils literal notranslate"><span class="pre">singularity</span> <span class="pre">oci</span> <span class="pre">mount</span> <span class="pre">...</span></code> 的时候也会将SIF中的root目录mount到bundle的 <code class="docutils literal notranslate"><span class="pre">rootfs</span></code>, 同时建立一个overlay的文件系统，将其mount到bundle的 <code class="docutils literal notranslate"><span class="pre">overlay</span></code>。</p>
+</div>
+<p>这个例子中,  filesystem bundle在 <code class="docutils literal notranslate"><span class="pre">/var/tmp/busybox</span></code>， 创建的实例为 <code class="docutils literal notranslate"><span class="pre">busybox1</span></code>。</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>上述命令创建一个容器实例， 同个容器可以创建多个实例。</p>
+</div>
+<p>容器实例的状态可以通过 <code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">sudo</span> <span class="pre">singularity</span> <span class="pre">oci</span> <span class="pre">state</span> <span class="pre">busybox1</span></code> 查看：</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="nt">&quot;ociVersion&quot;</span><span class="p">:</span> <span class="s2">&quot;1.0.1-dev&quot;</span><span class="p">,</span>
+<span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;busybox1&quot;</span><span class="p">,</span>
+<span class="nt">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;created&quot;</span><span class="p">,</span>
+<span class="nt">&quot;pid&quot;</span><span class="p">:</span> <span class="mi">6578</span><span class="p">,</span>
+<span class="nt">&quot;bundle&quot;</span><span class="p">:</span> <span class="s2">&quot;/var/tmp/busybox&quot;</span><span class="p">,</span>
+<span class="nt">&quot;createdAt&quot;</span><span class="p">:</span> <span class="mi">1554389921452964253</span><span class="p">,</span>
+<span class="nt">&quot;attachSocket&quot;</span><span class="p">:</span> <span class="s2">&quot;/var/run/singularity/instances/root/busybox1/attach.sock&quot;</span><span class="p">,</span>
+<span class="nt">&quot;controlSocket&quot;</span><span class="p">:</span> <span class="s2">&quot;/var/run/singularity/instances/root/busybox1/control.sock&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>状态的这些参数符合OCI运行时标准，关于OCI运行时的更多信息，
+请参考 <a class="reference external" href="https://github.com/opencontainers/runtime-spec/blob/master/runtime.md#state">这里</a>。</p>
+<p><code class="docutils literal notranslate"><span class="pre">create</span></code> 命令有很多选项。</p>
+</div>
+<div class="section" id="unmoun-oci-bundle">
+<h2>Unmoun OCI Bundle<a class="headerlink" href="#unmoun-oci-bundle" title="Permalink to this headline">¶</a></h2>
+<p>使用下面命令unmount一个mounted的OCI filesystem bundle:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo singularity oci umount /var/tmp/busybox
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">/var/tmp/busybox</span></code> 是bundle的目录。</p>
+</div>
+</div>
+<div class="section" id="kubernetes">
+<h2>和Kubernetes集成<a class="headerlink" href="#kubernetes" title="Permalink to this headline">¶</a></h2>
+<p>在 <a class="reference internal" href="#sec-oci-runtime-overview"><span class="std std-ref">这里</span></a>, 我们讲到过，singularity OCI最初的需求来自于singularity和 <a class="reference external" href="https://kubernetes.io/">Kubernetes</a> 的集成
+简单来讲，Kubernetes是一个开源的容器编排器，由Google发起，现在已经贡献到 <a class="reference external" href="https://www.cncf.io/">Cloud Native Compute Foundation</a> (CNCF)。
+Kubernetes是CNCF已经毕业的项目，现在广泛用于生产环境。尽管Kubernetes强调对服务的编排，但是很多容器计算的需求也在这个平台上运行。
+而且，针对AI应用，一个整合服务和传统HPC基础架构的平台更有吸引力。因此Singularity容器和Kubernetes的整合就很必要了。</p>
+<p>Singularity容器和Kubernetes集成的架构如下。 在2016年下半年，Kubernetes引入了Container Runtime Interface (CRI)，
+下面的架构和原始的 <a class="reference external" href="https://kubernetes.io/blog/2016/12/container-runtime-interface-cri-in-kubernetes/">a Kubernetes blog post</a> 有些不同。
+下面的分支是原生的架构;它主要强调各部分（CRI和容器，以及运行时 ）需要满足OCI的标准。</p>
+<img alt="_images/sycri_ociruntime_implementation.png" src="_images/sycri_ociruntime_implementation.png" />
+<p>从上面的架构可以看到要实现singularity和kubernetes的集成，需要实现如下两个部分：</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>Singularity CRI</p></li>
+<li><p>Singularity OCI运行时</p></li>
+</ol>
+</div></blockquote>
+<p>关于Singularity CRI有一个独立的开源项目负责实现 <a class="reference external" href="https://github.com/sylabs/singularity-cri">singularity cri</a>。
+从架构图上可以看到Singularity CRI依赖于Singularity OCI runtime，这里描述了CRI的安装依赖 <a class="reference external" href="https://www.sylabs.io/guides/cri/1.0/user-guide/installation.html?highlight=oci#install-dependencies">an installation prerequisite</a>。
+Singularity CRI的面向用户的文档提供了怎么和kubernetes集成使用的细节，当然其中也包括怎么使用从 <a class="reference external" href="https://cloud.sylabs.io/library">Sylabs Cloud Container Library</a> 上获取的容器。
+因为整个安装部署可以放在一个Singularity的容器实例中，
+因此Singularity CRI可以很方便使用Sykube（仿照 <a class="reference external" href="https://kubernetes.io/docs/setup/minikube/">Minikube</a> 进行的实现）来进行单机使用,
+Singularity CRI文档中包含了 <a class="reference external" href="https://www.sylabs.io/guides/cri/1.0/user-guide/sykube.html">怎么使用Sykube</a>。</p>
+<p>和OCI标准兼容的Singularity OCI运行时是这个文档强调的重点。换句话说通过使用Singularity的OCI运行时，Kubernetes的命令
+(<a class="reference external" href="https://sylabs.io/guides/cri/1.0/user-guide/examples.html">Basic Usage</a> in the Singularity CRI documentation)可以通过CRI调用到Singularity容器。
+Singularity CRI是一个 <a class="reference external" href="https://grpc.io/">gRPC</a> server, <a class="reference external" href="https://kubernetes.io/docs/reference/command-line-tools-reference/kubelet/">Kubelets</a> 可以调用CRI来直接操作kubernetes容器。</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="plugins.html" class="btn btn-neutral float-right" title="插件" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="environment_and_metadata.html" class="btn btn-neutral float-left" title="环境变量和元数据" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017-2019, Sylabs Inc
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

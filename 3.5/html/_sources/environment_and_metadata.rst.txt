@@ -1,0 +1,447 @@
+.. _environment-and-metadata:
+
+========================
+环境变量和元数据
+========================
+
+.. _sec:envandmetadata:
+
+在build容器的时候，你可以将环境变量和labels加入容器。
+参考 :ref:`build environment section <build-environment>` 来在build的时候设置环境变量。
+
+--------
+概述
+--------
+
+在def文件中定义的环境变量可以加入到容器中。
+
+- 在def文件的 ``%environment`` 下定义环境变量
+
+.. code-block:: singularity
+
+        Bootstrap: library
+        From: default/alpine
+
+        %environment
+            VARIABLE_ONE = hello
+            VARIABLE_TWO = world
+            export VARIABLE_ONE VARIABLE_TWO
+
+- 或者在def文件的 ``%post`` 下定义环境变量
+
+.. code-block:: singularity
+
+        Bootstrap: library
+        From: default/alpine
+
+        %post
+            echo 'export VARIABLE_NAME=variable_value' >>$SINGULARITY_ENVIRONMENT
+
+你可以在def文件的 ``%labels`` 下加入label。
+
+.. code-block:: singularity
+
+        Bootstrap: library
+        From: default/alpine
+
+        %labels
+            OWNER Joana
+
+使用 ``inspect`` 命令查看容器的label
+
+.. code-block:: none
+
+    $  singularity inspect mysifimage.sif
+
+上述命令的输出为:
+
+.. code-block:: none
+
+      {
+          "OWNER": "Joana",
+          "org.label-schema.build-date": "Monday_07_January_2019_0:01:50_CET",
+          "org.label-schema.schema-version": "1.0",
+          "org.label-schema.usage": "/.singularity.d/runscript.help",
+          "org.label-schema.usage.singularity.deffile.bootstrap": "library",
+          "org.label-schema.usage.singularity.deffile.from": "debian:9",
+          "org.label-schema.usage.singularity.runscript.help": "/.singularity.d/runscript.help",
+          "org.label-schema.usage.singularity.version": "3.0.1-236.g2453fdfe"
+      }
+
+其中很多label是自动创建的，但是你自定义的label也在容器中。
+
+``inspect`` 命令用来查看容器的元数据，关于inspect命令的更多选项，参考 :ref:`additional options <inspect-command>`。
+
+-----------
+环境变量
+-----------
+
+build容器的时候，可以将环境变量加入容器。下面是通过def文件中%environment加入环境变量。
+
+.. code-block:: singularity
+
+    Bootstrap: library
+    From: default/alpine
+
+    %environment
+        #First define the variables
+        VARIABLE_PATH=/usr/local/bootstrap
+        VARIABLE_VERSION=3.0
+        #Then export them
+        export VARIABLE_PATH VARIABLE_VERSION
+
+你也可以在def文件的 ``%post`` 中加入环境变量。因为有时候你只有在安装完一些软件后才能设置环境变量的值。 
+
+``%post`` 中加入环境变量使用了 ``$SINGULARITY_ENVIRONMENT``。
+
+.. code-block:: singularity
+
+    %post
+        echo 'export VARIABLE_NAME=variable_value' >>$SINGULARITY_ENVIRONMENT
+
+``%environment`` 中为内容会被加入到容器中的文件 ``/.singularity.d/env/90-environment.sh``。
+``%post`` 中输入$SINGULARITY_ENVIRONMENT的内容会被加入到容器中的文件 ``/.singularity.d/env/91-environment.sh``。
+如果 ``%post`` 中没有输入任何内容到$SINGULARITY_ENVIRONMENT，那么容器中就不会有 ``/.singularity.d/env/91-environment.sh``。
+
+因为在 ``/.singularity.d/env`` 下的文件会安装字母先后顺序被source，
+因此输入到 ``$SINGULARITY_ENVIRONMENT`` 的内容比 ``%environment`` 中内容后被source到，
+``$SINGULARITY_ENVIRONMENT`` 的内容比 ``%environment`` 的内容优先级高。
+
+当你在运行容器的时候，想要动态的传递一个环境变量给容器，
+你需要设置 ``SINGULARITYENV_`` 开头的环境变量，在容器中变量前缀会自动被去掉。 
+比如你如果要设置变量 ``HELLO`` 的值为 ``world``，你需要像下面这样操作：
+
+.. code-block:: none
+
+    $ SINGULARITYENV_HELLO=world singularity exec centos7.img env | grep HELLO
+    HELLO=world
+
+执行命令的时候 ``--cleanenv`` 标记可以情况host的环境变量，使得容器运行的时候只使用容器中的环境变量。
+
+.. code-block:: none
+
+    $ singularity exec --cleanenv centos7.img env
+    LD_LIBRARY_PATH=:/usr/local/lib:/usr/local/lib64
+    SINGULARITY_NAME=test.img
+    PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    PWD=/home/gmk/git/singularity
+    LANG=en_US.UTF-8
+    SHLVL=0
+    SINGULARITY_INIT=1
+    SINGULARITY_CONTAINER=test.img
+
+如果没有使用 ``--cleanenv`` 标记, host上的环境变量在容器内也能使用。
+
+
+如果运行容器的时候想修改容器中的 ``$PATH``，你可以使用下面几种方式修改：
+
+-  ``SINGULARITYENV_PREPEND_PATH=/good/stuff/at/beginning`` 在 ``$PATH`` 前面加上/good/stuff/at/beginning
+
+-  ``SINGULARITYENV_APPEND_PATH=/good/stuff/at/end`` 在 ``$PATH`` 后面加上/good/stuff/at/end
+
+-  ``SINGULARITYENV_PATH=/a/new/path`` 覆盖 ``$PATH``
+
+------
+Labels
+------
+
+容器中存储的元数据包含build信息，Docker labels和一些在 ``%labels`` 中自定义的label。
+
+Singularity从3.0开始，label的展现格式采用 `rc1 Label Schema <http://label-schema.org/rc1/>`_.
+例如:
+
+.. code-block:: none
+
+    $ singularity inspect jupyter.sif
+        {
+            "OWNER": "Joana",
+            "org.label-schema.build-date": "Friday_21_December_2018_0:49:50_CET",
+            "org.label-schema.schema-version": "1.0",
+            "org.label-schema.usage": "/.singularity.d/runscript.help",
+            "org.label-schema.usage.singularity.deffile.bootstrap": "library",
+            "org.label-schema.usage.singularity.deffile.from": "debian:9",
+            "org.label-schema.usage.singularity.runscript.help": "/.singularity.d/runscript.help",
+            "org.label-schema.usage.singularity.version": "3.0.1-236.g2453fdfe"
+        }
+
+你会注意到其中有一个lable ``OWNER`` 不输入这个schema, 这是在def文件中自定义的label。
+
+.. code-block:: singularity
+
+    Bootstrap: docker
+    From: ubuntu: latest
+
+    %labels
+      OWNER Joana
+
+使用 ``inspect`` 命令可以查看label和其他的元数据。西面将详细介绍这个命令的一些选项。 
+
+-----------------------
+``inspect`` 命令
+-----------------------
+
+.. _inspect-command:
+
+``inspect`` 命令能打印出通过def文件加入到容器中的label和其他元数据。
+
+^^^^^^^^^^^^
+``--labels``
+^^^^^^^^^^^^
+
+这个标记是inspect命令的默认行为。
+
+.. code-block:: none
+
+    $ singularity inspect --labels jupyter.sif
+
+    {
+        "org.label-schema.build-date": "Friday_21_December_2018_0:49:50_CET",
+        "org.label-schema.schema-version": "1.0",
+        "org.label-schema.usage": "/.singularity.d/runscript.help",
+        "org.label-schema.usage.singularity.deffile.bootstrap": "library",
+        "org.label-schema.usage.singularity.deffile.from": "debian:9",
+        "org.label-schema.usage.singularity.runscript.help": "/.singularity.d/runscript.help",
+        "org.label-schema.usage.singularity.version": "3.0.1-236.g2453fdfe"
+    }
+
+这个和 ``singularity inspect jupyter.sif`` 是一样的结果。
+
+^^^^^^^^^^^^^
+``--deffile``
+^^^^^^^^^^^^^
+
+这个标记可以打印出创建镜像的时候使用的def文件。
+
+.. code-block:: none
+
+    $ singularity inspect --deffile jupyter.sif
+
+如下的输出结果:
+
+.. code-block:: singularity
+
+    Bootstrap: library
+    From: debian:9
+
+    %help
+        Container with Anaconda 2 (Conda 4.5.11 Canary) and Jupyter Notebook 5.6.0 for Debian 9.x (Stretch).
+        This installation is based on Python 2.7.15
+
+    %environment
+        JUP_PORT=8888
+        JUP_IPNAME=localhost
+        export JUP_PORT JUP_IPNAME
+
+    %startscript
+        PORT=""
+        if [ -n "$JUP_PORT" ]; then
+        PORT="--port=${JUP_PORT}"
+        fi
+
+        IPNAME=""
+        if [ -n "$JUP_IPNAME" ]; then
+        IPNAME="--ip=${JUP_IPNAME}"
+        fi
+
+        exec jupyter notebook --allow-root ${PORT} ${IPNAME}
+
+    %setup
+        #Create the .condarc file where the environments/channels from conda are specified, these are pulled with preference to root
+        cd /
+        touch .condarc
+
+    %post
+        echo 'export RANDOM=123456' >>$SINGULARITY_ENVIRONMENT
+        #Installing all dependencies
+        apt-get update && apt-get -y upgrade
+        apt-get -y install \
+        build-essential \
+        wget \
+        bzip2 \
+        ca-certificates \
+        libglib2.0-0 \
+        libxext6 \
+        libsm6 \
+        libxrender1 \
+        git
+        rm -rf /var/lib/apt/lists/*
+        apt-get clean
+        #Installing Anaconda 2 and Conda 4.5.11
+        wget -c https://repo.continuum.io/archive/Anaconda2-5.3.0-Linux-x86_64.sh
+        /bin/bash Anaconda2-5.3.0-Linux-x86_64.sh -bfp /usr/local
+        #Conda configuration of channels from .condarc file
+        conda config --file /.condarc --add channels defaults
+        conda config --file /.condarc --add channels conda-forge
+        conda update conda
+        #List installed environments
+        conda list
+
+上面的是 ``jupyter.sif`` 容器的def文件。
+
+^^^^^^^^^^^^^^^
+``--runscript``
+^^^^^^^^^^^^^^^
+
+这个标记打印出容器中的runscript。
+
+.. code-block:: none
+
+    $ singularity inspect --runscript jupyter.sif
+
+输出如下:
+
+.. code-block:: bash
+
+    #!/bin/sh
+    OCI_ENTRYPOINT=""
+    OCI_CMD="bash"
+    # ENTRYPOINT only - run entrypoint plus args
+    if [ -z "$OCI_CMD" ] && [ -n "$OCI_ENTRYPOINT" ]; then
+    SINGULARITY_OCI_RUN="${OCI_ENTRYPOINT} $@"
+    fi
+
+    # CMD only - run CMD or override with args
+    if [ -n "$OCI_CMD" ] && [ -z "$OCI_ENTRYPOINT" ]; then
+    if [ $# -gt 0 ]; then
+        SINGULARITY_OCI_RUN="$@"
+    else
+        SINGULARITY_OCI_RUN="${OCI_CMD}"
+    fi
+    fi
+
+    # ENTRYPOINT and CMD - run ENTRYPOINT with CMD as default args
+    # override with user provided args
+    if [ $# -gt 0 ]; then
+        SINGULARITY_OCI_RUN="${OCI_ENTRYPOINT} $@"
+    else
+        SINGULARITY_OCI_RUN="${OCI_ENTRYPOINT} ${OCI_CMD}"
+    fi
+
+    exec $SINGULARITY_OCI_RUN
+
+^^^^^^^^^^
+``--test``
+^^^^^^^^^^
+
+这个标记打印出容器中的test脚本。
+
+.. code-block:: none
+
+    $ singularity inspect --test jupyter.sif
+
+输出是def文件中 ``%test`` 部分的内容。
+
+^^^^^^^^^^^^^^^^^
+``--environment``
+^^^^^^^^^^^^^^^^^
+
+这个标记打印出容器中环境变量。包括在def文件中 ``%environment`` 设置的环境变量( ``90-environment.sh`` ) 
+和 ``SINGULARITY_ENV`` 中设置的环境变量( ``91-environment.sh`` )。
+
+.. code-block:: none
+
+    $ singularity inspect --environment jupyter.sif
+
+输出如下:
+
+.. code-block:: bash
+
+    ==90-environment.sh==
+    #!/bin/sh
+
+    JUP_PORT=8888
+    JUP_IPNAME=localhost
+    export JUP_PORT JUP_IPNAME
+
+    ==91-environment.sh==
+    export RANDOM=123456
+
+其中 ``JUP_PORT`` 和 ``JUP_IPNAME`` 是在 ``%environment`` 定义的变量。
+``RANDOM`` 是在 ``%environment`` 中设置的变量.
+
+^^^^^^^^^^^^^^
+``--helpfile``
+^^^^^^^^^^^^^^
+
+这个标记打印出容器中 ``%help`` 下面的内容。
+
+
+.. code-block:: none
+
+    $ singularity inspect --helpfile jupyter.sif
+
+如下的输出:
+
+.. code-block:: none
+
+    Container with Anaconda 2 (Conda 4.5.11 Canary) and Jupyter Notebook 5.6.0 for Debian 9.x (Stretch).
+    This installation is based on Python 2.7.15
+
+^^^^^^^^^^
+``--json``
+^^^^^^^^^^
+
+这个标记以json的格式打印出label的内功。
+
+
+.. code-block:: none
+
+    $ singularity inspect --json jupyter.sif
+
+输出如下：
+
+.. code-block:: none
+
+    {
+	     "attributes": {
+		     "labels": "{\n\t\"org.label-schema.build-date\": \"Friday_21_December_2018_0:49:50_CET\",\n\t\"org.label-schema.schema-version\": \"1.0\",\n\t\"org.label-schema.usage\": \"/.singularity.d/runscript.help\",\n\t\"org.label-schema.usage.singularity.deffile.bootstrap\": \"library\",\n\t\"org.label-schema.usage.singularity.deffile.from\": \"debian:9\",\n\t\"org.label-schema.usage.singularity.runscript.help\": \"/.singularity.d/runscript.help\",\n\t\"org.label-schema.usage.singularity.version\": \"3.0.1-236.g2453fdfe\"\n}"
+	     },
+	     "type": "container"
+    }
+
+------------------
+容器元数据
+------------------
+
+在容器内部, 元数据存储在 ``/.singularity.d`` 下面，通常你不需要编辑这些文件，但是知道下面的这些文件是做什么的很有必要。
+
+.. code-block:: none
+
+    /.singularity.d/
+
+    ├── actions
+    │   ├── exec
+    │   ├── run
+    │   ├── shell
+    │   ├── start
+    │   └── test
+    ├── env
+    │   ├── 01-base.sh
+    |   ├── 10-docker2singularity.sh
+    │   ├── 90-environment.sh
+    │   ├── 91-environment.sh
+    |   ├── 94-appsbase.sh
+    │   ├── 95-apps.sh
+    │   └── 99-base.sh
+    ├── labels.json
+    ├── libs
+    ├── runscript
+    ├── runscript.help
+    ├── Singularity
+    └── startscript
+
+-  **actions**: 执行命令(``exec`` , ``run`` ， ``shell``，等)对应的运行文件, 这些文件在运行时可能会动态改变。
+
+-  **env**: 当容器初始化的时候，所有 ``*.sh`` 文件会安装字母顺序先后被source。为了和老版本兼容， ``/environment`` 实际上是一个软链，链接到 ``/.singularity.d/env/90-environment.sh``。
+
+-  **labels.json**: 这个json文件存储了容器的label。
+
+-  **libs**: 这个下面保存host上映射到镜像中的库，比如使用 --nv选项的时候会把nvidia的库映射到这里。
+
+-  **runscript**: 当执行 ``run`` 命令或者直接运行容器文件的时候，这个文件会被调用。为了和老版本兼容，``/singularity`` 是个软链，链接到这个文件。
+
+-  **runscript.help**: 这个文件保存了 ``%help`` 下添加的内容。
+
+-  **Singularity**: 这个是def文件。如果容器是使用多个def文件build生成，那么其它的def文件将按照数字顺序出现在 ``bootstrap_history`` 文件夹下。
+
+-  **startscript**: 当执行 ``instance start`` 的时候会调用这个文件。

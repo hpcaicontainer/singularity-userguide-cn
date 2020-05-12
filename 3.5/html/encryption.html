@@ -1,0 +1,446 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>加密容器 &mdash; Singularity container 3.5 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="_static/favicon.png"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script src="_static/js/ga.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="容器仓库" href="endpoint.html" />
+    <link rel="prev" title="Key的管理" href="key_commands.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Singularity container
+          
+
+          
+            
+            <img src="_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">介绍</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html">快速入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security.html">Singularity安全</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="build_a_container.html">Build容器</a></li>
+<li class="toctree-l1"><a class="reference internal" href="definition_files.html">Definition文件</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build_env.html">Build环境</a></li>
+<li class="toctree-l1"><a class="reference internal" href="singularity_and_docker.html">Singularity和Docker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fakeroot.html">Fakeroot</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="signNverify.html">签名和认证</a></li>
+<li class="toctree-l1"><a class="reference internal" href="key_commands.html">Key管理</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">容器加密</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id2">概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">加密一个容器</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id4">通过密码加密</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id5">使用命令行：</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id6">使用环境变量：</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#pem">PEM加密</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id7">通过命令行参数加密</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id8">通过环境变量加密</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id9">运行一个加密的容器</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id10">运行一个使用密码加密的容器</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id11">使用交互的命令行方式输入密码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id12">使用环境变量设置解密使用的密码</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id13">运行一个使用PEM加密的容器</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id14">使用命令行选项设置PEM文件的位置</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id15">使用环境变量设置PEM文件的位置</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="endpoint.html">容器仓库</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cloud_library.html">Cloud Library</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bind_paths_and_mounts.html">路径映射</a></li>
+<li class="toctree-l1"><a class="reference internal" href="persistent_overlays.html">持久化Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="running_services.html">运行服务</a></li>
+<li class="toctree-l1"><a class="reference internal" href="environment_and_metadata.html">环境变量和元数据</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oci_runtime.html">OCI运行时</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugins.html">插件</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security_options.html">安全选项</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networking.html">网络选项</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cgroups.html">Cgroups</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mpi.html">MPI应用</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gpu.html">GPU支持</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="appendix.html">Appendix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Singularity container</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>加密容器</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/sylabs/singularity-userdocs/blob/master/encryption.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="encryption">
+<span id="id1"></span><h1>加密容器<a class="headerlink" href="#encryption" title="Permalink to this headline">¶</a></h1>
+<p>通过加密root文件系统，用户可以build一个安全可靠的容器环境。</p>
+<div class="section" id="id2">
+<h2>概述<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p>Singularity从3.4.0来时支持加密SIF格式的容器， 可以通过输入密码或者RSA公私钥的公钥的PEM文件来加密。
+加密后的镜像即使在运行的时候也不会有解密后的中间文件，临时文件存在硬盘上，解密完全在内核空间中完成。</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>这个功能使用了Linux的 <code class="docutils literal notranslate"><span class="pre">dm-crypt</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cryptsetup</span></code> 库，cryptsetup的版本必须&gt;= 2.0.0,
+Ubuntu 18.04,Debian 10和CentOS/RHEL 7自带的库满足版本要求，
+但是老版本的Linux可能需要升级库的版本。</p>
+</div>
+</div>
+<div class="section" id="id3">
+<h2>加密一个容器<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<p>容器可以使用密码或者含有RSA公钥的PEM文件来加密。这两种方法中，其中PEM更安全，因此建议使用PEM来加密。</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Singularity 3.4中，存储在容器中def文件是没被加密的，如果def文件包含有敏感信息，
+你可以通过 <code class="docutils literal notranslate"><span class="pre">singularity</span> <span class="pre">sif</span> <span class="pre">del</span> <span class="pre">1</span> <span class="pre">myimage.sif</span></code> 将def文件移调。 Metadata的加密在后面的版本中会支持。</p>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">singularity</span> <span class="pre">build</span></code> 的时候通过 <code class="docutils literal notranslate"><span class="pre">-e|--encrypt</span></code> 选项来加密容器。</p>
+<p>在build容器的时候，加密需要的密码或者PEM文件可以通过环境变量或者命令行选项传递给容器.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 26%" />
+<col style="width: 46%" />
+<col style="width: 28%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>Encryption Method</strong></p></td>
+<td><p><strong>Environment Variable</strong></p></td>
+<td><p><strong>Commandline Option</strong></p></td>
+</tr>
+<tr class="row-even"><td><p>Passphrase</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">SINGULARITY_ENCRYPTION_PASSPHRASE</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">--passphrase</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Asymmetric Key (PEM)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">SINGULARITY_ENCRYPTION_PEM_PATH</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">--pem-path</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>build容器的时候，如果使用了命令行选项传递密码或者PEM文件，那么 <code class="docutils literal notranslate"><span class="pre">-e|--encrypt</span></code> 标记不需要加到命令行。
+如果多个加密的选项或者环境变量同时出现，下面是他们的他们的优先级（第一个优先级最高）。</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--pem-path</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--passphrase</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SINGULARITY_ENCRYPTION_PEM_PATH</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SINGULARITY_ENCRYPTION_PASSPHRASE</span></code></p></li>
+</ol>
+<div class="section" id="id4">
+<h3>通过密码加密<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>通过密码加密没有PEM安全，通过密码加密提供了一种便捷的途径，
+让用户能比较方便的熟悉加密的流程，但是在生产环境中，鼓励使用PEM加密。</p>
+</div>
+<p>下面分别是通过选项和通过环境变量使用密码加密容器.</p>
+<div class="section" id="id5">
+<h4>使用命令行：<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo singularity build --passphrase encrypted.sif encrypted.def
+Enter encryption passphrase: &lt;secret&gt;
+INFO:    Starting build...
+</pre></div>
+</div>
+</div>
+<div class="section" id="id6">
+<h4>使用环境变量：<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo SINGULARITY_ENCRYPTION_PASSPHRASE=&lt;secret&gt; singularity build --encrypt encrypted.sif encrypted.def
+Starting build...
+</pre></div>
+</div>
+<p>通过环境变量加密的时候，命令行需要添加 <code class="docutils literal notranslate"><span class="pre">--encrypt</span></code> 这个标记，否则将不会触发加密流程。</p>
+<p>当使用环境变量加密容器的时候，确保你的环境变量不要在命令行被记住，比如下面你的例子，
+你可以将密码存在一个文件(比如 <code class="docutils literal notranslate"><span class="pre">secret.txt</span></code>)，然后像下面一样使用它。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ export SINGULARITY_ENCRYPTION_PASSPHRASE=$(cat secret.txt)
+
+$ sudo -E singularity build --encrypt encrypted.sif encrypted.def
+Starting build...
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="pem">
+<h3>PEM加密<a class="headerlink" href="#pem" title="Permalink to this headline">¶</a></h3>
+<p>Singularity支持通过RSA公私钥对来加密。公钥用来加密容器，私钥用来解密。公私钥在PEM格式的文件中。</p>
+<p>你可以使用 <code class="docutils literal notranslate"><span class="pre">ssh-keygen</span></code> 命令生成公私钥对，然后将公私钥保存到pem文件中:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Generate a keypair
+$ ssh-keygen -t rsa -b 2048
+Generating public/private rsa key pair.
+Enter file in which to save the key (/home/vagrant/.ssh/id_rsa): rsa
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+[snip...]
+
+# Convert the public key to PEM PKCS1 format
+$ ssh-keygen -f ./rsa.pub -e -m pem &gt;rsa_pub.pem
+
+# Rename the private key (already PEM PKCS1) to a nice name
+$ mv rsa rsa_pri.pem
+</pre></div>
+</div>
+<p>接着你可以使用 <code class="docutils literal notranslate"><span class="pre">rsa_pub.pem</span></code> 来加密容器，使用 <code class="docutils literal notranslate"><span class="pre">rsa_pri.pem</span></code> 来运行容器。</p>
+<div class="section" id="id7">
+<h4>通过命令行参数加密<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo singularity build --pem-path=rsa_pub.pem encrypted.sif encrypted.def
+Starting build...
+</pre></div>
+</div>
+</div>
+<div class="section" id="id8">
+<h4>通过环境变量加密<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo SINGULARITY_ENCRYPTION_PEM_PATH=rsa_pub.pem singularity build --encrypt encrypted.sif encrypted.def
+Starting build...
+</pre></div>
+</div>
+<p>通过环境变量加密的时候，命令行需要添加 <code class="docutils literal notranslate"><span class="pre">--encrypt</span></code> 这个标记，否则将不会触发加密流程。</p>
+</div>
+</div>
+</div>
+<div class="section" id="id9">
+<h2>运行一个加密的容器<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h2>
+<p>使用命令行（ <code class="docutils literal notranslate"><span class="pre">run</span></code>, <code class="docutils literal notranslate"><span class="pre">shell</span></code>, 或者 <code class="docutils literal notranslate"><span class="pre">exec</span></code> 等）运行加密容器的时候, 需要提供密码或这PEM文件来解密后运行。</p>
+<div class="section" id="id10">
+<h3>运行一个使用密码加密的容器<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id11">
+<h4>使用交互的命令行方式输入密码<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity run --passphrase encrypted.sif
+Enter passphrase for encrypted container: &lt;secret&gt;
+</pre></div>
+</div>
+</div>
+<div class="section" id="id12">
+<h4>使用环境变量设置解密使用的密码<a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ SINGULARITY_ENCRYPTION_PASSPHRASE=&quot;secret&quot; singularity run encrypted.sif
+</pre></div>
+</div>
+<p>当使用环境变量运行容器的时候，确保你的环境变量不要在命令行被记住，比如下面你的例子，
+你可以将密码存在一个文件(e.g. <code class="docutils literal notranslate"><span class="pre">secret.txt</span></code>)，然后像下面一样使用它。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ export SINGULARITY_ENCRYPTION_PASSPHRASE=$(cat secret.txt)
+
+$ singularity run encrypted.sif
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="id13">
+<h3>运行一个使用PEM加密的容器<a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h3>
+<p>一个私钥的PEM文件要被用来加密容器。</p>
+<div class="section" id="id14">
+<h4>使用命令行选项设置PEM文件的位置<a class="headerlink" href="#id14" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity run --pem-path=rsa_pri.pem encrypted.sif
+</pre></div>
+</div>
+</div>
+<div class="section" id="id15">
+<h4>使用环境变量设置PEM文件的位置<a class="headerlink" href="#id15" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ SINGULARITY_ENCRYPTION_PEM_PATH=rsa_pri.pem singularity run encrypted.sif
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="endpoint.html" class="btn btn-neutral float-right" title="容器仓库" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="key_commands.html" class="btn btn-neutral float-left" title="Key的管理" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017-2019, Sylabs Inc
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

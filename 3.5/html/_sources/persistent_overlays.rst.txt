@@ -1,0 +1,191 @@
+===================
+持久化Overlay
+===================
+
+持久化overlay添加一个可读写的overlay文件系统到一个只读的容器上。 
+你在容器中的修改都保存在持久化的overlay上。
+
+
+--------
+概述
+--------
+
+持久化overlay是在只读的SIF容器之上的一个文件系统，当你安装软件和修改文件的时候，overlay将保存这些修改。 
+
+如果你要在SIF容器中可以写入内容，那么有三种方式：目录，ext3的文件系统镜像，或者嵌入到SIF中的一个ext3的文件系统镜像。 
+接着你在运行命令的时候可以使用 ``--overlay`` 选项来写入容器, 或者使用 ``--writable`` 来写入使用嵌有ext3文件系统镜像的SIF。
+
+如果你想修改容器，但是不想持久化修改的内容，你可以使用 ``--writable-tmpfs`` 选项，
+这个选项将所有的改动保存在内存文件系统中，当容器结束运行，修改的内容就会被丢掉。
+
+下面的命令都可以使用持久化overlay:
+
+- ``run``
+- ``exec``
+- ``shell``
+- ``instance.start``
+
+-----
+Usage
+-----
+
+使用持久化overlay, 必须先有一个容器。
+
+.. code-block:: none
+
+    $ sudo singularity build ubuntu.sif library://ubuntu
+
+ext3文件系统镜像overlay
+=========================
+
+你可以使用 ``dd`` 和 ``mkfs.ext3`` 创建一个空的ext3的文件系统镜像，这个镜像文件将会保存你在容器中所做的所有修改。
+
+需要写大量小文件的应用，HPC的并行文件系统上使用单个的overlay image文件比一个目录具有更高的性能。
+每次写入操作都是一个单一文件的本地操作，不需要大量的并行文件系统元数据的修改。
+
+创建一个空的，大小为500MB的overlay镜像:
+
+.. code-block:: none
+
+    $ dd if=/dev/zero of=overlay.img bs=1M count=500 && \
+        mkfs.ext3 overlay.img
+
+现在你能在容器中使用这个overlay了, 当然你的用户在容器中的权限仍然决定你能在哪些目录下写入文件。
+所以如果你需要在容器中的 ``/`` 下写入内容, 你需要使用 ``sudo`` 运行容器。
+
+.. code-block:: none
+
+   $ sudo singularity shell --overlay overlay.img ubuntu.sif
+
+为了管理overlay的权限，从而让普通用户也可以在容器内写入文件，你可以创建一个文件目录，设置好你需要的权限，
+然后将通过 ``mkfs.ext3`` 的 ``-d`` 选项将其包含在overlay中。
+
+.. code-block:: none
+
+   $ mkdir -p overlay/upper
+   $ dd if=/dev/zero of=overlay.img bs=1M count=500 && \
+        mkfs.ext3 -d overlay overlay.img
+
+现在作为一个普通用户，我们可以在容器中写入文件。 
+
+.. code-block:: none
+
+   $ singularity shell --overlay overlay.img ubuntu.sif
+   Singularity> echo $USER
+   dtrudg
+   Singularity> echo "Hello" > /hello
+                
+.. note::
+
+   ``mkfs.ext3`` 的 ``-d`` 选项不支持 ``uid`` 或者 ``gid`` 大于65535的用户或组。
+   如果要允许uid或者gid比较大的用户能写入容器，你可以修改目录的权限为777 ``mkdir -p -m 777 overlay/upper``。
+   这时候，这些用户就可以在容器中写入文件，但是由于目录权限为777，没法控制只让某些用户写入数据。
+   
+
+目录overlay
+=================
+
+目录overlay比镜像overley要简单，但是由于是一个目录下，因此分享的时候比如一个overlay文件方便。
+
+.. note::
+
+    由于安全方面的原因，使用目录overlay的时候你必须是root用户。而镜像overlay，可以被普通用户使用。
+
+创建一个目录:
+
+.. code-block:: none
+
+    $ mkdir my_overlay
+
+
+使用目录overlay。
+
+.. code-block:: none
+
+    $ sudo singularity shell --overlay my_overlay/ ubuntu.sif
+
+    Singularity ubuntu.sif:~> mkdir /data
+
+    Singularity ubuntu.sif:~> chown user /data
+
+    Singularity ubuntu.sif:~> apt-get update && apt-get install -y vim
+
+    Singularity ubuntu.sif:~> which vim
+    /usr/bin/vim
+
+    Singularity ubuntu.sif:~> exit
+
+嵌入到SIF文件中的镜像overlay
+===============================
+
+可以将一个overlay镜像嵌入SIF文件中，这样一个只读的SIF就可以支持写文件。
+首先创建一个overlay镜像:
+
+.. code-block:: none
+
+    $ dd if=/dev/zero of=overlay.img bs=1M count=500 && \
+        mkfs.ext3 overlay.img
+
+接着你可以使用,``sif``命令将overlay镜像加入SIF容器。
+
+.. code-block:: none
+
+   $ singularity sif add --datatype 4 --partfs 2 --parttype 4 --partarch 2 --groupid 1 ubuntu_latest.sif overlay.img
+
+上面命令中:
+
+- ``datatype`` 设置加入的是什么类型的对象，比如
+  definition文件, 环境变量, 签名等.
+- ``partfs`` 设置partition的文件系统的类型，比如是SquashFS, ext3, raw。
+- ``parttype`` 设置partition的类型，这里是overlay。
+- ``partarch`` 设置partition的架构，这里设置为 ``amd64``。
+- ``groupid`` 设置容器镜像组的ID，绝大多数情况下，不会多余一个组，因此这里我们设置为1。
+
+这些选项的详情可以使用 ``singularity sif add --help`` 查看。
+
+上述步骤完成后，你就可以使用 ``--writable`` 选项写入SIF容器。
+
+.. code-block:: none
+
+        $ sudo singularity shell --writable ubuntu_latest.sif
+
+总结
+==========
+
+通过持久化的overlay，你将可以写入容器。
+
+.. code-block:: none
+
+    $ singularity shell --overlay my_overlay/ ubuntu.sif
+
+    Singularity ubuntu.sif:~> ls -lasd /data
+    4 drwxr-xr-x 2 user root 4096 Apr  9 10:21 /data
+
+    Singularity ubuntu.sif:~> which vim
+    /usr/bin/vim
+
+    Singularity ubuntu.sif:~> exit
+
+
+如果你没有使用 ``--overlay``，你的修改将会丢失。
+
+.. code-block:: none
+
+    $ singularity shell ubuntu.sif
+
+    Singularity ubuntu.sif:~> ls /data
+    ls: cannot access 'data': No such file or directory
+
+    Singularity ubuntu.sif:~> which vim
+
+    Singularity ubuntu.sif:~> exit
+
+修改overlay的大小, 可以使用能操作ext3的的工具修改overlay的大小。
+比如将500MB的文件扩到700MB，你可以使用 ``e2fsck`` 和 ``resize2fs``。
+
+.. code-block:: none
+
+    $ e2fsck -f my_overlay && \
+        resize2fs my_overlay 700M
+
+关于如果创建和操作ext3的镜像，有很多在线的例子，本手册中不包含这部分的详细内容。

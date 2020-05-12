@@ -1,0 +1,423 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>容器仓库 &mdash; Singularity container 3.5 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="_static/favicon.png"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script src="_static/js/ga.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Cloud Library" href="cloud_library.html" />
+    <link rel="prev" title="加密容器" href="encryption.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Singularity container
+          
+
+          
+            
+            <img src="_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">介绍</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html">快速入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security.html">Singularity安全</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="build_a_container.html">Build容器</a></li>
+<li class="toctree-l1"><a class="reference internal" href="definition_files.html">Definition文件</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build_env.html">Build环境</a></li>
+<li class="toctree-l1"><a class="reference internal" href="singularity_and_docker.html">Singularity和Docker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fakeroot.html">Fakeroot</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="signNverify.html">签名和认证</a></li>
+<li class="toctree-l1"><a class="reference internal" href="key_commands.html">Key管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="encryption.html">容器加密</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">容器仓库</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id2">概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id6">Sylabs Cloud</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id7">管理容器仓库</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id8">查看和登录容器仓库</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id9">添加和删除容器仓库</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id10">设置默认容器仓库</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cloud_library.html">Cloud Library</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bind_paths_and_mounts.html">路径映射</a></li>
+<li class="toctree-l1"><a class="reference internal" href="persistent_overlays.html">持久化Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="running_services.html">运行服务</a></li>
+<li class="toctree-l1"><a class="reference internal" href="environment_and_metadata.html">环境变量和元数据</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oci_runtime.html">OCI运行时</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugins.html">插件</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security_options.html">安全选项</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networking.html">网络选项</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cgroups.html">Cgroups</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mpi.html">MPI应用</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gpu.html">GPU支持</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="appendix.html">Appendix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Singularity container</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>容器仓库</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/sylabs/singularity-userdocs/blob/master/endpoint.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="id1">
+<h1>容器仓库<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id2">
+<h2>概述<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="https://cloud.sylabs.io/home">Sylabs Cloud</a> 是公有的容器仓库，
+允许用户 <a class="reference external" href="https://cloud.sylabs.io/builder">创建</a>, <a class="reference external" href="https://cloud.sylabs.io/keystore?sign=true">签名</a>,
+和 <a class="reference external" href="https://cloud.sylabs.io/library/guide#create">分享</a> 他们的容器。
+Singularity Enterprise提供了私有容器仓库（Container Library, Remote Builder和Key Store）。</p>
+<p>使用 <code class="docutils literal notranslate"><span class="pre">remote</span></code> 命令可以登录Sylabs Cloud的账号, 如果你本地安装有Singularity企业版，也可以指定使用本地的私有容器仓库。</p>
+<p>用户可以在多个容器仓库之间切换，容器仓库的配置保存在 <code class="docutils literal notranslate"><span class="pre">~/.singularity/remote.yaml</span></code>。
+管理员可以设置系统级别的容器仓库，所有用户都可以使用。</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">remote</span></code> 命令可以连接公有的Sylabs Cloud, 或者安装有Singularity Enterprise的私有的仓库, 或者社区开发的API兼容的服务。</p>
+<p><code class="docutils literal notranslate"><span class="pre">remote</span></code> 命令 <em>不能</em> 存储访问docker的账号。关于singularity和docker的关系，详细请查看 <a class="reference internal" href="singularity_and_docker.html#singularity-and-docker"><span class="std std-ref">支持Docker和OCI容器</span></a></p>
+</div>
+</div>
+<div class="section" id="id6">
+<h2>Sylabs Cloud<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
+<p>一个全新安装的Singularity默认连接公共的 <a class="reference external" href="https://cloud.sylabs.io">cloud.sylabs.io</a>。
+你需要获取一个认证token，然后 <code class="docutils literal notranslate"><span class="pre">singularity</span> <span class="pre">remote</span> <span class="pre">login</span></code> 登陆:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>访问: <a class="reference external" href="https://cloud.sylabs.io/">https://cloud.sylabs.io/</a></p></li>
+<li><p>点击 “Sign in to Sylabs”</p></li>
+<li><p>点击你的id</p></li>
+<li><p>在下拉菜单中选择 “Access Tokens”</p></li>
+<li><p>输入你的access token的名字，比如 “test token”</p></li>
+<li><p>点击 “Create a New Access Token” 按钮</p></li>
+<li><p>在”New API Token” 页面点击 “Copy token to Clipboard”</p></li>
+<li><p>运行 <code class="docutils literal notranslate"><span class="pre">singularity</span> <span class="pre">remote</span> <span class="pre">login</span></code>，根据提示输入access token</p></li>
+</ol>
+</div></blockquote>
+<p>然后你可以使用remote status查看连接到syslabs cloud的状态。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity remote status
+INFO:    Checking status of default remote.
+SERVICE           STATUS  VERSION
+Builder Service   OK      v1.1.4-0-g3ef2555
+Consent Service   OK      v1.0.2-0-g2a24b4a
+Keystore Service  OK      v1.9.0-0-g112eb0e-dirty
+Library Service   OK      v1.0.4-0-g24d3b74
+Token Service     OK      v1.0.2-0-g2a24b4a
+</pre></div>
+</div>
+<p>如果你看到任何错误，检查下你是否需要设置代理，或者你的防火墙是不是不允许访问 <code class="docutils literal notranslate"><span class="pre">*.sylabs.io</span></code>。</p>
+<p>接着你就可以使用singularity命令来直接使用Sylabs Cloud上的容器。</p>
+<p><a class="reference external" href="https://www.sylabs.io/guides/3.5/user-guide/cli/singularity_pull.html">pull</a>,
+<a class="reference external" href="https://www.sylabs.io/guides/3.5/user-guide/cli/singularity_push.html">push</a>,
+<a class="reference external" href="https://www.sylabs.io/guides/3.5/user-guide/cli/singularity_build.html#options">build –remote</a>,
+<a class="reference external" href="https://www.sylabs.io/guides/3.5/user-guide/cli/singularity_key.html">key</a>,
+<a class="reference external" href="https://www.sylabs.io/guides/3.5/user-guide/cli/singularity_search.html">search</a>,
+<a class="reference external" href="https://www.sylabs.io/guides/3.5/user-guide/cli/singularity_verify.html">verify</a>,
+<a class="reference external" href="https://www.sylabs.io/guides/3.5/user-guide/cli/singularity_exec.html">exec</a>,
+<a class="reference external" href="https://www.sylabs.io/guides/3.5/user-guide/cli/singularity_shell.html">shell</a>,
+<a class="reference external" href="https://www.sylabs.io/guides/3.5/user-guide/cli/singularity_run.html">run</a>,
+<a class="reference external" href="https://www.sylabs.io/guides/3.5/user-guide/cli/singularity_instance.html">instance</a></p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>当使用 <code class="docutils literal notranslate"><span class="pre">docker://</span></code>, <code class="docutils literal notranslate"><span class="pre">oras://</span></code> 和 <code class="docutils literal notranslate"><span class="pre">shub://</span></code> 等URI的时候， 这些命令不会和Sylabs Cloud交互。</p>
+</div>
+</div>
+<div class="section" id="id7">
+<h2>管理容器仓库<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h2>
+<p>通常，用户和管理员可以使用 <code class="docutils literal notranslate"><span class="pre">singularity</span> <span class="pre">remote</span></code> 命令管理容器仓库, 尽量不要直接编辑 <code class="docutils literal notranslate"><span class="pre">remote.yaml</span></code> 文件。</p>
+<div class="section" id="id8">
+<h3>查看和登录容器仓库<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">list</span></code> 命令可以列出已经配置的容器仓库：</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity remote list
+
+NAME           URI              GLOBAL
+[SylabsCloud]  cloud.sylabs.io  YES
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">[...]</span></code> 表示这个容器仓库是现在默认的容器仓库。</p>
+<p>第一次使用的时候或者你的token过期的时候，使用 <code class="docutils literal notranslate"><span class="pre">login</span></code> 登录容器仓库。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Login to the default remote endpoint
+$ singularity remote login
+
+# Login to another remote endpoint
+$ singularity remote login &lt;remote_name&gt;
+
+# example...
+$ singularity remote login SylabsCloud
+singularity remote login SylabsCloud
+INFO:    Authenticating with remote: SylabsCloud
+Generate an API Key at https://cloud.sylabs.io/auth/tokens, and paste here:
+API Key:
+INFO:    API Key Verified!
+</pre></div>
+</div>
+</div>
+<div class="section" id="id9">
+<h3>添加和删除容器仓库<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h3>
+<p>使用 <code class="docutils literal notranslate"><span class="pre">add</span></code> 命令添加一个容器仓库(只有当前用户可以使用容器仓库):</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity remote add &lt;remote_name&gt; &lt;remote_uri&gt;
+</pre></div>
+</div>
+<p>比如，如果你安装有Singularity企业版，其提供的容器仓库是enterprise.example.com:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity remote add myremote https://enterprise.example.com
+
+INFO:    Remote &quot;myremote&quot; added.
+INFO:    Authenticating with remote: myremote
+Generate an API Key at https://enterprise.example.com/auth/tokens, and paste here:
+API Key:
+</pre></div>
+</div>
+<p>命令会提示你创建一个API Key。</p>
+<p>管理员可以使用 <code class="docutils literal notranslate"><span class="pre">add</span> <span class="pre">--global</span></code> 命令添加一个全局容器仓库(所有用户都可以使用这个容器仓库)。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo singularity remote add --global &lt;remote_name&gt; &lt;remote_uri&gt;
+
+# example..
+
+$ sudo singularity remote add --global company-remote https://enterprise.example.com
+[sudo] password for dave:
+INFO:    Remote &quot;company-remote&quot; added.
+INFO:    Global option detected. Will not automatically log into remote.
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>全局容器仓库只能被root用户添加和修改，容器仓库信息存储在 <code class="docutils literal notranslate"><span class="pre">etc/singularity/remote.yaml</span></code>。</p>
+</div>
+<p>相应地, 使用 <code class="docutils literal notranslate"><span class="pre">remove</span></code> 命令删除一个容器仓库:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity remote remove &lt;remote_name&gt;
+</pre></div>
+</div>
+<p>root用户可以使用 <code class="docutils literal notranslate"><span class="pre">--global</span></code> 标记删除一个全局的容器仓库:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo singularity remote remove --global &lt;remote_name&gt;
+</pre></div>
+</div>
+</div>
+<div class="section" id="id10">
+<h3>设置默认容器仓库<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h3>
+<p>可以使用命令 <code class="docutils literal notranslate"><span class="pre">remote</span> <span class="pre">use</span></code> 来设置默认的容器仓库。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity remote use &lt;remote_name&gt;
+</pre></div>
+</div>
+<p>默认的容器仓库在容器仓库列表中会被中括号包围:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity remote list
+NAME            URI                     GLOBAL
+[SylabsCloud]   cloud.sylabs.io         YES
+company-remote  enterprise.example.com  YES
+myremote        enterprise.example.com  NO
+
+$ singularity remote use myremote
+INFO:    Remote &quot;myremote&quot; now in use.
+
+$ singularity remote list
+NAME            URI                     GLOBAL
+SylabsCloud     cloud.sylabs.io         YES
+company-remote  enterprise.example.com  YES
+[myremote]      enterprise.example.com  NO
+</pre></div>
+</div>
+<p>如果你不想切换默认的容器仓库，你也可以在命令中直接指定使用的容器仓库:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">push</span></code> 和 <code class="docutils literal notranslate"><span class="pre">pull</span></code> 命令可以使用 <code class="docutils literal notranslate"><span class="pre">--library</span></code> 标记指定要使用的容器仓库。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">build</span> <span class="pre">--remote</span></code> 命令可以使用 <code class="docutils literal notranslate"><span class="pre">--builder</span></code> 标记指定要使用的容器仓库。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">keys</span></code> 使用 <code class="docutils literal notranslate"><span class="pre">-url</span></code> 标记指定要使用的keyserver。</p></li>
+</ul>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="cloud_library.html" class="btn btn-neutral float-right" title="Cloud Library" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="encryption.html" class="btn btn-neutral float-left" title="加密容器" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017-2019, Sylabs Inc
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

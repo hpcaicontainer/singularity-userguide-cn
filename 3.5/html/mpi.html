@@ -1,0 +1,508 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>MPI应用 &mdash; Singularity container 3.5 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="_static/favicon.png"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script src="_static/js/ga.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="GPU (NVIDIA CUDA &amp; AMD ROCm)" href="gpu.html" />
+    <link rel="prev" title="使用cgroups限制容器资源" href="cgroups.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Singularity container
+          
+
+          
+            
+            <img src="_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">介绍</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html">快速入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security.html">Singularity安全</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="build_a_container.html">Build容器</a></li>
+<li class="toctree-l1"><a class="reference internal" href="definition_files.html">Definition文件</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build_env.html">Build环境</a></li>
+<li class="toctree-l1"><a class="reference internal" href="singularity_and_docker.html">Singularity和Docker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fakeroot.html">Fakeroot</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="signNverify.html">签名和认证</a></li>
+<li class="toctree-l1"><a class="reference internal" href="key_commands.html">Key管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="encryption.html">容器加密</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="endpoint.html">容器仓库</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cloud_library.html">Cloud Library</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="bind_paths_and_mounts.html">路径映射</a></li>
+<li class="toctree-l1"><a class="reference internal" href="persistent_overlays.html">持久化Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="running_services.html">运行服务</a></li>
+<li class="toctree-l1"><a class="reference internal" href="environment_and_metadata.html">环境变量和元数据</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oci_runtime.html">OCI运行时</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugins.html">插件</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security_options.html">安全选项</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networking.html">网络选项</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cgroups.html">Cgroups</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">MPI应用</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#hybrid">Hybrid模式</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bind">Bind模式</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">运行</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="gpu.html">GPU支持</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="appendix.html">Appendix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Singularity container</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>MPI应用</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/sylabs/singularity-userdocs/blob/master/mpi.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="mpi">
+<span id="id1"></span><h1>MPI应用<a class="headerlink" href="#mpi" title="Permalink to this headline">¶</a></h1>
+<p id="sec-mpi"><a class="reference external" href="https://mpi-forum.org">Message Passing Interface (MPI)</a> 是一个接口标准，定义了多节点之间的告诉通信，MPI广泛应用在HPC领域。</p>
+<p>MPI有两个主要的开源实现 <a class="reference external" href="https://www.open-mpi.org/">OpenMPI</a> 和 <a class="reference external" href="https://www.mpich.org/">MPICH</a>,
+singularity这两种MPI都支持，这一页的目标是展示怎么使用singularity容器运行MPI应用。</p>
+<p>有几种方式来实现这个目标，最常用的方式是在容器内运行MPI应用，但是依赖host上的MPI。
+这种方式叫做 <em>Host MPI</em> 模式或者 <em>Hybrid</em> 模式，这种模式host上和容器内都需要安装MPI。</p>
+<p>另外一种方式是只使用host上的mpi，而容器中没有安装MPI，通过映射的方式将host上的mpi映射到容器中使用。
+这种方式叫做 <em>Bind</em> 模式。</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><em>bind</em> 模式要求mount host上的MPI到容器中。而根据MPI在host上的安装位置，有时候mount需要特权操作，有时还需要访问其他用户的数据。</p>
+</div>
+<div class="section" id="hybrid">
+<h2>Hybrid模式<a class="headerlink" href="#hybrid" title="Permalink to this headline">¶</a></h2>
+<p><em>Hybrid</em> 模式下，当你执行一个MPI程序的时候，你需要在host上调用 <code class="docutils literal notranslate"><span class="pre">mpiexec</span></code> 或者 <code class="docutils literal notranslate"><span class="pre">mpirun</span></code> 等launcher来启动程序。</p>
+<p>Open MPI/Singularity的工作流程如下:</p>
+<ol class="arabic simple">
+<li><p>资源调度器或者用户直接在shell中调用MPI launcher (比如 <code class="docutils literal notranslate"><span class="pre">mpirun</span></code>, <code class="docutils literal notranslate"><span class="pre">mpiexec</span></code>)。</p></li>
+<li><p>Open MPI的lancher接着调用process management daemon (ORTED)。</p></li>
+<li><p>ORTED启动singularity容器。</p></li>
+<li><p>Singularity初始化容器和运行环境。</p></li>
+<li><p>Singularity接着在容器内启动MPI程序。</p></li>
+<li><p>MPI程序导入容器中的Open MPI库。</p></li>
+<li><p>Open MPI库通过Process Management Interface (PMI)和ORTED交互。</p></li>
+</ol>
+<p>至此，容器内的程序已经运行起来。</p>
+<p>这种模式的优势:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>和资源调度器（比如Slurm）集成。</p></li>
+<li><p>和原生MPI程序执行相同，容器理解</p></li>
+</ul>
+</div></blockquote>
+<p>这种模式的缺陷:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>容器内的MPI和host上的MPI在版本上必须兼容。</p></li>
+<li><p>在性能至关重要的情况下，容器中MPI的配置也必须能优化使用硬件的性能。</p></li>
+</ul>
+</div></blockquote>
+<p>因为容器中的MPI必须和host上的MPI版本兼容, 因此在build自己的MPI容器的时候需要考虑host上的MPI。</p>
+<p>下面是一个例子,  <cite>mpitest.c</cite> 是一个简单的Hello World:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;mpi.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp"></span>
+
+<span class="kt">int</span> <span class="nf">main</span> <span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kt">int</span> <span class="n">rc</span><span class="p">;</span>
+        <span class="kt">int</span> <span class="n">size</span><span class="p">;</span>
+        <span class="kt">int</span> <span class="n">myrank</span><span class="p">;</span>
+
+        <span class="n">rc</span> <span class="o">=</span> <span class="n">MPI_Init</span> <span class="p">(</span><span class="o">&amp;</span><span class="n">argc</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">argv</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">rc</span> <span class="o">!=</span> <span class="n">MPI_SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">fprintf</span> <span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;MPI_Init() failed&quot;</span><span class="p">);</span>
+                <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="n">rc</span> <span class="o">=</span> <span class="n">MPI_Comm_size</span> <span class="p">(</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">size</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">rc</span> <span class="o">!=</span> <span class="n">MPI_SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">fprintf</span> <span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;MPI_Comm_size() failed&quot;</span><span class="p">);</span>
+                <span class="k">goto</span> <span class="n">exit_with_error</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="n">rc</span> <span class="o">=</span> <span class="n">MPI_Comm_rank</span> <span class="p">(</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">myrank</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">rc</span> <span class="o">!=</span> <span class="n">MPI_SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">fprintf</span> <span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;MPI_Comm_rank() failed&quot;</span><span class="p">);</span>
+                <span class="k">goto</span> <span class="n">exit_with_error</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="n">fprintf</span> <span class="p">(</span><span class="n">stdout</span><span class="p">,</span> <span class="s">&quot;Hello, I am rank %d/%d&quot;</span><span class="p">,</span> <span class="n">myrank</span><span class="p">,</span> <span class="n">size</span><span class="p">);</span>
+
+        <span class="n">MPI_Finalize</span><span class="p">();</span>
+
+        <span class="k">return</span> <span class="n">EXIT_SUCCESS</span><span class="p">;</span>
+
+ <span class="nl">exit_with_error</span><span class="p">:</span>
+        <span class="n">MPI_Finalize</span><span class="p">();</span>
+        <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>MPI是一个接口标准, 常见是Fortran和C语言的实现，但是也可以有Python, R等其它类语言的实现。</p>
+</div>
+<p>下面的步骤是通过definition文件build一个MPI容器，这将依赖于host上的mpi。</p>
+<p>如果host上的mpi是MPICH, definition文件如下所示:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Bootstrap: docker
+From: ubuntu:latest
+
+%files
+    mpitest.c /opt
+
+%environment
+    export MPICH_DIR=/opt/mpich-3.3
+    export SINGULARITY_MPICH_DIR=$MPICH_DIR
+    export SINGULARITYENV_APPEND_PATH=$MPICH_DIR/bin
+    export SINGULAIRTYENV_APPEND_LD_LIBRARY_PATH=$MPICH_DIR/lib
+
+%post
+    echo &quot;Installing required packages...&quot;
+    apt-get update &amp;&amp; apt-get install -y wget git bash gcc gfortran g++ make
+
+    # Information about the version of MPICH to use
+    export MPICH_VERSION=3.3
+    export MPICH_URL=&quot;http://www.mpich.org/static/downloads/$MPICH_VERSION/mpich-$MPICH_VERSION.tar.gz&quot;
+    export MPICH_DIR=/opt/mpich
+
+    echo &quot;Installing MPICH...&quot;
+    mkdir -p /tmp/mpich
+    mkdir -p /opt
+    # Download
+    cd /tmp/mpich &amp;&amp; wget -O mpich-$MPICH_VERSION.tar.gz $MPICH_URL &amp;&amp; tar xzf mpich-$MPICH_VERSION.tar.gz
+    # Compile and install
+    cd /tmp/mpich/mpich-$MPICH_VERSION &amp;&amp; ./configure --prefix=$MPICH_DIR &amp;&amp; make install
+    # Set env variables so we can compile our application
+    export PATH=$MPICH_DIR/bin:$PATH
+    export LD_LIBRARY_PATH=$MPICH_DIR/lib:$LD_LIBRARY_PATH
+    export MANPATH=$MPICH_DIR/share/man:$MANPATH
+
+    echo &quot;Compiling the MPI application...&quot;
+    cd /opt &amp;&amp; mpicc -o mpitest mpitest.c
+</pre></div>
+</div>
+<p>如果host MPI是Open MPI,  definition文件如下所示:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Bootstrap: docker
+From: ubuntu:latest
+
+%files
+    mpitest.c /opt
+
+%environment
+    export OMPI_DIR=/opt/ompi
+    export SINGULARITY_OMPI_DIR=$OMPI_DIR
+    export SINGULARITYENV_APPEND_PATH=$OMPI_DIR/bin
+    export SINGULAIRTYENV_APPEND_LD_LIBRARY_PATH=$OMPI_DIR/lib
+
+%post
+    echo &quot;Installing required packages...&quot;
+    apt-get update &amp;&amp; apt-get install -y wget git bash gcc gfortran g++ make file
+
+    echo &quot;Installing Open MPI&quot;
+    export OMPI_DIR=/opt/ompi
+    export OMPI_VERSION=4.0.1
+    export OMPI_URL=&quot;https://download.open-mpi.org/release/open-mpi/v4.0/openmpi-$OMPI_VERSION.tar.bz2&quot;
+    mkdir -p /tmp/ompi
+    mkdir -p /opt
+    # Download
+    cd /tmp/ompi &amp;&amp; wget -O openmpi-$OMPI_VERSION.tar.bz2 $OMPI_URL &amp;&amp; tar -xjf openmpi-$OMPI_VERSION.tar.bz2
+    # Compile and install
+    cd /tmp/ompi/openmpi-$OMPI_VERSION &amp;&amp; ./configure --prefix=$OMPI_DIR &amp;&amp; make install
+    # Set env variables so we can compile our application
+    export PATH=$OMPI_DIR/bin:$PATH
+    export LD_LIBRARY_PATH=$OMPI_DIR/lib:$LD_LIBRARY_PATH
+    export MANPATH=$OMPI_DIR/share/man:$MANPATH
+
+    echo &quot;Compiling the MPI application...&quot;
+    cd /opt &amp;&amp; mpicc -o mpitest mpitest.c
+</pre></div>
+</div>
+</div>
+<div class="section" id="bind">
+<h2>Bind模式<a class="headerlink" href="#bind" title="Permalink to this headline">¶</a></h2>
+<p>和 <em>Hybrid</em> 模式类似, 也是从host调用MPI的launcher（<cite>mpirun</cite>， <cite>mpiexec</cite>）。
+不同的是在容器内没有安装MPI，运行的时候你需要将hostMPI绑定到容器中。</p>
+<p>技术上来说这需要知道两个两点:</p>
+<ol class="arabic simple">
+<li><p>Host上MPI的安装位置。</p></li>
+<li><p>Host上MPI映射到容器中的位置，这个位置需要保证程序在容器内能找到和使用。</p></li>
+</ol>
+<p>这种模式的优势:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>和资源调度器（比如Slurm）集成。</p></li>
+<li><p>容器中没有安装MPI，因此容器比上一种要小。</p></li>
+</ul>
+</div></blockquote>
+<p>这种模式的缺点:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>用户必须知道host上MPI的安装位置。</p></li>
+<li><p>用户必须确认host上的MPI能映射到容器中。</p></li>
+<li><p>用户必须确认host上的MPI和容器中应用要求的MPI是兼容的。</p></li>
+</ul>
+</div></blockquote>
+<p>Bind模式创建容器的过程如下:</p>
+<ol class="arabic simple">
+<li><p>Host上安装需要的MPI，在host上编译MPI程序。</p></li>
+<li><p>创建definition文件，将编译好的程序和其依赖拷贝到容器中。</p></li>
+<li><p>Build容器。</p></li>
+</ol>
+<p>由于我们的程序是在host上编译好后拷贝到容器中的，因此
+当运行容器的时候确保你的host也安装有编译时使用的MPI。
+比如，如果在容器中我们有一个使用MPICH编译好的程序，在运行的时候我们也需要确保host上也安装有MPICH，如果你的host上安装的是Open MPI，映射到容器中并不一定能工作。</p>
+<p>Bind模式下的definition文件很直观。 下面的例子将host上编译好的应用 <code class="docutils literal notranslate"><span class="pre">/tmp/NetPIPE-5.1.4</span></code> 拷贝到容器中。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Bootstrap: docker
+From: ubuntu:disco
+
+%files
+      /tmp/NetPIPE-5.1.4/NPmpi /opt
+
+%environment
+      MPI_DIR=/opt/mpi
+      export MPI_DIR
+      export SINGULARITY_MPI_DIR=$MPI_DIR
+      export SINGULARITYENV_APPEND_PATH=$MPI_DIR/bin
+      export SINGULARITYENV_APPEND_LD_LIBRARY_PATH=$MPI_DIR/lib
+
+%post
+      apt-get update &amp;&amp; apt-get install -y wget git bash gcc gfortran g++ make file
+      mkdir -p /opt/mpi
+      apt-get clean
+</pre></div>
+</div>
+<p>这个例子当中，NetPIPE-5.1.4被拷贝到 <code class="docutils literal notranslate"><span class="pre">/opt</span></code>,
+同时设置环境变量，这样运行时将host上的mpi映射到镜像中的/opt/mpi后就可以使用MPI运行程序。</p>
+</div>
+<div class="section" id="id2">
+<h2>运行<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p>hybrid模式下，标准的运行方式是在host上执行 <code class="docutils literal notranslate"><span class="pre">mpirun</span></code>。假定你的容器中有mpi和已经编译好的程序，下面是运行的例子:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ mpirun -n &lt;NUMBER_OF_RANKS&gt; singularity exec &lt;PATH/TO/MY/IMAGE&gt; &lt;/PATH/TO/BINARY/WITHIN/CONTAINER&gt;
+</pre></div>
+</div>
+<p>实际中, 这个命令将首先启动一个进程初始化 <code class="docutils literal notranslate"><span class="pre">mpirun</span></code>，接着会在多个不同的计算节点上运行singularity容器，MPI程序被执行。</p>
+<p>bind模式下，唯一区别是需要映射mpi到容器中:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ mpirun -n &lt;NUMBER_OF_RANKS&gt; singularity exec --bind &lt;PATH/TO/HOST/MPI/DIRECTORY&gt;:&lt;PATH/IN/CONTAINER&gt; &lt;PATH/TO/MY/IMAGE&gt; &lt;/PATH/TO/BINARY/WITHIN/CONTAINER&gt;
+</pre></div>
+</div>
+<p>接着上面的bind模式的例子，假定在host上，MPI安装在 <code class="docutils literal notranslate"><span class="pre">/opt/openmpi</span></code> 目录下，那么命令如下：</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ mpirun -n &lt;NUMBER_OF_RANKS&gt; singularity exec --bind /opt/openmpi:/opt/mpi &lt;PATH/TO/MY/IMAGE&gt; /opt/NPmpi
+</pre></div>
+</div>
+<p>如果你的系统中安装有资源管理和作业调度器，比如SLURM，你也可以通过一个作业文件来运行MPI应用。
+下面的例子，在调度器SLURM分配的每个节点上使用singularity运行mpi程序。
+对其它的作业调度系统，也是类似。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ cat my_job.sh
+#!/bin/bash
+#SBATCH --job-name singularity-mpi
+#SBATCH -N $NNODES # total number of nodes
+#SBATCH --time=00:05:00 # Max execution time
+
+mpirun -n $NP singularity exec /var/nfsshare/gvallee/mpich.sif /opt/mpitest
+</pre></div>
+</div>
+<p>这个例子中，作业通过 <code class="docutils literal notranslate"><span class="pre">NNODES</span></code> 环境变量申请需要的节点数， <code class="docutils literal notranslate"><span class="pre">NP</span></code> 是MPI程序需要的进程数。
+这个例子假定是hybrid模式的，如果是bind模式，你需要映射mpi。</p>
+<p>接着用户就可以使用SLURM的命令提交这个作业。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sbatch my_job.sh
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="gpu.html" class="btn btn-neutral float-right" title="GPU (NVIDIA CUDA &amp; AMD ROCm)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="cgroups.html" class="btn btn-neutral float-left" title="使用cgroups限制容器资源" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017-2019, Sylabs Inc
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

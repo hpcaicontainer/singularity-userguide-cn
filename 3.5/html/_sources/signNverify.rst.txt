@@ -1,0 +1,350 @@
+.. _signNverify:
+
+================================
+容器的签名和验证
+================================
+
+
+.. _sec:signNverify:
+
+Singularity从3.0开始支持创建和管理PGP key，使用PGPkey签名和验证容器。
+这样就提供了一种可信的方式来在用户之间共享容器。
+
+.. _verify_container_from_library:
+
+-----------------------------------------------
+验证Container Library容器
+-----------------------------------------------
+
+使用 ``verify`` 命令可以使用PGP key验证容器。 如果你要验证的容器来自于container library，
+你需要首先在Sylabs Cloud上生成access token。
+
+  1) 访问: https://cloud.sylabs.io/
+  2) 点击 "Sign in to Sylabs"
+  3) 点击你的id
+  4) 在下拉菜单中选择 "Access Tokens"
+  5) 输入你的access token的名字，比如 "test token"
+  6) 点击 "Create a New Access Token" 按钮
+  7) 在"New API Token" 页面点击 "Copy token to Clipboard"
+  8) 运行 ``singularity remote login``，根据提示输入access token
+
+
+现在你能验证容器是否是完整的。
+
+.. code-block:: none
+
+    $ singularity verify alpine_latest.sif 
+
+    Container is signed by 1 key(s):
+
+    Verifying partition: FS:
+    8883491F4268F173C6E5DC49EDECE4F3F38D871E
+    [REMOTE]  Sylabs Admin <support@sylabs.io>
+    [OK]      Data integrity verified
+
+    INFO:    Container verified: alpine_latest.sif
+
+这个例子中，你能看到  **Sylabs Admin** 签名了这个容器。
+
+验证所有Partitions
+========================
+
+Singularity 3.5以及以下的版本, sign命令只会验证SIF文件中root文件系统的partition。
+签名时， 也只会签名这个partition。
+
+将来，容器的metadata也会移到SIF的partition中，
+并且不是root文件系统的partition，这样支持签名SIF中其它的partition就变得很关键。
+
+Singularity 3.5提供的 ``--all`` 选项允许你签名和验证SIF文件中所有的partition，比如definition文件的partition。 
+
+当使用 ``--all`` 验证一个容器的时候，你能看到容器中每个partition的签名，如果partition没有被签名，会看到一个警告。
+
+.. code-block:: none
+
+    $ singularity verify --all alpine_latest.sif
+
+    WARNING: Missing signature for SIF descriptor 1 (Def.FILE)
+    Container is signed by 1 key(s):
+
+    Verifying partition: FS:
+    8883491F4268F173C6E5DC49EDECE4F3F38D871E
+    [REMOTE]  Sylabs Admin <support@sylabs.io>
+    [OK]      Data integrity verified
+
+    INFO:    Container verified: alpine_latest.sif
+
+.. _sign_your_own_containers:
+
+---------------------------
+签名你的容器
+---------------------------
+
+创建和管理PGP keys
+================================
+
+要签名你的容器，你首先需要创建一个或多key。如果你在没有key的情况下签名容器，singularity会交互式的方式提示你你创建一个key。
+当然你可以 使用 ``newpair`` 命令先创建一个key：
+
+.. code-block:: none
+
+    $ singularity key newpair
+    
+    Enter your name (e.g., John Doe) : David Trudgian
+    Enter your email address (e.g., john.doe@example.com) : david.trudgian@sylabs.io
+    Enter optional comment (e.g., development keys) : demo
+    Enter a passphrase : 
+    Retype your passphrase : 
+    Would you like to push it to the keystore? [Y,n] Y
+    Generating Entity and OpenPGP Key Pair... done
+    Key successfully pushed to: https://keys.sylabs.io
+
+需要注意的是，命令行会提示问我是否需要把key存储到keystore的时候，我选择的是Y，
+这样，我创建的key就会被推到keystore。keystore是使用 ``singularity remote`` 命令配置的。
+其它用户可以从keystore获取到key，然后使用 ``singularity verify`` 来验证我发布的容器。如果我不想将key发布到keystore，需要选择n。 
+    
+
+``list`` 命令可以查看保存在本地所有key。 
+
+.. code-block:: none
+
+    $ singularity key list
+
+    Public key listing (/home/dave/.singularity/sypgp/pgp-public):
+
+    0) U: David Trudgian (demo) <david.trudgian@sylabs.io>
+       C: 2019-11-15 09:54:54 -0600 CST
+       F: E5F780B2C22F59DF748524B435C3844412EE233B
+       L: 4096
+       --------
+
+上面输出中，我的key的序号是 ``0``:
+
+       - U: 用户
+       - C: 创建时间
+       - F: Fingerprint
+       - L: Key的长度
+
+如果你在 ``newpair`` 创建key的时候没有将key发布到 keystore， 
+后面你还是可以通过命令将key发布到keystore。
+
+.. code-block:: none
+
+    $ singularity key push E5F780B2C22F59DF748524B435C3844412EE233B
+    
+    public key `E5F780B2C22F59DF748524B435C3844412EE233B` pushed to server successfully
+
+这样，如果你将本地的key删除掉，后面还可以从keystore下载和使用。
+
+.. code-block:: none
+
+    $ singularity key search Trudgian
+
+    Showing 1 results
+
+    KEY ID    BITS  NAME/EMAIL
+    12EE233B  4096  David Trudgian (demo) <david.trudgian@sylabs.io>  
+
+    $ singularity key pull 12EE233B
+    
+    1 key(s) added to keyring of trust /home/dave/.singularity/sypgp/pgp-public
+
+需要注意的是， 这里只保存用户认证的 *public* key (used for verifying) 到本地，而不会恢复用户签名的 *private* key到本地。
+
+.. _searching_for_keys:
+
+Searching for keys
+==================
+
+Singularity可以查询keystore中的public key。 你可以通过名字，email, names和fingerprints（Key ID）查询key，
+当你通过fingerprint查询key的时候, 你需要在fingerprint的前面加上 ``0x``。
+
+.. code-block:: none
+
+    # search for key ID:
+    $ singularity key search 0x8883491F4268F173C6E5DC49EDECE4F3F38D871E
+
+    # search for the sort ID:
+    $ singularity key search 0xF38D871E
+
+    # search for user:
+    $ singularity key search Godlove
+
+    # search for email:
+    $ singularity key search @gmail.com
+
+签名和验证你的容器
+==========================================
+
+如果你在本地生成了key，你可以使用key来签名容器:
+
+.. code-block:: none
+
+    $ singularity sign my_container.sif 
+
+    Signing image: my_container.sif
+    Enter key passphrase : 
+    Signature created and applied to my_container.sif
+
+这时候由于你的public key也在本地，因此你可以直接验证你的容器而无需访问keystore。 
+
+.. code-block:: none
+
+    $ singularity verify my_container.sif 
+
+    Container is signed by 1 key(s):
+
+    Verifying partition: FS:
+    E5F780B2C22F59DF748524B435C3844412EE233B
+    [LOCAL]   David Trudgian (demo) <david.trudgian@sylabs.io>
+    [OK]      Data integrity verified
+
+    INFO:    Container verified: my_container.sif
+
+
+如果你把你的key发布到了keystore，那么即使本地的public key不存在，你还是可以验证容器。 
+为了验证我们的描述，首先我们删除public key, 然后使用 ``verify`` 命令直接验证容器。
+
+.. code-block:: none
+
+    $ singularity key remove E5F780B2C22F59DF748524B435C3844412EE233B
+
+    $ singularity verify my_container.sif 
+    Container is signed by 1 key(s):
+
+    Verifying partition: FS:
+    E5F780B2C22F59DF748524B435C3844412EE233B
+    [REMOTE]  David Trudgian (demo) <david.trudgian@sylabs.io>
+    [OK]      Data integrity verified
+
+    INFO:    Container verified: my_container.sif
+
+上面的输出显示我们用来验证的key来自于 ``[REMOTE]`` 的keystore。 
+你可以下载这个key，这样后面的话在无网络的环境下也可以使用这个key来验证容器。
+
+.. code-block:: none
+
+    $ singularity key pull E5F780B2C22F59DF748524B435C3844412EE233B
+
+    1 key(s) added to keyring of trust /home/dave/.singularity/sypgp/pgp-public
+
+
+
+签名所有的Partitions
+======================
+
+Singularity 3.5以及以下的版本, sign命令只会签名SIF文件中root文件系统的partition。
+签名时， definition文件不会被签名。
+
+将来，容器的metadata也会移到SIF的partition中，
+并且不是root文件系统的partition，这样支持签名SIF中其它的partition就变得很关键。
+
+Singularity 3.5提供的 ``--all`` 选项允许你签名和验证SIF文件中所有的partition，比如definition文件的partition。 
+
+.. code-block:: none
+
+    $ singularity sign --all alpine_latest.sif
+
+    Signing image: alpine_latest.sif
+    Enter key passphrase : 
+    Signature created and applied to alpine_latest.sif
+
+
+    $ singularity verify --all alpine_all.sif 
+
+    Container is signed by 3 key(s):
+
+    Verifying partition: Def.FILE:
+    535BFAA2C5FCDBDB7AAD587F4815CE5B17F4F1DB
+    [LOCAL]   David C. Trudgian (Publishing Keys) <david.trudgian@sylabs.io>
+    [OK]      Data integrity verified
+
+    Verifying partition: JSON.Generic:
+    535BFAA2C5FCDBDB7AAD587F4815CE5B17F4F1DB
+    [LOCAL]   David C. Trudgian (Publishing Keys) <david.trudgian@sylabs.io>
+    [OK]      Data integrity verified
+
+    Verifying partition: FS:
+    535BFAA2C5FCDBDB7AAD587F4815CE5B17F4F1DB
+    [LOCAL]   David C. Trudgian (Publishing Keys) <david.trudgian@sylabs.io>
+    [OK]      Data integrity verified
+
+    INFO:    Container verified: alpine_all.sif
+
+签名 SIF IDs 和 Groups
+=====================================
+
+默认情况下只会签名SIF文件中root文件系统的partition
+``--all`` 选项会签名容器中的每一个partition。
+
+使用 ``sif list`` 命令可以查看一个SIF文件由哪些partitions组成。每个partition都有一个 ``ID``, 并且属于一个 ``GROUP``。
+
+.. code-block:: none
+
+    $ singularity sif list my_container.sif 
+
+    Container id: e455d2ae-7f0b-4c79-b3ef-315a4913d76a
+    Created on:   2019-11-15 10:11:58 -0600 CST
+    Modified on:  2019-11-15 10:11:58 -0600 CST
+    ----------------------------------------------------
+    Descriptor list:
+    ID   |GROUP   |LINK    |SIF POSITION (start-end)  |TYPE
+    ------------------------------------------------------------------------------
+    1    |1       |NONE    |32768-32800               |Def.FILE
+    2    |1       |NONE    |36864-36961               |JSON.Generic
+    3    |1       |NONE    |40960-25890816            |FS (Squashfs/*System/amd64)
+
+    
+使用 ``--sif-id`` 可以只签名指定的partition。
+
+.. code-block:: none
+
+    $ singularity sign --sif-id 1 my_container.sif 
+
+    Signing image: my_container.sif
+    Enter key passphrase : 
+    Signature created and applied to my_container.sif
+
+    $ singularity verify --all my_container.sif 
+
+    WARNING: Missing signature for SIF descriptor 2 (JSON.Generic)
+    WARNING: Missing signature for SIF descriptor 3 (FS)
+    Container is signed by 1 key(s):
+
+    Verifying partition: Def.FILE:
+    535BFAA2C5FCDBDB7AAD587F4815CE5B17F4F1DB
+    [LOCAL]   David C. Trudgian (Publishing Keys) <david.trudgian@sylabs.io>
+    [OK]      Data integrity verified
+
+    INFO:    Container verified: my_container.sif
+
+上面的例子显示只有definition文件的partition被签名了。
+
+使用 ``--groupid`` 可以签名指定groupid的partitions。
+
+.. code-block:: none
+
+    $ singularity sign --groupid 1 my_container.sif 
+
+    Signing image: my_container.sif
+    Enter key passphrase : 
+    Signature created and applied to my_container.sif
+
+验证的时候也可以使用 ``--groupid`` 只验证指定groupid的partition。
+
+.. code-block:: none
+
+    $ singularity verify --groupid 1 my_container.sif 
+
+    Container is signed by 1 key(s):
+
+    Verifying partition: group: 1:
+    535BFAA2C5FCDBDB7AAD587F4815CE5B17F4F1DB
+    [LOCAL]   David C. Trudgian (Publishing Keys) <david.trudgian@sylabs.io>
+    [OK]      Data integrity verified
+
+    INFO:    Container verified: my_container.sif
+  
+.. note::
+
+    Singularity 3.5的通过groupid验证时，root文件系统的partition，或者指定groupid的partition需要被签名过。
+    后面的计划中，元数据也会加入到SIF的partition中，签名和验证的语义可能会改变，以便更高效的基于group签名。

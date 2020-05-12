@@ -1,0 +1,368 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Key的管理 &mdash; Singularity container 3.5 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="_static/favicon.png"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script src="_static/js/ga.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="加密容器" href="encryption.html" />
+    <link rel="prev" title="容器的签名和验证" href="signNverify.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Singularity container
+          
+
+          
+            
+            <img src="_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">介绍</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html">快速入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security.html">Singularity安全</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="build_a_container.html">Build容器</a></li>
+<li class="toctree-l1"><a class="reference internal" href="definition_files.html">Definition文件</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build_env.html">Build环境</a></li>
+<li class="toctree-l1"><a class="reference internal" href="singularity_and_docker.html">Singularity和Docker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fakeroot.html">Fakeroot</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="signNverify.html">签名和认证</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Key管理</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#key-import">导入key</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#key-export">导出key</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#key-remove">删除key</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="encryption.html">容器加密</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="endpoint.html">容器仓库</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cloud_library.html">Cloud Library</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bind_paths_and_mounts.html">路径映射</a></li>
+<li class="toctree-l1"><a class="reference internal" href="persistent_overlays.html">持久化Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="running_services.html">运行服务</a></li>
+<li class="toctree-l1"><a class="reference internal" href="environment_and_metadata.html">环境变量和元数据</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oci_runtime.html">OCI运行时</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugins.html">插件</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security_options.html">安全选项</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networking.html">网络选项</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cgroups.html">Cgroups</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mpi.html">MPI应用</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gpu.html">GPU支持</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="appendix.html">Appendix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Singularity container</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Key的管理</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/sylabs/singularity-userdocs/blob/master/key_commands.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="key">
+<span id="key-commands"></span><h1>Key的管理<a class="headerlink" href="#key" title="Permalink to this headline">¶</a></h1>
+<p id="sec-key-commands">Singularity 3.2开始提供命令支持导入，导出和删除PGP keys <a class="reference external" href="https://www.gnupg.org/gph/en/manual.html">GnuPGP (GPG)</a>。
+这些命令只会修改本地的key而不会修改cloud keystore上的key。</p>
+<div class="section" id="key-import">
+<span id="id1"></span><h2>导入key<a class="headerlink" href="#key-import" title="Permalink to this headline">¶</a></h2>
+<p>Singularity 3.2导入key的命令可以支持导入binary格式的和armored格式的key，命令会自动判断key的格式。
+导入key的命令可以导入私有key和公有key到本地的keystore。</p>
+<p>下面我们先看下怎么导入一个私有的key到本地的keystore。</p>
+<p>首先查看下本地keystore已经存在的私有key。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity key list --secret
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">--secret</span></code> 或者  <code class="docutils literal notranslate"><span class="pre">-s</span></code> 标记将只会返回本地keystore下的私有key</p>
+</div>
+<p>输出如下:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Private key listing (/home/joana/.singularity/sypgp/pgp-secret):
+
+0) U: Johnny Cash (none) &lt;cash@sylabs.io&gt;
+C: 2019-04-11 22:22:28 +0200 CEST
+F: 47282BDC661F58FA4BEBEF47CA576CBD8EF1A2B4
+L: 3072
+--------
+1) U: John Green (none) &lt;john@sylabs.io&gt;
+C: 2019-04-11 13:08:45 +0200 CEST
+F: 5720799FE7B048CF36FAB8445EE1E2BD7B6342C5
+L: 1024
+--------
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>当你使用sudo运行同样的命令，你会看到不同的结果，因为使用sudo运行命令的时候返回的是 <code class="docutils literal notranslate"><span class="pre">root</span></code> 用户的keystore下的私有key。</p>
+</div>
+<p>接下来，你可以从一个key文件中导入key到本地的keystore。 比如本地有一个私有的gpg key文件 <code class="docutils literal notranslate"><span class="pre">pinkie-pie.asc</span></code> ，你要导入这个文件:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity key import $HOME/pinkie-pie.asc
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>这里例子中假定key文件在 <code class="docutils literal notranslate"><span class="pre">$HOME</span></code> 目录下。</p>
+</div>
+<p>因为你到导入一个私有key，你需要给这个私有key指定一个密码。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Enter your old password :
+Enter a new password for this key :
+Retype your passphrase :
+Key with fingerprint 8C10B902F438E4D504C3ACF689FCFFAED5F34A77 successfully added to the keyring
+</pre></div>
+</div>
+<p>然后使用 <code class="docutils literal notranslate"><span class="pre">singularity</span> <span class="pre">key</span> <span class="pre">list</span> <span class="pre">-s</span></code> 命令你就你能看我们的key已经成功的加入到本地的keystore了。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Private key listing (/home/joana/.singularity/sypgp/pgp-secret):
+
+  0) U: Johnny Cash (none) &lt;cash@sylabs.io&gt;
+  C: 2019-04-11 22:22:28 +0200 CEST
+  F: 47282BDC661F58FA4BEBEF47CA576CBD8EF1A2B4
+  L: 3072
+  --------
+  1) U: John Green (none) &lt;john@sylabs.io&gt;
+  C: 2019-04-11 13:08:45 +0200 CEST
+  F: 5720799FE7B048CF36FAB8445EE1E2BD7B6342C5
+  L: 1024
+  --------
+  3) U: Pinkie Pie (Eternal chaos comes with chocolate rain!) &lt;balloons@sylabs.io&gt;
+  C: 2019-04-26 12:07:07 +0200 CEST
+  F: 8C10B902F438E4D504C3ACF689FCFFAED5F34A77
+  L: 1024
+  --------
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>如果你要导入一个公共的key，使用相同的命令，import 命令会自动检测要导入的key是公共key还是私有key。</p>
+</div>
+</div>
+<div class="section" id="key-export">
+<span id="id2"></span><h2>导出key<a class="headerlink" href="#key-export" title="Permalink to this headline">¶</a></h2>
+<p>导出key的命令可以到处本地keystore的key到一个文件。
+命令可以导出公共key和私有key。命令即可以将key导出成armored格式也可以导出成binary格式。</p>
+<p>导出一个公共key为一个binary格式的文件:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity key export 8C10B902F438E4D504C3ACF689FCFFAED5F34A77 $HOME/mykey.asc
+</pre></div>
+</div>
+<p>这个命令将导出的公共key命名为 <code class="docutils literal notranslate"><span class="pre">mykey.asc</span></code>，导出key的格式是binary，如果你想将这个公共key导出为armor格式，需要加上 <code class="docutils literal notranslate"><span class="pre">--armor</span></code> 标记:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity key export --armor 8C10B902F438E4D504C3ACF689FCFFAED5F34A77 $HOME/mykey.asc
+</pre></div>
+</div>
+<p>下面是导出一个私有key为armor格式。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity key export --armor --secret 8C10B902F438E4D504C3ACF689FCFFAED5F34A77 $HOME/mykey.asc
+</pre></div>
+</div>
+<p>导出成binary格式。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity key export --secret 8C10B902F438E4D504C3ACF689FCFFAED5F34A77 $HOME/mykey.asc
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>导出key并不能会改变本地keystore里面各种key的状态。导出只是从keystore获取内容保存到本机文件。</p>
+</div>
+</div>
+<div class="section" id="key-remove">
+<span id="id3"></span><h2>删除key<a class="headerlink" href="#key-remove" title="Permalink to this headline">¶</a></h2>
+<p>如果你要从本地keystore里面删除一个公共key:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity key remove 8C10B902F438E4D504C3ACF689FCFFAED5F34A77
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>这个命令只会删除这个fingerprint的公共key而不会删除私有key。</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="encryption.html" class="btn btn-neutral float-right" title="加密容器" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="signNverify.html" class="btn btn-neutral float-left" title="容器的签名和验证" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017-2019, Sylabs Inc
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

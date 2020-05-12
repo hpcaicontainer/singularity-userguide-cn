@@ -1,0 +1,556 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>容器的签名和验证 &mdash; Singularity container 3.5 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="_static/favicon.png"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script src="_static/js/ga.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Key的管理" href="key_commands.html" />
+    <link rel="prev" title="Fakeroot" href="fakeroot.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Singularity container
+          
+
+          
+            
+            <img src="_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">介绍</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html">快速入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security.html">Singularity安全</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="build_a_container.html">Build容器</a></li>
+<li class="toctree-l1"><a class="reference internal" href="definition_files.html">Definition文件</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build_env.html">Build环境</a></li>
+<li class="toctree-l1"><a class="reference internal" href="singularity_and_docker.html">Singularity和Docker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fakeroot.html">Fakeroot</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">签名和认证</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#container-library">验证Container Library容器</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#partitions">验证所有Partitions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#sign-your-own-containers">签名你的容器</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pgp-keys">创建和管理PGP keys</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#searching-for-keys">Searching for keys</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">签名和验证你的容器</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">签名所有的Partitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sif-ids-groups">签名 SIF IDs 和 Groups</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="key_commands.html">Key管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="encryption.html">容器加密</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="endpoint.html">容器仓库</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cloud_library.html">Cloud Library</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bind_paths_and_mounts.html">路径映射</a></li>
+<li class="toctree-l1"><a class="reference internal" href="persistent_overlays.html">持久化Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="running_services.html">运行服务</a></li>
+<li class="toctree-l1"><a class="reference internal" href="environment_and_metadata.html">环境变量和元数据</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oci_runtime.html">OCI运行时</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugins.html">插件</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security_options.html">安全选项</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networking.html">网络选项</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cgroups.html">Cgroups</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mpi.html">MPI应用</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gpu.html">GPU支持</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="appendix.html">Appendix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Singularity container</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>容器的签名和验证</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/sylabs/singularity-userdocs/blob/master/signNverify.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="signnverify">
+<span id="id1"></span><h1>容器的签名和验证<a class="headerlink" href="#signnverify" title="Permalink to this headline">¶</a></h1>
+<p id="sec-signnverify">Singularity从3.0开始支持创建和管理PGP key，使用PGPkey签名和验证容器。
+这样就提供了一种可信的方式来在用户之间共享容器。</p>
+<div class="section" id="container-library">
+<span id="verify-container-from-library"></span><h2>验证Container Library容器<a class="headerlink" href="#container-library" title="Permalink to this headline">¶</a></h2>
+<p>使用 <code class="docutils literal notranslate"><span class="pre">verify</span></code> 命令可以使用PGP key验证容器。 如果你要验证的容器来自于container library，
+你需要首先在Sylabs Cloud上生成access token。</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>访问: <a class="reference external" href="https://cloud.sylabs.io/">https://cloud.sylabs.io/</a></p></li>
+<li><p>点击 “Sign in to Sylabs”</p></li>
+<li><p>点击你的id</p></li>
+<li><p>在下拉菜单中选择 “Access Tokens”</p></li>
+<li><p>输入你的access token的名字，比如 “test token”</p></li>
+<li><p>点击 “Create a New Access Token” 按钮</p></li>
+<li><p>在”New API Token” 页面点击 “Copy token to Clipboard”</p></li>
+<li><p>运行 <code class="docutils literal notranslate"><span class="pre">singularity</span> <span class="pre">remote</span> <span class="pre">login</span></code>，根据提示输入access token</p></li>
+</ol>
+</div></blockquote>
+<p>现在你能验证容器是否是完整的。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity verify alpine_latest.sif
+
+Container is signed by 1 key(s):
+
+Verifying partition: FS:
+8883491F4268F173C6E5DC49EDECE4F3F38D871E
+[REMOTE]  Sylabs Admin &lt;support@sylabs.io&gt;
+[OK]      Data integrity verified
+
+INFO:    Container verified: alpine_latest.sif
+</pre></div>
+</div>
+<p>这个例子中，你能看到  <strong>Sylabs Admin</strong> 签名了这个容器。</p>
+<div class="section" id="partitions">
+<h3>验证所有Partitions<a class="headerlink" href="#partitions" title="Permalink to this headline">¶</a></h3>
+<p>Singularity 3.5以及以下的版本, sign命令只会验证SIF文件中root文件系统的partition。
+签名时， 也只会签名这个partition。</p>
+<p>将来，容器的metadata也会移到SIF的partition中，
+并且不是root文件系统的partition，这样支持签名SIF中其它的partition就变得很关键。</p>
+<p>Singularity 3.5提供的 <code class="docutils literal notranslate"><span class="pre">--all</span></code> 选项允许你签名和验证SIF文件中所有的partition，比如definition文件的partition。</p>
+<p>当使用 <code class="docutils literal notranslate"><span class="pre">--all</span></code> 验证一个容器的时候，你能看到容器中每个partition的签名，如果partition没有被签名，会看到一个警告。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity verify --all alpine_latest.sif
+
+WARNING: Missing signature for SIF descriptor 1 (Def.FILE)
+Container is signed by 1 key(s):
+
+Verifying partition: FS:
+8883491F4268F173C6E5DC49EDECE4F3F38D871E
+[REMOTE]  Sylabs Admin &lt;support@sylabs.io&gt;
+[OK]      Data integrity verified
+
+INFO:    Container verified: alpine_latest.sif
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="sign-your-own-containers">
+<span id="id2"></span><h2>签名你的容器<a class="headerlink" href="#sign-your-own-containers" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="pgp-keys">
+<h3>创建和管理PGP keys<a class="headerlink" href="#pgp-keys" title="Permalink to this headline">¶</a></h3>
+<p>要签名你的容器，你首先需要创建一个或多key。如果你在没有key的情况下签名容器，singularity会交互式的方式提示你你创建一个key。
+当然你可以 使用 <code class="docutils literal notranslate"><span class="pre">newpair</span></code> 命令先创建一个key：</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity key newpair
+
+Enter your name (e.g., John Doe) : David Trudgian
+Enter your email address (e.g., john.doe@example.com) : david.trudgian@sylabs.io
+Enter optional comment (e.g., development keys) : demo
+Enter a passphrase :
+Retype your passphrase :
+Would you like to push it to the keystore? [Y,n] Y
+Generating Entity and OpenPGP Key Pair... done
+Key successfully pushed to: https://keys.sylabs.io
+</pre></div>
+</div>
+<p>需要注意的是，命令行会提示问我是否需要把key存储到keystore的时候，我选择的是Y，
+这样，我创建的key就会被推到keystore。keystore是使用 <code class="docutils literal notranslate"><span class="pre">singularity</span> <span class="pre">remote</span></code> 命令配置的。
+其它用户可以从keystore获取到key，然后使用 <code class="docutils literal notranslate"><span class="pre">singularity</span> <span class="pre">verify</span></code> 来验证我发布的容器。如果我不想将key发布到keystore，需要选择n。</p>
+<p><code class="docutils literal notranslate"><span class="pre">list</span></code> 命令可以查看保存在本地所有key。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity key list
+
+Public key listing (/home/dave/.singularity/sypgp/pgp-public):
+
+0) U: David Trudgian (demo) &lt;david.trudgian@sylabs.io&gt;
+   C: 2019-11-15 09:54:54 -0600 CST
+   F: E5F780B2C22F59DF748524B435C3844412EE233B
+   L: 4096
+   --------
+</pre></div>
+</div>
+<p>上面输出中，我的key的序号是 <code class="docutils literal notranslate"><span class="pre">0</span></code>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>U: 用户</p></li>
+<li><p>C: 创建时间</p></li>
+<li><p>F: Fingerprint</p></li>
+<li><p>L: Key的长度</p></li>
+</ul>
+</div></blockquote>
+<p>如果你在 <code class="docutils literal notranslate"><span class="pre">newpair</span></code> 创建key的时候没有将key发布到 keystore，
+后面你还是可以通过命令将key发布到keystore。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity key push E5F780B2C22F59DF748524B435C3844412EE233B
+
+public key `E5F780B2C22F59DF748524B435C3844412EE233B` pushed to server successfully
+</pre></div>
+</div>
+<p>这样，如果你将本地的key删除掉，后面还可以从keystore下载和使用。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity key search Trudgian
+
+Showing 1 results
+
+KEY ID    BITS  NAME/EMAIL
+12EE233B  4096  David Trudgian (demo) &lt;david.trudgian@sylabs.io&gt;
+
+$ singularity key pull 12EE233B
+
+1 key(s) added to keyring of trust /home/dave/.singularity/sypgp/pgp-public
+</pre></div>
+</div>
+<p>需要注意的是， 这里只保存用户认证的 <em>public</em> key (used for verifying) 到本地，而不会恢复用户签名的 <em>private</em> key到本地。</p>
+</div>
+<div class="section" id="searching-for-keys">
+<span id="id3"></span><h3>Searching for keys<a class="headerlink" href="#searching-for-keys" title="Permalink to this headline">¶</a></h3>
+<p>Singularity可以查询keystore中的public key。 你可以通过名字，email, names和fingerprints（Key ID）查询key，
+当你通过fingerprint查询key的时候, 你需要在fingerprint的前面加上 <code class="docutils literal notranslate"><span class="pre">0x</span></code>。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># search for key ID:
+$ singularity key search 0x8883491F4268F173C6E5DC49EDECE4F3F38D871E
+
+# search for the sort ID:
+$ singularity key search 0xF38D871E
+
+# search for user:
+$ singularity key search Godlove
+
+# search for email:
+$ singularity key search @gmail.com
+</pre></div>
+</div>
+</div>
+<div class="section" id="id4">
+<h3>签名和验证你的容器<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<p>如果你在本地生成了key，你可以使用key来签名容器:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity sign my_container.sif
+
+Signing image: my_container.sif
+Enter key passphrase :
+Signature created and applied to my_container.sif
+</pre></div>
+</div>
+<p>这时候由于你的public key也在本地，因此你可以直接验证你的容器而无需访问keystore。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity verify my_container.sif
+
+Container is signed by 1 key(s):
+
+Verifying partition: FS:
+E5F780B2C22F59DF748524B435C3844412EE233B
+[LOCAL]   David Trudgian (demo) &lt;david.trudgian@sylabs.io&gt;
+[OK]      Data integrity verified
+
+INFO:    Container verified: my_container.sif
+</pre></div>
+</div>
+<p>如果你把你的key发布到了keystore，那么即使本地的public key不存在，你还是可以验证容器。
+为了验证我们的描述，首先我们删除public key, 然后使用 <code class="docutils literal notranslate"><span class="pre">verify</span></code> 命令直接验证容器。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity key remove E5F780B2C22F59DF748524B435C3844412EE233B
+
+$ singularity verify my_container.sif
+Container is signed by 1 key(s):
+
+Verifying partition: FS:
+E5F780B2C22F59DF748524B435C3844412EE233B
+[REMOTE]  David Trudgian (demo) &lt;david.trudgian@sylabs.io&gt;
+[OK]      Data integrity verified
+
+INFO:    Container verified: my_container.sif
+</pre></div>
+</div>
+<p>上面的输出显示我们用来验证的key来自于 <code class="docutils literal notranslate"><span class="pre">[REMOTE]</span></code> 的keystore。
+你可以下载这个key，这样后面的话在无网络的环境下也可以使用这个key来验证容器。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity key pull E5F780B2C22F59DF748524B435C3844412EE233B
+
+1 key(s) added to keyring of trust /home/dave/.singularity/sypgp/pgp-public
+</pre></div>
+</div>
+</div>
+<div class="section" id="id5">
+<h3>签名所有的Partitions<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<p>Singularity 3.5以及以下的版本, sign命令只会签名SIF文件中root文件系统的partition。
+签名时， definition文件不会被签名。</p>
+<p>将来，容器的metadata也会移到SIF的partition中，
+并且不是root文件系统的partition，这样支持签名SIF中其它的partition就变得很关键。</p>
+<p>Singularity 3.5提供的 <code class="docutils literal notranslate"><span class="pre">--all</span></code> 选项允许你签名和验证SIF文件中所有的partition，比如definition文件的partition。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity sign --all alpine_latest.sif
+
+Signing image: alpine_latest.sif
+Enter key passphrase :
+Signature created and applied to alpine_latest.sif
+
+
+$ singularity verify --all alpine_all.sif
+
+Container is signed by 3 key(s):
+
+Verifying partition: Def.FILE:
+535BFAA2C5FCDBDB7AAD587F4815CE5B17F4F1DB
+[LOCAL]   David C. Trudgian (Publishing Keys) &lt;david.trudgian@sylabs.io&gt;
+[OK]      Data integrity verified
+
+Verifying partition: JSON.Generic:
+535BFAA2C5FCDBDB7AAD587F4815CE5B17F4F1DB
+[LOCAL]   David C. Trudgian (Publishing Keys) &lt;david.trudgian@sylabs.io&gt;
+[OK]      Data integrity verified
+
+Verifying partition: FS:
+535BFAA2C5FCDBDB7AAD587F4815CE5B17F4F1DB
+[LOCAL]   David C. Trudgian (Publishing Keys) &lt;david.trudgian@sylabs.io&gt;
+[OK]      Data integrity verified
+
+INFO:    Container verified: alpine_all.sif
+</pre></div>
+</div>
+</div>
+<div class="section" id="sif-ids-groups">
+<h3>签名 SIF IDs 和 Groups<a class="headerlink" href="#sif-ids-groups" title="Permalink to this headline">¶</a></h3>
+<p>默认情况下只会签名SIF文件中root文件系统的partition
+<code class="docutils literal notranslate"><span class="pre">--all</span></code> 选项会签名容器中的每一个partition。</p>
+<p>使用 <code class="docutils literal notranslate"><span class="pre">sif</span> <span class="pre">list</span></code> 命令可以查看一个SIF文件由哪些partitions组成。每个partition都有一个 <code class="docutils literal notranslate"><span class="pre">ID</span></code>, 并且属于一个 <code class="docutils literal notranslate"><span class="pre">GROUP</span></code>。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity sif list my_container.sif
+
+Container id: e455d2ae-7f0b-4c79-b3ef-315a4913d76a
+Created on:   2019-11-15 10:11:58 -0600 CST
+Modified on:  2019-11-15 10:11:58 -0600 CST
+----------------------------------------------------
+Descriptor list:
+ID   |GROUP   |LINK    |SIF POSITION (start-end)  |TYPE
+------------------------------------------------------------------------------
+1    |1       |NONE    |32768-32800               |Def.FILE
+2    |1       |NONE    |36864-36961               |JSON.Generic
+3    |1       |NONE    |40960-25890816            |FS (Squashfs/*System/amd64)
+</pre></div>
+</div>
+<p>使用 <code class="docutils literal notranslate"><span class="pre">--sif-id</span></code> 可以只签名指定的partition。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity sign --sif-id 1 my_container.sif
+
+Signing image: my_container.sif
+Enter key passphrase :
+Signature created and applied to my_container.sif
+
+$ singularity verify --all my_container.sif
+
+WARNING: Missing signature for SIF descriptor 2 (JSON.Generic)
+WARNING: Missing signature for SIF descriptor 3 (FS)
+Container is signed by 1 key(s):
+
+Verifying partition: Def.FILE:
+535BFAA2C5FCDBDB7AAD587F4815CE5B17F4F1DB
+[LOCAL]   David C. Trudgian (Publishing Keys) &lt;david.trudgian@sylabs.io&gt;
+[OK]      Data integrity verified
+
+INFO:    Container verified: my_container.sif
+</pre></div>
+</div>
+<p>上面的例子显示只有definition文件的partition被签名了。</p>
+<p>使用 <code class="docutils literal notranslate"><span class="pre">--groupid</span></code> 可以签名指定groupid的partitions。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity sign --groupid 1 my_container.sif
+
+Signing image: my_container.sif
+Enter key passphrase :
+Signature created and applied to my_container.sif
+</pre></div>
+</div>
+<p>验证的时候也可以使用 <code class="docutils literal notranslate"><span class="pre">--groupid</span></code> 只验证指定groupid的partition。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity verify --groupid 1 my_container.sif
+
+Container is signed by 1 key(s):
+
+Verifying partition: group: 1:
+535BFAA2C5FCDBDB7AAD587F4815CE5B17F4F1DB
+[LOCAL]   David C. Trudgian (Publishing Keys) &lt;david.trudgian@sylabs.io&gt;
+[OK]      Data integrity verified
+
+INFO:    Container verified: my_container.sif
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Singularity 3.5的通过groupid验证时，root文件系统的partition，或者指定groupid的partition需要被签名过。
+后面的计划中，元数据也会加入到SIF的partition中，签名和验证的语义可能会改变，以便更高效的基于group签名。</p>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="key_commands.html" class="btn btn-neutral float-right" title="Key的管理" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="fakeroot.html" class="btn btn-neutral float-left" title="Fakeroot" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017-2019, Sylabs Inc
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

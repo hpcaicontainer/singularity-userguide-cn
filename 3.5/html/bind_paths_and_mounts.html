@@ -1,0 +1,344 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Bind路径和Mount路径 &mdash; Singularity container 3.5 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="_static/favicon.png"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script src="_static/js/ga.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="持久化Overlay" href="persistent_overlays.html" />
+    <link rel="prev" title="Cloud Library" href="cloud_library.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Singularity container
+          
+
+          
+            
+            <img src="_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">介绍</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html">快速入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security.html">Singularity安全</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="build_a_container.html">Build容器</a></li>
+<li class="toctree-l1"><a class="reference internal" href="definition_files.html">Definition文件</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build_env.html">Build环境</a></li>
+<li class="toctree-l1"><a class="reference internal" href="singularity_and_docker.html">Singularity和Docker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fakeroot.html">Fakeroot</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="signNverify.html">签名和认证</a></li>
+<li class="toctree-l1"><a class="reference internal" href="key_commands.html">Key管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="encryption.html">容器加密</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="endpoint.html">容器仓库</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cloud_library.html">Cloud Library</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">路径映射</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id2">概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">系统定义的映射路径</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id4">用户定义的映射路径</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id6">指定映射路径</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bind-writable"><code class="docutils literal notranslate"><span class="pre">--bind</span></code> 和 <code class="docutils literal notranslate"><span class="pre">--writable</span></code> 一起使用时候的注意事项</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#no-home-containall"><code class="docutils literal notranslate"><span class="pre">--no-home</span></code> 和 <code class="docutils literal notranslate"><span class="pre">--containall</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#no-home"><code class="docutils literal notranslate"><span class="pre">--no-home</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#containall"><code class="docutils literal notranslate"><span class="pre">--containall</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="persistent_overlays.html">持久化Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="running_services.html">运行服务</a></li>
+<li class="toctree-l1"><a class="reference internal" href="environment_and_metadata.html">环境变量和元数据</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oci_runtime.html">OCI运行时</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugins.html">插件</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security_options.html">安全选项</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networking.html">网络选项</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cgroups.html">Cgroups</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mpi.html">MPI应用</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gpu.html">GPU支持</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="appendix.html">Appendix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Singularity container</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Bind路径和Mount路径</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/sylabs/singularity-userdocs/blob/master/bind_paths_and_mounts.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="bindmount">
+<span id="bind-paths-and-mounts"></span><h1>Bind路径和Mount路径<a class="headerlink" href="#bindmount" title="Permalink to this headline">¶</a></h1>
+<p id="sec-bindpaths"><a class="reference external" href="https://singularity-admindoc.readthedocs.io/en/latest/the_singularity_config_file.html#user-bind-control-boolean-default-yes">如果系统管理员允许</a>,
+Singularity允许你映射host上的目录到容器中，这样在容器中就可以读写映射进去的目录。</p>
+<div class="section" id="id2">
+<h2>概述<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p>当运行Singularity容器的时候，在容器内部，没办法访问host上的文件系统。如果你想读写host上的文件系统，
+你可以通过下面两种方法将host上的文件系统映射进容器：系统定义的映射路径和用户定义的映射路径。</p>
+</div>
+<div class="section" id="id3">
+<h2>系统定义的映射路径<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<p>系统管理员可以设置哪些host路径可以自动映射到容器中。
+有些路径是动态获取的，比如用户的home路径，有些路径是静态定义的。默认的配置当中，系统定义路径包括。
+<code class="docutils literal notranslate"><span class="pre">$HOME</span></code>, <code class="docutils literal notranslate"><span class="pre">/sys:/sys</span></code>, <code class="docutils literal notranslate"><span class="pre">/proc:/proc</span></code>, <code class="docutils literal notranslate"><span class="pre">/tmp:/tmp</span></code>, <code class="docutils literal notranslate"><span class="pre">/var/tmp:/var/tmp</span></code>, <code class="docutils literal notranslate"><span class="pre">/etc/resolv.conf:/etc/resolv.conf</span></code>,
+<code class="docutils literal notranslate"><span class="pre">/etc/passwd:/etc/passwd</span></code>,  <code class="docutils literal notranslate"><span class="pre">$PWD</span></code>。  <code class="docutils literal notranslate"><span class="pre">:</span></code> 前的路径是host路径，<code class="docutils literal notranslate"><span class="pre">:</span></code> 后的路径是在映射到容器中的路径。</p>
+</div>
+<div class="section" id="id4">
+<h2>用户定义的映射路径<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="https://singularity-admindoc.readthedocs.io/en/latest/the_singularity_config_file.html#user-bind-control-boolean-default-yes">如果系统管理员允许用户映射路径</a>。</p>
+<p>运行Singularity的命令(<code class="docutils literal notranslate"><span class="pre">run</span></code>, <code class="docutils literal notranslate"><span class="pre">exec</span></code>, <code class="docutils literal notranslate"><span class="pre">shell</span></code>, 和 <code class="docutils literal notranslate"><span class="pre">instance</span> <span class="pre">start</span></code>）的时候，
+通过这个 <code class="docutils literal notranslate"><span class="pre">--bind/-B</span></code> 这个选项可以将指定的路径映射到容器中，
+同时在环境变量 <code class="docutils literal notranslate"><span class="pre">$SINGULARITY_BIND</span></code> 或者 <code class="docutils literal notranslate"><span class="pre">$SINGULARITY_BINDPATH</span></code> 里面指定的路径也会被映射到容器中。
+<code class="docutils literal notranslate"><span class="pre">--bind/-B</span></code> 选项支持绑定多个路径，每个路径之间以逗号分隔。其中每个路径的格式是 <code class="docutils literal notranslate"><span class="pre">src[:dest[:opts]]</span></code>， src是host的路径，
+dest是容器中的路径，opts可以指定只读 <code class="docutils literal notranslate"><span class="pre">ro</span></code> 或者读写 <code class="docutils literal notranslate"><span class="pre">rw</span></code>。这个选项在一个命令中可以多次使用。</p>
+<div class="section" id="id6">
+<h3>指定映射路径<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+<p>下面的例子使用 <code class="docutils literal notranslate"><span class="pre">--bind</span></code> 映射host上的 <code class="docutils literal notranslate"><span class="pre">/data</span></code> 到容器中的 <code class="docutils literal notranslate"><span class="pre">/mnt</span></code> ( /mnt不需要在容器中事先存在):</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ ls /data
+bar  foo
+
+$ singularity exec --bind /data:/mnt my_container.sif ls /mnt
+bar  foo
+</pre></div>
+</div>
+<p>你可以在一个命令当中映射多个路径:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity shell --bind /opt,/data:/mnt my_container.sif
+</pre></div>
+</div>
+<p>映射host上的 <code class="docutils literal notranslate"><span class="pre">/opt</span></code> 到容器中的 <code class="docutils literal notranslate"><span class="pre">/opt</span></code>，映射host上的 <code class="docutils literal notranslate"><span class="pre">/data</span></code> 到容器中的 <code class="docutils literal notranslate"><span class="pre">/mnt</span></code>。</p>
+<p>使用环境变量设置映射路径:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ export SINGULARITY_BIND=&quot;/opt,/data:/mnt&quot;
+
+$ singularity shell my_container.sif
+</pre></div>
+</div>
+<p>使用环境变量 <code class="docutils literal notranslate"><span class="pre">$SINGULARITY_BIND</span></code> 映射路径, 你在singularity run的时候映射的路径依然生效。
+如果你的容器都需要映射某些路径，你甚至可以将这个环境变量放到 <code class="docutils literal notranslate"><span class="pre">.bashrc</span></code>，这样对于每个shell都会自动生效。</p>
+</div>
+<div class="section" id="bind-writable">
+<h3><code class="docutils literal notranslate"><span class="pre">--bind</span></code> 和 <code class="docutils literal notranslate"><span class="pre">--writable</span></code> 一起使用时候的注意事项<a class="headerlink" href="#bind-writable" title="Permalink to this headline">¶</a></h3>
+<p>以前的版本中如果要bind一个路径到容器中，容器中对应的bind点必须是事先存在的。
+从Singularity 3.0开始, 容器中对应的bind点不需要事先存在。但是 <code class="docutils literal notranslate"><span class="pre">--bind</span></code> 和 <code class="docutils literal notranslate"><span class="pre">--writable</span></code> 一起使用时候，
+如果bind点不事先存在会导致不可预期的结果，因此这个时候不运行映射不存在的bind点。
+如果bind点不存在，你需要在容器中先创建bind点，然后退出容器，然后重新映射。</p>
+</div>
+<div class="section" id="no-home-containall">
+<h3><code class="docutils literal notranslate"><span class="pre">--no-home</span></code> 和 <code class="docutils literal notranslate"><span class="pre">--containall</span></code><a class="headerlink" href="#no-home-containall" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="no-home">
+<h4><code class="docutils literal notranslate"><span class="pre">--no-home</span></code><a class="headerlink" href="#no-home" title="Permalink to this headline">¶</a></h4>
+<p>使用 <code class="docutils literal notranslate"><span class="pre">--no-home</span></code>，当你shell进入容器的时候， Singularity将映射当前目录到容器中而不映射 <code class="docutils literal notranslate"><span class="pre">$HOME</span></code> 目录到容器中。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity shell --no-home my_container.sif
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>当然，如果你当前目录就是 <code class="docutils literal notranslate"><span class="pre">$HOME</span></code> 目录, 那么将映射 <code class="docutils literal notranslate"><span class="pre">$HOME</span></code> 目录到容器中.</p>
+</div>
+</div>
+<div class="section" id="containall">
+<h4><code class="docutils literal notranslate"><span class="pre">--containall</span></code><a class="headerlink" href="#containall" title="Permalink to this headline">¶</a></h4>
+<p>使用 <code class="docutils literal notranslate"><span class="pre">--containall</span></code> 或者 <code class="docutils literal notranslate"><span class="pre">-C</span></code>, host上的 <code class="docutils literal notranslate"><span class="pre">$HOME</span></code> 目录将不会映射到容器中，但是容器中会创建一个空的 <code class="docutils literal notranslate"><span class="pre">$HOME</span></code> 目录。
+这时候你也不能用 <code class="docutils literal notranslate"><span class="pre">-B</span></code> 或者 <code class="docutils literal notranslate"><span class="pre">--bind</span></code> 来强制映射 <code class="docutils literal notranslate"><span class="pre">$HOME</span></code> 目录到容器。所以如果你容器中的 <code class="docutils literal notranslate"><span class="pre">/home/user</span></code> 下面原来有内容的话，
+这些内容将被隐藏掉。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity shell --containall my_container.sif
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="persistent_overlays.html" class="btn btn-neutral float-right" title="持久化Overlay" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="cloud_library.html" class="btn btn-neutral float-left" title="Cloud Library" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017-2019, Sylabs Inc
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

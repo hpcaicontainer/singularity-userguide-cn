@@ -1,0 +1,778 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>入门教程 &mdash; Singularity container 3.5 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="_static/favicon.png"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script src="_static/js/ga.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Singularity安全性" href="security.html" />
+    <link rel="prev" title="Singularity介绍" href="introduction.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Singularity container
+          
+
+          
+            
+            <img src="_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">介绍</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">快速入门</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#quick-installation">快速安装步骤</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id3">安装依赖包</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#go">安装Go</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#singularity">下载Singularity代码</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#compile">编译Singularity代码</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id7">Singularity命令概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#build">下载build好的容器</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cowimage">交互访问容器</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#shell">Shell</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#exec">Exec</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#run">Run</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#host">访问Host文件</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#build-images-from-scratch">从零开始build容器</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#sandbox">Sandbox</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id15">容器格式转换</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#singularity-definition">Singularity Definition文件</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#installation-request">在一个共享的环境上安装Singularity</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="security.html">Singularity安全</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="build_a_container.html">Build容器</a></li>
+<li class="toctree-l1"><a class="reference internal" href="definition_files.html">Definition文件</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build_env.html">Build环境</a></li>
+<li class="toctree-l1"><a class="reference internal" href="singularity_and_docker.html">Singularity和Docker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fakeroot.html">Fakeroot</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="signNverify.html">签名和认证</a></li>
+<li class="toctree-l1"><a class="reference internal" href="key_commands.html">Key管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="encryption.html">容器加密</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="endpoint.html">容器仓库</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cloud_library.html">Cloud Library</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bind_paths_and_mounts.html">路径映射</a></li>
+<li class="toctree-l1"><a class="reference internal" href="persistent_overlays.html">持久化Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="running_services.html">运行服务</a></li>
+<li class="toctree-l1"><a class="reference internal" href="environment_and_metadata.html">环境变量和元数据</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oci_runtime.html">OCI运行时</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugins.html">插件</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security_options.html">安全选项</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networking.html">网络选项</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cgroups.html">Cgroups</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mpi.html">MPI应用</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gpu.html">GPU支持</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="appendix.html">Appendix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Singularity container</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>入门教程</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/sylabs/singularity-userdocs/blob/master/quick_start.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="quick-start">
+<span id="id1"></span><h1>入门教程<a class="headerlink" href="#quick-start" title="Permalink to this headline">¶</a></h1>
+<p id="sec-quickstart">这个指导需要需要你在运行的计算机上有root的权限，指导将从源代码安装singularity。
+其它安装方式，比如build RPM，使用非root用户安装在 <a class="reference external" href="https://sylabs.io/guides/3.5/admin-guide/installation.html">installation section of the admin guide</a> 中讨论。</p>
+<p>如果你需要在一个多人共享的计算机上安装，根据 <a class="reference internal" href="#installation-request"><span class="std std-ref">requesting an installation</span></a> 的指导发送相应的信息给系统的管理员。</p>
+<p>如果需要更多的帮助，请联系Sylabs团队:
+<a class="reference external" href="https://www.sylabs.io/contact/">https://www.sylabs.io/contact/</a></p>
+<div class="section" id="quick-installation">
+<span id="id2"></span><h2>快速安装步骤<a class="headerlink" href="#quick-installation" title="Permalink to this headline">¶</a></h2>
+<p>你需要有一个Linux系统来运行Singularity，关于怎么在Mac和Windows上安装Singularity，请参考 <a class="reference external" href="https://sylabs.io/guides/3.5/admin-guide/installation.html">installation section of the
+admin guide</a>。</p>
+<div class="section" id="id3">
+<h3>安装依赖包<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<p>你必须首先安装依赖包，假定你在使用Ubuntu (RHEL安装命令类似):</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo apt-get update &amp;&amp; sudo apt-get install -y \
+    build-essential \
+    libssl-dev \
+    uuid-dev \
+    libgpgme11-dev \
+    squashfs-tools \
+    libseccomp-dev \
+    wget \
+    pkg-config \
+    git \
+    cryptsetup
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">squashfs-tools</span></code> 这个包只会在build容器的时候使用。很明显Singuarity的 <code class="docutils literal notranslate"><span class="pre">build</span></code> 命令依赖于 <code class="docutils literal notranslate"><span class="pre">squashfs-tools</span></code>,
+但是其它的一些命令，比如从Docker Hub下载的容器也需要。</p>
+</div>
+<p>简单来讲，安装Singularity有三个步骤:</p>
+<ol class="arabic simple">
+<li><p><a class="reference internal" href="#install"><span class="std std-ref">安装Go</span></a></p></li>
+<li><p><a class="reference internal" href="#download"><span class="std std-ref">下载Singularity代码</span></a></p></li>
+<li><p><a class="reference internal" href="#compile"><span class="std std-ref">编译Singularity代码</span></a></p></li>
+</ol>
+</div>
+<div class="section" id="go">
+<span id="install"></span><h3>安装Go<a class="headerlink" href="#go" title="Permalink to this headline">¶</a></h3>
+<p>Singularity v3以及以上的版本使用Go语言编写，所以你首先需要安装Go。</p>
+<p>这是一种 <a class="reference external" href="https://golang.org/doc/install">安装和配置Go</a> 的方式。</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>如果你以前从网上下载和安装Go，而不是使用操作系统自带的包，在安装一个新版本以前，你需要先删除 <code class="docutils literal notranslate"><span class="pre">go</span></code> 目录 <code class="docutils literal notranslate"><span class="pre">rm</span> <span class="pre">-r</span> <span class="pre">/usr/local/go</span></code>。
+如果不删除的话，安装的新版本的Go在变异Go代码的时候可能会出错。</p>
+</div>
+<p>访问 <a class="reference external" href="https://golang.org/dl/">Go Downloads page</a> 下载包。下载完以后，解压到 <code class="docutils literal notranslate"><span class="pre">/usr/local</span></code> (或者安装go网站给出的指导安装)。 你也可以按照下面的命令安装:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ export VERSION=1.13 OS=linux ARCH=amd64 &amp;&amp; \  # Replace the values as needed
+  wget https://dl.google.com/go/go$VERSION.$OS-$ARCH.tar.gz &amp;&amp; \ # Downloads the required Go package
+  sudo tar -C /usr/local -xzvf go$VERSION.$OS-$ARCH.tar.gz &amp;&amp; \ # Extracts the archive
+  rm go$VERSION.$OS-$ARCH.tar.gz    # Deletes the ``tar`` file
+</pre></div>
+</div>
+<p>将Go加入 <code class="docutils literal notranslate"><span class="pre">PATH</span></code> 中:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ echo &#39;export PATH=/usr/local/go/bin:$PATH&#39; &gt;&gt; ~/.bashrc &amp;&amp; \
+  source ~/.bashrc
+</pre></div>
+</div>
+</div>
+<div class="section" id="singularity">
+<span id="download"></span><h3>下载Singularity代码<a class="headerlink" href="#singularity" title="Permalink to this headline">¶</a></h3>
+<p>你可以找到 <a class="reference external" href="https://github.com/sylabs/singularity/releases">Singularity的所有发布包</a>，选择一个版本，然后使用下面命令下载发布包。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ export VERSION=3.5.3 &amp;&amp; # adjust this as necessary \
+    wget https://github.com/sylabs/singularity/releases/download/v${VERSION}/singularity-${VERSION}.tar.gz &amp;&amp; \
+    tar -xzf singularity-${VERSION}.tar.gz &amp;&amp; \
+    cd singularity
+</pre></div>
+</div>
+</div>
+<div class="section" id="compile">
+<span id="id6"></span><h3>编译Singularity代码<a class="headerlink" href="#compile" title="Permalink to this headline">¶</a></h3>
+<p>现在需要build Singularity，一些依赖会自动被下载:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ ./mconfig &amp;&amp; \
+    make -C builddir &amp;&amp; \
+    sudo make -C builddir install
+</pre></div>
+</div>
+<p>Singularity需要以root用户安装。</p>
+</div>
+</div>
+<div class="section" id="id7">
+<h2>Singularity命令概述<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h2>
+<p>使用Singularity的 <a class="reference internal" href="cli.html#cli"><span class="std std-ref">command line interface</span></a> 可以build和使用容器。
+使用这些命令你可以很方便的在容器内运行程序，可以方便的将host删的IO, 用户，参数，文件，端口等映射进容器使用。</p>
+<p><code class="docutils literal notranslate"><span class="pre">help</span></code> 命令可以看到Singularity的命令和选项。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>  $ singularity help
+
+  Linux container platform optimized for High Performance Computing (HPC) and
+  Enterprise Performance Computing (EPC)
+
+  Usage:
+    singularity [global options...]
+
+  Description:
+    Singularity containers provide an application virtualization layer enabling
+    mobility of compute via both application and environment portability. With
+    Singularity one is capable of building a root file system that runs on any
+    other Linux system where Singularity is installed.
+
+  Options:
+    -d, --debug     print debugging information (highest verbosity)
+    -h, --help      help for singularity
+        --nocolor   print without color output (default False)
+    -q, --quiet     suppress normal output
+    -s, --silent    only print errors
+    -v, --verbose   print additional information
+
+  Available Commands:
+    build       Build a Singularity image
+    cache       Manage the local cache
+    capability  Manage Linux capabilities for users and groups
+    exec        Run a command within a container
+    help        Help about any command
+    inspect     Show metadata for an image
+    instance    Manage containers running as services
+    key         Manage OpenPGP keys
+    oci         Manage OCI containers
+    plugin      Manage singularity plugins
+    pull        Pull an image from a URI
+    push        Upload image to the provided library (default is &quot;cloud.sylabs.io&quot;)
+    remote      Manage singularity remote endpoints
+    run         Run the user-defined default command within a container
+    run-help    Show the user-defined help for an image
+    search      Search a Container Library for images
+    shell       Run a shell within a container
+    sif         siftool is a program for Singularity Image Format (SIF) file manipulation
+    sign        Attach a cryptographic signature to an image
+    test        Run the user-defined tests within a container
+    verify      Verify cryptographic signatures attached to an image
+    version     Show the version for Singularity
+
+Examples:
+  $ singularity help &lt;command&gt; [&lt;subcommand&gt;]
+  $ singularity help build
+  $ singularity help instance start
+
+
+For additional help or support, please visit https://www.sylabs.io/docs/
+</pre></div>
+</div>
+<p>子命令也可以使用 <code class="docutils literal notranslate"><span class="pre">help</span></code> 命令查看其帮助信息。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity help verify
+Verify cryptographic signatures on container
+
+Usage:
+  singularity verify [verify options...] &lt;image path&gt;
+
+Description:
+  The verify command allows a user to verify cryptographic signatures on SIF
+  container files. There may be multiple signatures for data objects and
+  multiple data objects signed. By default the command searches for the primary
+  partition signature. If found, a list of all verification blocks applied on
+  the primary partition is gathered so that data integrity (hashing) and
+  signature verification is done for all those blocks.
+
+Options:
+  -g, --groupid uint32   group ID to be verified
+  -h, --help             help for verify
+  -i, --id uint32        descriptor ID to be verified
+  -l, --local            only verify with local keys
+  -u, --url string       key server URL (default &quot;https://keys.sylabs.io&quot;)
+
+
+Examples:
+  $ singularity verify container.sif
+
+
+For additional help or support, please visit https://www.sylabs.io/docs/
+</pre></div>
+</div>
+<p>Singularity的命令和选项使用positional语法，全局的选项会影响主命令，而子命令的选项和参数会影响子命令。</p>
+<p>比如, singularity主命令下使用 <code class="docutils literal notranslate"><span class="pre">--debug</span></code> 选项来使用debug方式运行容器:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity --debug run library://sylabsed/examples/lolcow
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">run</span></code> 命令的选项 <code class="docutils literal notranslate"><span class="pre">--containall</span></code> 以隔离方式运行容器:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity run --containall library://sylabsed/examples/lolcow
+</pre></div>
+</div>
+<p>Singularity 2.4引入了命令组的概念，比如列出一个用的Linxu capabilities， 你需要使用到 <code class="docutils literal notranslate"><span class="pre">capability</span></code> 命令组的  <code class="docutils literal notranslate"><span class="pre">list</span></code> 命令。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity capability list dave
+</pre></div>
+</div>
+<p>容器的作者有可能也会在容器中提供了一些帮助文档，如果这些容器中提供了帮助文档，
+你可以使用下面命令查看。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity inspect --helpfile container.sif  # See the container&#39;s help, if provided
+
+$ singularity inspect --helpfile --app=foo foo.sif  # See the help for foo, if provided
+</pre></div>
+</div>
+</div>
+<div class="section" id="build">
+<h2>下载build好的容器<a class="headerlink" href="#build" title="Permalink to this headline">¶</a></h2>
+<p>你可以使用 <code class="docutils literal notranslate"><span class="pre">search</span></code> 命令从 <a class="reference external" href="https://cloud.sylabs.io/library">Container Library</a> 搜索build好的容器。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity search alp
+No users found for &#39;alp&#39;
+
+Found 1 collections for &#39;alp&#39;
+    library://jchavez/alpine
+
+Found 5 containers for &#39;alp&#39;
+    library://jialipassion/official/alpine
+            Tags: latest
+    library://dtrudg/linux/alpine
+            Tags: 3.2 3.3 3.4 3.5 3.6 3.7 3.8 edge latest
+    library://sylabsed/linux/alpine
+            Tags: 3.6 3.7 latest
+    library://library/default/alpine
+            Tags: 3.1 3.2 3.3 3.4 3.5 3.6 3.7 3.8 latest
+    library://sylabsed/examples/alpine
+            Tags: latest
+</pre></div>
+</div>
+<p>你可以使用命令 <a class="reference external" href="https://www.sylabs.io/guides/3.5/user-guide/cli/singularity_pull.html">pull</a> 和
+<a class="reference external" href="https://www.sylabs.io/guides/3.5/user-guide/cli/singularity_build.html">build</a>
+从外部资源下载容器，比如 <a class="reference external" href="https://cloud.sylabs.io/library">Container Library</a> 或者 <a class="reference external" href="https://hub.docker.com/">Docker Hub</a>。</p>
+<p>当你需要从Container Library下载一个Singularity容器的时候，<code class="docutils literal notranslate"><span class="pre">pull</span></code> 只是下载容器到本地。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity pull library://sylabsed/linux/alpine
+</pre></div>
+</div>
+<p>当你从Docker registry下载容器的时候， <code class="docutils literal notranslate"><span class="pre">pull</span></code> 命令不是只是下载Docker的镜像文件，还需要将其转换为Singularity容器的格式。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity pull docker://godlovedc/lolcow
+</pre></div>
+</div>
+<p>下载Docker的镜像减少了重复造轮子的工作。如果我们今天pull一个docker镜像，6个月以后再次pull这个镜像，那么这两次的镜像可能是不同的。
+如果可复现对你特别重要，尽量从Container Library下载镜像。</p>
+<p>你也可以使用 <code class="docutils literal notranslate"><span class="pre">build</span></code> 命令从外部资源下载容器，当你使用 <code class="docutils literal notranslate"><span class="pre">build</span></code> 的时候，你必须给容器指定一个名字。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity build ubuntu.sif library://ubuntu
+
+$ singularity build lolcow.sif docker://godlovedc/lolcow
+</pre></div>
+</div>
+<p>和 <code class="docutils literal notranslate"><span class="pre">pull</span></code> 不同， <code class="docutils literal notranslate"><span class="pre">build</span></code> 命令在下载外部的容器镜像后，会将其转换成最新的Singularity容器格式。
+<code class="docutils literal notranslate"><span class="pre">build</span></code> 想瑞士军刀一样多用途，除了下载容器，使用 <code class="docutils literal notranslate"><span class="pre">build</span></code> 你还可以从其他容器创建新容器，
+从 <a class="reference internal" href="definition_files.html#definitionfiles"><span class="std std-ref">definition file</span></a> 创建新容器。 你也可以使用 <code class="docutils literal notranslate"><span class="pre">build</span></code> 将Singularity容器从一种格式转换为另一种格式。
+<a class="reference internal" href="singularity_and_docker.html#sec-deffile-vs-dockerfile"><span class="std std-ref">这一章节</span></a> 对Singularity definition文件和Dockerfile进行了比较。</p>
+</div>
+<div class="section" id="cowimage">
+<span id="id10"></span><h2>交互访问容器<a class="headerlink" href="#cowimage" title="Permalink to this headline">¶</a></h2>
+<p>有几种方式可以交互的访问容器，每种交互方式既可以使用本地的容器也可以使用一个url。</p>
+<p>下面的示例中，我们将使用 <code class="docutils literal notranslate"><span class="pre">lolcow_latest.sif</span></code> 容器，这个容器是从Container Library下载到本地的:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity pull library://sylabsed/examples/lolcow
+</pre></div>
+</div>
+<div class="section" id="shell">
+<h3>Shell<a class="headerlink" href="#shell" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference external" href="https://www.sylabs.io/guides/3.5/user-guide/cli/singularity_shell.html">shell</a>
+命令将在容器中启动一个shell，允许你使用shell和容器交互，体验就想使用一个小的虚拟机。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity shell lolcow_latest.sif
+
+Singularity lolcow_latest.sif:~&gt;
+</pre></div>
+</div>
+<p>命令执行时后会提示你已经进入容器内。</p>
+<p>你在容器内的用户和在host上的用户是一样的。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Singularity lolcow_latest.sif:~&gt; whoami
+david
+
+Singularity lolcow_latest.sif:~&gt; id
+uid=1000(david) gid=1000(david) groups=1000(david),4(adm),24(cdrom),27(sudo),30(dip),46(plugdev),116(lpadmin),126(sambashare)
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">shell``也可以从url（``library://</span></code>, <code class="docutils literal notranslate"><span class="pre">docker://</span></code>, <code class="docutils literal notranslate"><span class="pre">shub://</span></code> 等）下载镜像并使用。 这会创建一个临时容器，当shell退出时容器会消失。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity shell library://sylabsed/examples/lolcow
+</pre></div>
+</div>
+</div>
+<div class="section" id="exec">
+<h3>Exec<a class="headerlink" href="#exec" title="Permalink to this headline">¶</a></h3>
+<p>使用 <a class="reference external" href="https://www.sylabs.io/guides/3.5/user-guide/cli/singularity_exec.html">exec</a>
+命令可以在容器中运行一个指定的命令。 比如在容器 <code class="docutils literal notranslate"><span class="pre">lolcow_latest.sif</span></code> 中运行一个 <code class="docutils literal notranslate"><span class="pre">cowsay</span></code> 的程序。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity exec lolcow_latest.sif cowsay moo
+ _____
+&lt; moo &gt;
+ -----
+        \   ^__^
+         \  (oo)\_______
+            (__)\       )\/\
+                ||----w |
+                ||     ||
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">exec</span></code> 也可以从url（<code class="docutils literal notranslate"><span class="pre">library://</span></code>, <code class="docutils literal notranslate"><span class="pre">docker://</span></code>, <code class="docutils literal notranslate"><span class="pre">shub://</span></code> 等）下载镜像并使用。 这会创建一个临时容器，当命令执行完容器会消失。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity exec library://sylabsed/examples/lolcow cowsay &quot;Fresh from the library!&quot;
+ _________________________
+&lt; Fresh from the library! &gt;
+ -------------------------
+        \   ^__^
+         \  (oo)\_______
+            (__)\       )\/\
+                ||----w |
+                ||     ||
+</pre></div>
+</div>
+</div>
+<div class="section" id="run">
+<span id="runcontainer"></span><h3>Run<a class="headerlink" href="#run" title="Permalink to this headline">¶</a></h3>
+<p>Singularity容器中可以包含 <a class="reference internal" href="definition_files.html#runscript"><span class="std std-ref">runscripts</span></a>，runscript是用户定义的当容器时会运行的脚本。
+这个脚本在运行 <a class="reference external" href="https://www.sylabs.io/guides/3.5/user-guide/cli/singularity_run.html">run</a> 命令，
+或者直接执行容器文件的时候会被执行。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity run lolcow_latest.sif
+ _____________________________________
+/ You have been selected for a secret \
+\ mission.                            /
+ -------------------------------------
+        \   ^__^
+         \  (oo)\_______
+            (__)\       )\/\
+                ||----w |
+                ||     ||
+
+$ ./lolcow_latest.sif
+ ____________________________________
+/ Q: What is orange and goes &quot;click, \
+\ click?&quot; A: A ball point carrot.    /
+ ------------------------------------
+        \   ^__^
+         \  (oo)\_______
+            (__)\       )\/\
+                ||----w |
+                ||     ||
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">run</span></code> 也可以从url（<code class="docutils literal notranslate"><span class="pre">library://</span></code>, <code class="docutils literal notranslate"><span class="pre">docker://</span></code>, <code class="docutils literal notranslate"><span class="pre">shub://</span></code> 等）下载镜像并使用。 这会创建一个临时容器，当脚本执行完容器会消失。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity run library://sylabsed/examples/lolcow
+ ____________________________________
+/ Is that really YOU that is reading \
+\ this?                              /
+ ------------------------------------
+        \   ^__^
+         \  (oo)\_______
+            (__)\       )\/\
+                ||----w |
+                ||     ||
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="host">
+<h2>访问Host文件<a class="headerlink" href="#host" title="Permalink to this headline">¶</a></h2>
+<p>在容器内可以访问host上的文件。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ echo &quot;Hello from inside the container&quot; &gt; $HOME/hostfile.txt
+
+$ singularity exec lolcow_latest.sif cat $HOME/hostfile.txt
+
+Hello from inside the container
+</pre></div>
+</div>
+<p>这个例子中 <code class="docutils literal notranslate"><span class="pre">hostfile.txt</span></code> 在用户的home目录下，默认情况下，singularity会把 <code class="docutils literal notranslate"><span class="pre">/home/$USER</span></code>, <code class="docutils literal notranslate"><span class="pre">/tmp</span></code>, 和 <code class="docutils literal notranslate"><span class="pre">$PWD</span></code> 映射进容器中。</p>
+<p>你可以通过 <code class="docutils literal notranslate"><span class="pre">--bind</span></code> 选项将更多的目录映射到容器中，下面这个例子中，我们将host上的 <code class="docutils literal notranslate"><span class="pre">data</span></code> 目录映射到容器中的 <code class="docutils literal notranslate"><span class="pre">/mnt</span></code> 目录。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ echo &quot;Drink milk (and never eat hamburgers).&quot; &gt; /data/cow_advice.txt
+
+$ singularity exec --bind /data:/mnt lolcow_latest.sif cat /mnt/cow_advice.txt
+Drink milk (and never eat hamburgers).
+</pre></div>
+</div>
+<p>Pipes和redirects 在singularity的命令中也是有效的，就想他们对大多数标准Linux程序有效一样。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ cat /data/cow_advice.txt | singularity exec lolcow_latest.sif cowsay
+ ________________________________________
+&lt; Drink milk (and never eat hamburgers). &gt;
+ ----------------------------------------
+        \   ^__^
+         \  (oo)\_______
+            (__)\       )\/\
+                ||----w |
+                ||     ||
+</pre></div>
+</div>
+</div>
+<div class="section" id="build-images-from-scratch">
+<span id="id14"></span><h2>从零开始build容器<a class="headerlink" href="#build-images-from-scratch" title="Permalink to this headline">¶</a></h2>
+<p id="sec-buildimagesfromscratch">Singularity v3.0开始的容器格式是只读的Singularity Image File (SIF)。
+这样可以保证在发布容器时候保证容器的不可修改，可以实现容器的签名，加密等。</p>
+<p>但是，当测试和调试的时候，我们想要对容器进行写操作，这样我们就可以 <code class="docutils literal notranslate"><span class="pre">shell</span></code> 进容器安装需要的软件和依赖，知道满足我们需求位置。
+对于这些场景，Singularity也支持 <code class="docutils literal notranslate"><span class="pre">sandbox</span></code> 格式（就是一个文件目录）。</p>
+<div class="section" id="sandbox">
+<h3>Sandbox<a class="headerlink" href="#sandbox" title="Permalink to this headline">¶</a></h3>
+<p>build一个 <code class="docutils literal notranslate"><span class="pre">sandbox</span></code> 容器，你可以使用 <code class="docutils literal notranslate"><span class="pre">build</span> <span class="pre">--sandbox</span></code> 命令:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo singularity build --sandbox ubuntu/ library://ubuntu
+</pre></div>
+</div>
+<p>这个命令会创建一个 <code class="docutils literal notranslate"><span class="pre">ubuntu/</span></code> 的目录，然后整个Ubuntu操作系统的内容和一些Singularity的元数据都保存在这个目录下。</p>
+<p>然后你可以使用 <code class="docutils literal notranslate"><span class="pre">shell</span></code>, <code class="docutils literal notranslate"><span class="pre">exec</span></code> , 和 <code class="docutils literal notranslate"><span class="pre">run</span></code> 等命令操作这个目录。
+如果你在这些命令后面添加 <code class="docutils literal notranslate"><span class="pre">--writable</span></code> 标记就可以写容器了。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo singularity exec --writable ubuntu touch /foo
+
+$ singularity exec ubuntu/ ls /foo
+/foo
+</pre></div>
+</div>
+</div>
+<div class="section" id="id15">
+<h3>容器格式转换<a class="headerlink" href="#id15" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">build</span></code> 命令可以从一个存在的容器build一个新的容器，这意味这你可以将容器从一种格式转换为另一种格式。
+比如你已经创建了一个sandbox，想把它转换成Singularity默认的只读的SIF格式：</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity build new-sif sandbox
+</pre></div>
+</div>
+<p>当然由于你在sandbox可能做了修改，并且没有通过definition文件修改，你修改了哪些东西对别人是黑盒，
+因此建议sandbox在练习的时候使用。</p>
+</div>
+<div class="section" id="singularity-definition">
+<h3>Singularity Definition文件<a class="headerlink" href="#singularity-definition" title="Permalink to this headline">¶</a></h3>
+<p>为了可重现性，可验证性，以及build产品级别的容器，你应该使用definition文件build只读的SIF格式的容器。
+使用definition文件，在基础容器上，你可以很简单的添加文件，设置环境变量，安装软件。</p>
+<p>Definition文件有header和body， header设置容器的基础容器，body被分成几个段落来执行软件安装，环境变量设置，从host拷贝文件到容器中等。</p>
+<p>下面是一个definition文件的例子:</p>
+<div class="highlight-singularity notranslate"><div class="highlight"><pre><span></span><span class="k">BootStrap</span>: library
+<span class="k">From</span>: ubuntu:<span class="m">16.04</span>
+
+<span class="gh">%post</span>
+    apt-get -y update
+    apt-get -y install fortune cowsay lolcat
+
+<span class="gh">%environment</span>
+    <span class="nb">export</span> <span class="nv">LC_ALL</span><span class="o">=</span>C
+    <span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span>/usr/games:<span class="nv">$PATH</span>
+
+<span class="gh">%runscript</span>
+    fortune <span class="p">|</span> cowsay <span class="p">|</span> lolcat
+
+<span class="gh">%labels</span>
+    Author GodloveD
+</pre></div>
+</div>
+<p>下面命令使用definition文件（lolcow.def）build出一个叫做lolcow.sif的容器：</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo singularity build lolcow.sif lolcow.def
+</pre></div>
+</div>
+<p>这个例子中，header告诉singularity使用来自Container Library的Ubuntu 16.04作为基础容器</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">%post</span></code> 段落下面的内容是基础容器准备好后在容器中执行的命令，这一段落主要在容器中安装各种软件和应用。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">%environment</span></code> 段落设置容器运行时需要的一些环境变量。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">%runscript</span></code> 段落定义了容器文件直接被运行时将被执行的容器内脚本。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">%labels</span></code> 段落可以添加一些元数据到容器中。</p></li>
+</ul>
+<p>这是一个使用 <a class="reference internal" href="definition_files.html#definitionfiles"><span class="std std-ref">definition file</span></a> build容器的一个简单的例子。
+除了从Container Library获取基础容器，你也可以从Docker Hub，从Ubuntu, Debian, CentOS, Arch, BusyBox等的官方仓库获取基础容器。
+你也可以使用本地的一个容器作为基础容器。</p>
+<p>如果你没有root权限，但又想build容器，你可以使用 <a class="reference external" href="https://cloud.sylabs.io/builder">Remote Builder</a>。</p>
+<p>这个入门教程快速的过了一下Singularity的基本功能，更多更详细的功能，请查看其它章节。</p>
+<p>如果你需要更多的帮助，请联系https://www.sylabs.io/contact/</p>
+<div class="section" id="installation-request">
+<span id="id16"></span><h4>在一个共享的环境上安装Singularity<a class="headerlink" href="#installation-request" title="Permalink to this headline">¶</a></h4>
+<p>可能你在共享的环境上只是一个用户，你想让管理员安装Singularity。或者你是共享环境的管理员，
+你在犹豫是否安装singularity。</p>
+<p>这个文档和管理员文档提供了你很多问题的答案。</p>
+<p>如果你需要向管理员请求安装Singularity，你可能需要准备一个和下面类似的信息。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Dear shared resource administrator,
+
+We are interested in having Singularity (https://www.sylabs.io/docs/)
+installed on our shared resource. Singularity containers will allow us to
+build encapsulated environments, meaning that our work is reproducible and
+we are empowered to choose all dependencies including libraries, operating
+system, and custom software. Singularity is already in use on many of the
+top HPC centers around the world. Examples include:
+
+    Texas Advanced Computing Center
+    GSI Helmholtz Center for Heavy Ion Research
+    Oak Ridge Leadership Computing Facility
+    Purdue University
+    National Institutes of Health HPC
+    UFIT Research Computing at the University of Florida
+    San Diego Supercomputing Center
+    Lawrence Berkeley National Laboratory
+    University of Chicago
+    McGill HPC Centre/Calcul Québec
+    Barcelona Supercomputing Center
+    Sandia National Lab
+    Argonne National Lab
+
+Importantly, it has a vibrant team of developers, scientists, and HPC
+administrators that invest heavily in the security and development of the
+software, and are quick to respond to the needs of the community. To help
+learn more about Singularity, I thought these items might be of interest:
+
+    - Security: A discussion of security concerns is discussed at
+    https://www.sylabs.io/guides/{adminversion}/admin-guide/admin_quickstart.html
+
+    - Installation:
+    https://www.sylabs.io/guides/{adminversion}/admin-guide/installation.html
+
+If you have questions about any of the above, you can email the open source
+list (singularity@lbl.gov), join the open source slack channel
+(singularity-container.slack.com), or contact the organization that supports
+Singularity directly (sylabs.io/contact). I can do
+my best to facilitate this interaction if help is needed.
+
+Thank you kindly for considering this request!
+
+Best,
+
+User
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="security.html" class="btn btn-neutral float-right" title="Singularity安全性" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="introduction.html" class="btn btn-neutral float-left" title="Singularity介绍" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017-2019, Sylabs Inc
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

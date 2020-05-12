@@ -1,0 +1,429 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>使用cgroups限制容器资源 &mdash; Singularity container 3.5 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="_static/favicon.png"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script src="_static/js/ga.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="MPI应用" href="mpi.html" />
+    <link rel="prev" title="网络虚拟化" href="networking.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Singularity container
+          
+
+          
+            
+            <img src="_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">介绍</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html">快速入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security.html">Singularity安全</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="build_a_container.html">Build容器</a></li>
+<li class="toctree-l1"><a class="reference internal" href="definition_files.html">Definition文件</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build_env.html">Build环境</a></li>
+<li class="toctree-l1"><a class="reference internal" href="singularity_and_docker.html">Singularity和Docker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fakeroot.html">Fakeroot</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="signNverify.html">签名和认证</a></li>
+<li class="toctree-l1"><a class="reference internal" href="key_commands.html">Key管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="encryption.html">容器加密</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="endpoint.html">容器仓库</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cloud_library.html">Cloud Library</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="bind_paths_and_mounts.html">路径映射</a></li>
+<li class="toctree-l1"><a class="reference internal" href="persistent_overlays.html">持久化Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="running_services.html">运行服务</a></li>
+<li class="toctree-l1"><a class="reference internal" href="environment_and_metadata.html">环境变量和元数据</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oci_runtime.html">OCI运行时</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugins.html">插件</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security_options.html">安全选项</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networking.html">网络选项</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Cgroups</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id2">概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">举例</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id4">限制内存</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cpu">限制CPU</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#shares">shares</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#quota-period">quota/period</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cpus-mems">cpus/mems</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#io">限制IO</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#device">限制device</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="mpi.html">MPI应用</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gpu.html">GPU支持</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="appendix.html">Appendix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Singularity container</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>使用cgroups限制容器资源</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/sylabs/singularity-userdocs/blob/master/cgroups.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="cgroups">
+<span id="id1"></span><h1>使用cgroups限制容器资源<a class="headerlink" href="#cgroups" title="Permalink to this headline">¶</a></h1>
+<p>从Singularity 3.0开始, 用户可以使用cgroups限制容器资源。</p>
+<div class="section" id="id2">
+<h2>概述<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p>通过TOML文件，我们能配置和使用cgroups来限制容器资源。
+Singularity有一个示例配置文件 <code class="docutils literal notranslate"><span class="pre">/usr/local/etc/singularity/cgroups/cgroups.toml</span></code>
+（根据安装Singularity方式的不同，这个文件可能在另外的位置，比如 <code class="docutils literal notranslate"><span class="pre">/etc/singularity/cgroups/cgroups.toml</span></code>），
+你可以根据你的需要复制和修改这个文件，然后使用 <code class="docutils literal notranslate"><span class="pre">--apply-cgroups</span></code> 指定使用这个文件中的配置来限制容器资源的资源:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo singularity shell --apply-cgroups /path/to/cgroups.toml my_container.sif
+</pre></div>
+</div>
+<p>使用这个选项 <code class="docutils literal notranslate"><span class="pre">--apply-cgroups</span></code> 需要root权限。</p>
+</div>
+<div class="section" id="id3">
+<h2>举例<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id4">
+<h3>限制内存<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<p>限制容器最多能使用500MB (524288000 bytes)的内存.  首先在你的home下创建一个 <code class="docutils literal notranslate"><span class="pre">cgroups.toml</span></code> 文件.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>[memory]
+    limit = 524288000
+</pre></div>
+</div>
+<p>然后启动容器:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo singularity instance start --apply-cgroups /home/$USER/cgroups.toml \
+    my_container.sif instance1
+</pre></div>
+</div>
+<p>然后你能看到容器限制最多可以用500MB内存(这个例子假定你只有 <code class="docutils literal notranslate"><span class="pre">instance1</span></code> 一个实例在运行)。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ cat /sys/fs/cgroup/memory/singularity/*/memory.limit_in_bytes
+524288000
+</pre></div>
+</div>
+<p>然后别忘了清除掉这个运行的实例。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo singularity instance stop instance1
+</pre></div>
+</div>
+<p>同样的，接下来的例子也使用启动实例和检查 <code class="docutils literal notranslate"><span class="pre">/sys/fs/cgroup/</span></code> 下子文件夹下内容的方式来测试。</p>
+</div>
+<div class="section" id="cpu">
+<h3>限制CPU<a class="headerlink" href="#cpu" title="Permalink to this headline">¶</a></h3>
+<p>使用下面的一种机制来限制CPU。 配置文件中的 <code class="docutils literal notranslate"><span class="pre">cpu</span></code> 段可以用来配置CPU的限制。</p>
+<div class="section" id="shares">
+<h4>shares<a class="headerlink" href="#shares" title="Permalink to this headline">¶</a></h4>
+<p>这里起作用的实际上是当前cgroups和其它cgroups的比值。通常默认shares的值是 <code class="docutils literal notranslate"><span class="pre">1024</span></code>，这意味着你如果想
+允许使用单个CPU的50%，你应该设置shares为 <code class="docutils literal notranslate"><span class="pre">512</span></code>.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>[cpu]
+    shares = 512
+</pre></div>
+</div>
+<p>shares这个设置只在多个进程进行资源抢占的时候发挥作用，比如两个进程都在抢占CPU，
+那么这个设置能保证每个进程都能分配到50%的CPU时间片。
+如果CPU只被一个进程使用，即便这里设置的shares=512， 这个进程还是能分配到所有的CPU时间片。</p>
+</div>
+<div class="section" id="quota-period">
+<h4>quota/period<a class="headerlink" href="#quota-period" title="Permalink to this headline">¶</a></h4>
+<p>你可以强制限制分配给一个cgroup的时间片，cgroup的进程不能使用超过设置的时间片。
+<code class="docutils literal notranslate"><span class="pre">quota</span></code> 用来设置每个period中这个cgroup能使用多少时间片，period的默认值是100ms (100000us)，
+所以你如果想设置在一个period中使用20ms:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>[cpu]
+    period = 100000
+    quota = 20000
+</pre></div>
+</div>
+</div>
+<div class="section" id="cpus-mems">
+<h4>cpus/mems<a class="headerlink" href="#cpus-mems" title="Permalink to this headline">¶</a></h4>
+<p>通过 <code class="docutils literal notranslate"><span class="pre">cpus/mems</span></code> 你可以限制容器能使用的特定的CPU和内存:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>[cpu]
+    cpus = &quot;0-1&quot;
+    mems = &quot;0-1&quot;
+</pre></div>
+</div>
+<p>限制容器只能使用CPU 0和CPU 1（这里的0和1指的是CPU核）。</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>cpus和mems的值必须是相同的。</p>
+</div>
+<p>更多关于使用cgroups限制CPU的内容，请查看下面的连接：</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/6/html/resource_management_guide/sec-cpu/">Red Hat resource management guide section 3.2 CPU</a></p></li>
+<li><p><a class="reference external" href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/6/html/resource_management_guide/sec-cpuset">Red Hat resource management guide section 3.4 CPUSET</a></p></li>
+<li><p><a class="reference external" href="https://www.kernel.org/doc/Documentation/scheduler/sched-bwc.txt">Kernel scheduler documentation</a></p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="io">
+<h3>限制IO<a class="headerlink" href="#io" title="Permalink to this headline">¶</a></h3>
+<p>使用 <code class="docutils literal notranslate"><span class="pre">[blockIO]</span></code> 你可以限制和监控I/O设备的访问:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>[blockIO]
+    weight = 1000
+    leafWeight = 1000
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">weight</span></code> 和 <code class="docutils literal notranslate"><span class="pre">leafWeight</span></code> 取值范围为 <code class="docutils literal notranslate"><span class="pre">10</span></code> 到 <code class="docutils literal notranslate"><span class="pre">1000</span></code>。</p>
+<p><code class="docutils literal notranslate"><span class="pre">weight</span></code> 是这个cgroup的默认weight。</p>
+<p><code class="docutils literal notranslate"><span class="pre">leafWeight</span></code> 是这个cgroup的子cgroup的weight。这两个值可以用来计算当前cgroup和子cgroup的I/O访问的比值。</p>
+<p>我们可以针对具体的device设置 <code class="docutils literal notranslate"><span class="pre">weight/leafWeight</span></code>，下面设置 <code class="docutils literal notranslate"><span class="pre">/dev/loop0`</span> <span class="pre">`和</span> <span class="pre">``/dev/loop1</span></code> 的 <code class="docutils literal notranslate"><span class="pre">weight/leafWeight</span></code>，
+其中major和minor和在一起来标识设备号（可以用ls -l /dev/loop0 查看loop0的设备号）:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>[blockIO]
+    [[blockIO.weightDevice]]
+        major = 7
+        minor = 0
+        weight = 100
+        leafWeight = 50
+    [[blockIO.weightDevice]]
+        major = 7
+        minor = 1
+        weight = 100
+        leafWeight = 50
+</pre></div>
+</div>
+<p>你可以限制device <code class="docutils literal notranslate"><span class="pre">/dev/loop0</span></code> 的读写速度为16MB每秒，rate的单位为byte每秒。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>[blockIO]
+    [[blockIO.throttleReadBpsDevice]]
+        major = 7
+        minor = 0
+        rate = 16777216
+    [[blockIO.throttleWriteBpsDevice]]
+        major = 7
+        minor = 0
+        rate = 16777216
+</pre></div>
+</div>
+<p>你可以限制device <code class="docutils literal notranslate"><span class="pre">/dev/loop0</span></code> 的读写速度为1000 IOPS。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>[blockIO]
+    [[blockIO.throttleReadIOPSDevice]]
+        major = 7
+        minor = 0
+        rate = 1000
+    [[blockIO.throttleWriteIOPSDevice]]
+        major = 7
+        minor = 0
+        rate = 1000
+</pre></div>
+</div>
+<p>更多关于I/O资源限制的资料, 请参考下面的链接：</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/6/html/resource_management_guide/ch-subsystems_and_tunable_parameters#sec-blkio">Red Hat resource management guide section 3.1 blkio</a></p></li>
+<li><p><a class="reference external" href="https://www.kernel.org/doc/Documentation/cgroup-v1/blkio-controller.txt">Kernel block IO controller documentation</a></p></li>
+<li><p><a class="reference external" href="https://www.kernel.org/doc/Documentation/block/cfq-iosched.txt">Kernel CFQ scheduler documentation</a></p></li>
+</ul>
+<div class="section" id="device">
+<h4>限制device<a class="headerlink" href="#device" title="Permalink to this headline">¶</a></h4>
+<p>你可以限制容器读，写和创建device。下面这个例子是配置容器读写 <code class="docutils literal notranslate"><span class="pre">/dev/null</span></code>。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>[[devices]]
+    access = &quot;rwm&quot;
+    allow = false
+[[devices]]
+    access = &quot;rw&quot;
+    allow = true
+    major = 1
+    minor = 3
+    type = &quot;c&quot;
+</pre></div>
+</div>
+<p>更多关于限制device的资料，请参考下面的链接：
+<a class="reference external" href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/6/html/resource_management_guide/sec-devices">management guide section 3.5 DEVICES</a>.</p>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="mpi.html" class="btn btn-neutral float-right" title="MPI应用" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="networking.html" class="btn btn-neutral float-left" title="网络虚拟化" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017-2019, Sylabs Inc
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

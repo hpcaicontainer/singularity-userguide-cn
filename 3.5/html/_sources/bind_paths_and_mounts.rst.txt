@@ -1,0 +1,112 @@
+
+.. _bind-paths-and-mounts:
+
+
+=====================
+Bind路径和Mount路径
+=====================
+
+.. _sec:bindpaths:
+
+`如果系统管理员允许 <https://singularity-admindoc.readthedocs.io/en/latest/the_singularity_config_file.html#user-bind-control-boolean-default-yes>`_,
+Singularity允许你映射host上的目录到容器中，这样在容器中就可以读写映射进去的目录。
+
+
+--------
+概述
+--------
+
+当运行Singularity容器的时候，在容器内部，没办法访问host上的文件系统。如果你想读写host上的文件系统，
+你可以通过下面两种方法将host上的文件系统映射进容器：系统定义的映射路径和用户定义的映射路径。
+
+-------------------------
+系统定义的映射路径
+-------------------------
+
+系统管理员可以设置哪些host路径可以自动映射到容器中。
+有些路径是动态获取的，比如用户的home路径，有些路径是静态定义的。默认的配置当中，系统定义路径包括。
+``$HOME``, ``/sys:/sys``, ``/proc:/proc``, ``/tmp:/tmp``, ``/var/tmp:/var/tmp``, ``/etc/resolv.conf:/etc/resolv.conf``,
+``/etc/passwd:/etc/passwd``,  ``$PWD``。  ``:`` 前的路径是host路径，``:`` 后的路径是在映射到容器中的路径。
+
+-----------------------
+用户定义的映射路径
+-----------------------
+
+`如果系统管理员允许用户映射路径 <https://singularity-admindoc.readthedocs.io/en/latest/the_singularity_config_file.html#user-bind-control-boolean-default-yes>`_。
+
+运行Singularity的命令(``run``, ``exec``, ``shell``, 和 ``instance start``）的时候，
+通过这个 ``--bind/-B`` 这个选项可以将指定的路径映射到容器中，
+同时在环境变量 ``$SINGULARITY_BIND`` 或者 ``$SINGULARITY_BINDPATH`` 里面指定的路径也会被映射到容器中。
+``--bind/-B`` 选项支持绑定多个路径，每个路径之间以逗号分隔。其中每个路径的格式是 ``src[:dest[:opts]]``， src是host的路径，
+dest是容器中的路径，opts可以指定只读 ``ro`` 或者读写 ``rw``。这个选项在一个命令中可以多次使用。
+
+指定映射路径
+=====================
+
+下面的例子使用 ``--bind`` 映射host上的 ``/data`` 到容器中的 ``/mnt`` ( /mnt不需要在容器中事先存在):
+
+.. code-block:: none
+
+    $ ls /data
+    bar  foo
+
+    $ singularity exec --bind /data:/mnt my_container.sif ls /mnt
+    bar  foo
+
+你可以在一个命令当中映射多个路径:
+
+.. code-block:: none
+
+    $ singularity shell --bind /opt,/data:/mnt my_container.sif
+
+映射host上的 ``/opt`` 到容器中的 ``/opt``，映射host上的 ``/data`` 到容器中的 ``/mnt``。
+
+使用环境变量设置映射路径:
+
+.. code-block:: none
+
+    $ export SINGULARITY_BIND="/opt,/data:/mnt"
+
+    $ singularity shell my_container.sif
+
+使用环境变量 ``$SINGULARITY_BIND`` 映射路径, 你在singularity run的时候映射的路径依然生效。
+如果你的容器都需要映射某些路径，你甚至可以将这个环境变量放到 ``.bashrc``，这样对于每个shell都会自动生效。
+
+
+``--bind`` 和 ``--writable`` 一起使用时候的注意事项
+=======================================================
+
+以前的版本中如果要bind一个路径到容器中，容器中对应的bind点必须是事先存在的。
+从Singularity 3.0开始, 容器中对应的bind点不需要事先存在。但是 ``--bind`` 和 ``--writable`` 一起使用时候，
+如果bind点不事先存在会导致不可预期的结果，因此这个时候不运行映射不存在的bind点。
+如果bind点不存在，你需要在容器中先创建bind点，然后退出容器，然后重新映射。 
+
+
+``--no-home`` 和 ``--containall``
+==============================================
+
+^^^^^^^^^^^^^
+``--no-home``
+^^^^^^^^^^^^^
+
+使用 ``--no-home``，当你shell进入容器的时候， Singularity将映射当前目录到容器中而不映射 ``$HOME`` 目录到容器中。
+
+.. code-block:: none
+
+    $ singularity shell --no-home my_container.sif
+
+.. note::
+
+    当然，如果你当前目录就是 ``$HOME`` 目录, 那么将映射 ``$HOME`` 目录到容器中.
+
+^^^^^^^^^^^^^^^^
+``--containall``
+^^^^^^^^^^^^^^^^
+
+使用 ``--containall`` 或者 ``-C``, host上的 ``$HOME`` 目录将不会映射到容器中，但是容器中会创建一个空的 ``$HOME`` 目录。 
+这时候你也不能用 ``-B`` 或者 ``--bind`` 来强制映射 ``$HOME`` 目录到容器。所以如果你容器中的 ``/home/user`` 下面原来有内容的话，
+这些内容将被隐藏掉。
+
+.. code-block:: none
+
+    $ singularity shell --containall my_container.sif

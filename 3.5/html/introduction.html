@@ -1,0 +1,338 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Singularity介绍 &mdash; Singularity container 3.5 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="_static/favicon.png"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script src="_static/js/ga.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="入门教程" href="quick_start.html" />
+    <link rel="prev" title="User Guide" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Singularity container
+          
+
+          
+            
+            <img src="_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">介绍</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">为什么用Singularity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">为什么使用容器</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">使用场景</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#byoe-bring-your-own-environment">BYOE: Bring Your Own Environment!</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">可重复性的科学研究</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">商业软件支持</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id6">运行环境存档</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id7">老系统上的老代码</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id8">原来软件太复杂</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id9">复杂的工作流</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html">快速入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security.html">Singularity安全</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="build_a_container.html">Build容器</a></li>
+<li class="toctree-l1"><a class="reference internal" href="definition_files.html">Definition文件</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build_env.html">Build环境</a></li>
+<li class="toctree-l1"><a class="reference internal" href="singularity_and_docker.html">Singularity和Docker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fakeroot.html">Fakeroot</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="signNverify.html">签名和认证</a></li>
+<li class="toctree-l1"><a class="reference internal" href="key_commands.html">Key管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="encryption.html">容器加密</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="endpoint.html">容器仓库</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cloud_library.html">Cloud Library</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bind_paths_and_mounts.html">路径映射</a></li>
+<li class="toctree-l1"><a class="reference internal" href="persistent_overlays.html">持久化Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="running_services.html">运行服务</a></li>
+<li class="toctree-l1"><a class="reference internal" href="environment_and_metadata.html">环境变量和元数据</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oci_runtime.html">OCI运行时</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugins.html">插件</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security_options.html">安全选项</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networking.html">网络选项</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cgroups.html">Cgroups</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mpi.html">MPI应用</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gpu.html">GPU支持</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="appendix.html">Appendix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Singularity container</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Singularity介绍</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/sylabs/singularity-userdocs/blob/master/introduction.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="singularity">
+<span id="introduction"></span><h1>Singularity介绍<a class="headerlink" href="#singularity" title="Permalink to this headline">¶</a></h1>
+<p>Singularity是一个容器平台，使用Singularity可以将程序和依赖环境打包，然后在多中环境下运行。
+你可以在你的laptop上build Singularity容器，然后在HPC集群上，在大学的或者公司的集群上，在一个服务器上，
+在cloud中，在工作站等各种环境中运行它。你的容器文件是一个独立的文件，使用容器你不需要担心怎么在不同的OS上安装软件。</p>
+<div class="section" id="id1">
+<h2>为什么用Singularity<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>Singularity最初是为了简单、便捷的在HPC集群上运行复杂的应用开发的。
+最早是由劳伦斯伯克利国家实验室开发，其是一个开源项目，针对用户和开发者提供了友好的社区。
+Singularity的使用领域也扩找到工业和科学的很多领域。</p>
+<p>现在市面上已经有很多的容器平台，但是Singularity有一下特殊性：</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>很好的可重复生产性和安全性，支持容器签名，使用制度的容器镜像格式，在内存中解密。</p></li>
+<li><p>强调集成而不是隔离，很容易使用集群中的GPU，高速网络和并行文件系统。</p></li>
+<li><p>便捷计算，一个容器就是一个SIF文件，可以很方便的共享和传递。</p></li>
+<li><p>简单，有效的安全模式。用户在容器内和容器外是同样的用户，不能获取额外的特权。 更多请参考 <a class="reference internal" href="security.html#security"><span class="std std-ref">Singularity安全性</span></a>.</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="id2">
+<h2>为什么使用容器<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p>Unix操作系统分为两部分：内核空间和用户空间。
+内核空间和硬件交互，提供核心的系统功能，而用户空间是我们大部分人比较熟悉的部分，
+比如应用，库和服务等。</p>
+<p>传统情况下，一个操作系统是一个固定的内核空间和用户空间的组合，如果你访问安装有CentOS的机器，
+你不能在上面安装Ubuntu的软件。另外安装一个软件的多个版本也会很困难。</p>
+<p>容器的出现，将用户空间变成了可替换的部分。这就是说，Linux系统的用户空间，包括程序，定制化配置，
+运行环境等都可以变成独立部分。容器将你需要的内容打包成一个独立的，可验证的文件。</p>
+<p>现在软件开发者可以在他们软件需要的OS上开发软件，
+然后将他们的软件和运行环境打包成容器就可以在各种操作系统上执行，
+不需要在操作系统上安装各种依赖包。</p>
+</div>
+<div class="section" id="id3">
+<h2>使用场景<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="byoe-bring-your-own-environment">
+<h3>BYOE: Bring Your Own Environment!<a class="headerlink" href="#byoe-bring-your-own-environment" title="Permalink to this headline">¶</a></h3>
+<p>工程师的研究计算工作通常是一个复杂和迭代的过程，
+另外他们通常在一个共享的，灵活度不高的生产环境上进行研究，使用Singularity就可以提供灵活的运行环境。</p>
+<p>另外，学校通常也需要提供标准化的，配置好的开发环境给学生， 以便他们能快速上手。</p>
+</div>
+<div class="section" id="id4">
+<h3>可重复性的科学研究<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<p>Singularity将程序，库，数据和脚本打包成一个容器，这个容器可以分发给其他人，他们可以直接在各种版本的linux上运行。</p>
+</div>
+<div class="section" id="id5">
+<h3>商业软件支持<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<p>有些商业软件只能运行在特定的Linux版本上，那么如果这个软件安装在满足需要的Linux版本的容器内。
+那么软件就可以在各种host上运行。</p>
+<p>另外，Singularity模糊了容器和host的界限，你可以在容器中使用host上的home目录，容器中的软件可以
+直接访问自己原来的数据，很方便集成到原来的流程中。</p>
+</div>
+<div class="section" id="id6">
+<h3>运行环境存档<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+<p>在一些政府或者基金会资助的研究类项目中，当学生完成一部分的工作后，他们可能被分配做其它事情，或者
+毕业离校，因此将他们的工作打包成一个容器保存是很有必要的。</p>
+</div>
+<div class="section" id="id7">
+<h3>老系统上的老代码<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
+<p>比如一个例子，据我所知，有一个Linux OS发行版在15年前已经结束支持，但是到现在为止，这个发行版还在用于生产环境，
+这是因为用户的软件是在这个环境上开发的，不能换发行版。 Singularity容器可以支持那个发现版，然后容器可以在新的操作系统上运行。</p>
+</div>
+<div class="section" id="id8">
+<h3>原来软件太复杂<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
+<p>有许多软件太复杂，需要花费很多时间将它们升级到支持新的OS。
+比如气象领域的软件，这时候可以将它们打包成容器运行在新的OS上。</p>
+</div>
+<div class="section" id="id9">
+<h3>复杂的工作流<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h3>
+<p>将一个复杂的工作流打包成容器将简化研究结果的分发。
+其他的科学家可以基于自己完成的工作继续下去。</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="quick_start.html" class="btn btn-neutral float-right" title="入门教程" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral float-left" title="User Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017-2019, Sylabs Inc
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

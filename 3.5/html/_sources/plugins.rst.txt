@@ -1,0 +1,93 @@
+.. _plugins:
+
+=======
+插件
+=======
+
+--------
+概述
+--------
+
+Singularity插件是一个包，这个包可以被动态的加载到Singularity的运行环境环境中,
+使用插件可以做些实验性的，非标准的或者特殊用户需求的功能。
+将来，插件将能和Singularity的更多的命令交互。
+
+-------------
+使用插件
+-------------
+
+``list`` 命令会列出当前已经安装的插件。 
+
+.. code-block:: none
+
+    $ singularity plugin list
+    There are no plugins installed.
+
+插件是二进制的文件被打包到一个SIF文件，插件的作者也可以发布插件的源代码，可以使用 ``compile`` 命令编译生成插件。
+下面例子是通过源码编译生成插件 ``test-plugin``。
+
+.. code-block:: none
+
+    $ singularity plugin compile examples/plugins/test-plugin/
+
+编译完成以后，源代码的路径下降会生成一个SIF文件。
+
+.. code-block:: none
+
+    $ ls examples/plugins/test-plugin/ | grep sif
+    test-plugin.sif
+
+.. note::
+
+    **所有** 的插件必须从Singularity的源码来编译。 
+
+每个插件包含插件的各种信息，比如插件作者，插件版本等。通过 ``inspect`` 命令查看插件信息。
+
+.. code-block:: none
+
+    $ singularity plugin inspect examples/plugins/test-plugin/test-plugin.sif
+    Name: sylabs.io/test-plugin
+    Description: This is a short test plugin for Singularity
+    Author: Michael Bauer
+    Version: 0.0.1
+
+使用 ``install`` 命令安装插件，这个命令需要root用户权限。
+
+.. code-block:: none
+
+    $ sudo singularity plugin install examples/plugins/test-plugin/test-plugin.sif
+    $ singularity plugin list
+    ENABLED  NAME
+        yes  sylabs.io/test-plugin
+
+安装成功后，插件会被自动的加载。通过 ``disable`` 能不启用插件，通过 ``enable`` 能启用插件。
+这些操作也需要root权限。
+
+.. code-block:: none
+
+    $ sudo singularity plugin disable sylabs.io/test-plugin
+    $ singularity plugin list
+    ENABLED  NAME
+         no  sylabs.io/test-plugin
+    $ sudo singularity plugin enable sylabs.io/test-plugin
+    $ singularity plugin list
+    ENABLED  NAME
+        yes  sylabs.io/test-plugin
+
+最后，我们也可以使用 ``uninstall`` 命令卸载插件, 这个操作也需要root权限。
+
+.. code-block:: none
+
+    $ sudo singularity plugin uninstall sylabs.io/test-plugin
+    Uninstalled plugin "sylabs.io/test-plugin".
+    $ singularity plugin list
+    There are no plugins installed.
+
+----------------
+开发插件
+----------------
+
+对开发插件感兴趣的开发者可以先查看文档 `Go documentation
+<https://godoc.org/github.com/sylabs/singularity/pkg/plugin>`_。 更进一步, 可以读一些 `例子代码
+<https://github.com/sylabs/singularity/tree/master/examples/plugins/test-plugin>`_，
+更多关于插件开发的文档还在开发中，将在以后的版本中发布。

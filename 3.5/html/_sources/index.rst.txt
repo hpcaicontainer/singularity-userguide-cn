@@ -1,0 +1,87 @@
+==========
+用户手册
+==========
+
+
+这是Singularity的用户手册。
+
+用户手册主要介绍了Singularity简单的安装指导，以及怎么build和运行容器。
+更详细的关于Singularity安装和配置，请参考管理员手册
+`<https://sylabs.io/guides/\{adminversion\}/admin-guide/>`__.
+
+              
+Getting Started & Background Information
+========================================
+              
+.. toctree::
+   :maxdepth: 2
+              
+   介绍 <introduction>
+   快速入门 <quick_start>
+   Singularity安全 <security>
+
+Building Containers   
+===================
+
+.. toctree::
+   :maxdepth: 3
+              
+   Build容器 <build_a_container>
+   Definition文件 <definition_files>
+   Build环境 <build_env>
+   Singularity和Docker <singularity_and_docker>
+   Fakeroot <fakeroot>
+
+Signing & Encryption
+====================
+
+.. toctree::
+   :maxdepth: 2
+
+   签名和认证 <signNverify>
+   Key管理 <key_commands>
+   容器加密  <encryption>
+   
+Sharing & Online Services
+=========================
+
+.. toctree::
+   :maxdepth: 2
+
+   容器仓库 <endpoint>
+   Cloud Library <cloud_library>
+
+Advanced Usage
+==============
+
+.. toctree::
+   :maxdepth: 2
+
+   路径映射 <bind_paths_and_mounts>
+   持久化Overlay <persistent_overlays>
+   运行服务 <running_services>
+   环境变量和元数据 <environment_and_metadata>
+   OCI运行时 <oci_runtime>
+   插件 <plugins>
+   安全选项 <security_options>
+   网络选项 <networking>
+   Cgroups <cgroups>
+   MPI应用 <mpi>
+   GPU支持 <gpu>
+
+Get Involved
+============
+   
+.. toctree::
+   :maxdepth: 2
+
+   Contributing <contributing>
+
+Reference
+=========
+
+.. toctree::
+   :maxdepth: 2
+
+   Appendix <appendix>
+   Command Line Reference <cli>

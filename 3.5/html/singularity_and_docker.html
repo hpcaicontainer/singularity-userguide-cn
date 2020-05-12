@@ -1,0 +1,2081 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>支持Docker和OCI容器 &mdash; Singularity container 3.5 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="_static/favicon.png"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script src="_static/js/ga.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Fakeroot" href="fakeroot.html" />
+    <link rel="prev" title="Build 环境" href="build_env.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Singularity container
+          
+
+          
+            
+            <img src="_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">介绍</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html">快速入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security.html">Singularity安全</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="build_a_container.html">Build容器</a></li>
+<li class="toctree-l1"><a class="reference internal" href="definition_files.html">Definition文件</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build_env.html">Build环境</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Singularity和Docker</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sec-action-commands-prebuilt-public-docker-images">操作Docker Hub上的公共镜像</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sec-use-prebuilt-public-docker-images">使用Docker Hub上的公共镜像</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sec-using-prebuilt-private-images">使用Docker Hub上的私有镜像</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#sec-authentication-via-docker-login">使用交互登录的方式提供认证</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sec-authentication-via-environment-variables">通过环境变量提供认证</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#registries">使用私有Registries的私有镜像</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#docker-registriesbuild-singularity">使用Docker Registries来Build SIngularity容器</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#sec-singularity-build-cli">使用命令行</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id12">使用远程环境上的镜像</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#build">远程build容器</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sec-mandatory-headers-docker-locally-boostrapped-cli">本地Docker镜像</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tardocker">Tar格式的Docker镜像</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pushlibrary">Push本地容器到Library</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#definition">Definition文件</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#boostrap">远程Boostrap</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id17">使用Remote Builder</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sec-mandatory-headers-docker-locally-boostrapped-def-file">本地Boostrap</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#headernamespace">Header可选字段Namespace</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id20">私有镜像和私有Registries</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sec-def-files-execution">直接执行</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sec-inspect-container-metadata">容器元数据</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#oci">OCI镜像</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#sec-oci-overview">概述</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pull">回顾下Pull命令</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id26">镜像缓存</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ocisingularity">OCI镜像和Singularity缓存</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#ocibuild">从OCI镜像build容器</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#oci-boostrap-ocibuild">使用 <code class="docutils literal notranslate"><span class="pre">oci</span></code> Boostrap 来从OCI镜像build容器</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#oci-archive-boostrap-ocibuild">使用 <code class="docutils literal notranslate"><span class="pre">oci-archive</span></code> Boostrap 来从OCI镜像build容器</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id28">使用网络上的OCI镜像</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#definitionoci">Definition文件支持OCI镜像</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id30">使用Definition文件的注意事项</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#sec-docker-cache">容器缓存</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sec-best-practices">最佳实践</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sec-troubleshooting">常见问题</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#singularity-definition-dockerfile">Singularity Definition 文件和Dockerfile的比较</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="fakeroot.html">Fakeroot</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="signNverify.html">签名和认证</a></li>
+<li class="toctree-l1"><a class="reference internal" href="key_commands.html">Key管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="encryption.html">容器加密</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="endpoint.html">容器仓库</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cloud_library.html">Cloud Library</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bind_paths_and_mounts.html">路径映射</a></li>
+<li class="toctree-l1"><a class="reference internal" href="persistent_overlays.html">持久化Overlay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="running_services.html">运行服务</a></li>
+<li class="toctree-l1"><a class="reference internal" href="environment_and_metadata.html">环境变量和元数据</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oci_runtime.html">OCI运行时</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugins.html">插件</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security_options.html">安全选项</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networking.html">网络选项</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cgroups.html">Cgroups</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mpi.html">MPI应用</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gpu.html">GPU支持</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="appendix.html">Appendix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Singularity container</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>支持Docker和OCI容器</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/sylabs/singularity-userdocs/blob/master/singularity_and_docker.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="dockeroci">
+<span id="singularity-and-docker"></span><h1>支持Docker和OCI容器<a class="headerlink" href="#dockeroci" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2>概述<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="https://www.docker.com/">Docker</a> 容器镜像通常包含一个多个压缩的层，外加一些元数据。
+通常使用 <code class="docutils literal notranslate"><span class="pre">Dockerfiles</span></code> 来build Docker容器镜像。
+Docker有公共的 <a class="reference external" href="https://hub.docker.com/">Docker Hub</a> 和各种各样私有的registries来保存容器镜像。
+Singularity设计的时候强调和Docker的交互性， 所以这一章节也首先要描述Singularity和Docker的交互：</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Singularity的操作命令可以直接使用公共Docker镜像仓库上的的公共镜像。</p></li>
+<li><p>Singularity可以技能Docker镜像转换为Singularity Image Format (SIF)。</p></li>
+<li><p>Singularity的操作命令可以直接使用公共Docker镜像仓库上的的私有镜像。</p></li>
+<li><p>Singularity的操作命令可以直接使用私有Docker镜像仓库上的的私有镜像。</p></li>
+<li><p>Singularity的Definition文件中可以使用Docker镜像作为基础容器。</p></li>
+</ul>
+</div></blockquote>
+<p>这一章节的第二部分描述Singularity和 <a class="reference external" href="https://www.opencontainers.org/">Open Containers Initiative</a> (OCI)的交互：</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>支持OCI格式的镜像</p></li>
+<li><p>支持缓存OCI镜像</p></li>
+<li><p>支持获取OCI镜像</p></li>
+<li><p>Singularity的Definition文件中可以使用OCI镜像作为基础容器。</p></li>
+</ul>
+</div></blockquote>
+<p>这一章节的最后，简单的总结了最佳使用和常见故障的解决方法。</p>
+</div>
+<div class="section" id="sec-action-commands-prebuilt-public-docker-images">
+<span id="id2"></span><h2>操作Docker Hub上的公共镜像<a class="headerlink" href="#sec-action-commands-prebuilt-public-docker-images" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">godlovedc/lolcow</span></code> 是 <a class="reference external" href="https://hub.docker.com/">Docker Hub</a> 的一个公共镜像， Singularity可以操作这个镜像:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity run docker://godlovedc/lolcow
+INFO:    Converting OCI blobs to SIF format
+INFO:    Starting build...
+Getting image source signatures
+Copying blob sha256:9fb6c798fa41e509b58bccc5c29654c3ff4648b608f5daa67c1aab6a7d02c118
+ 45.33 MiB / 45.33 MiB [====================================================] 1s
+Copying blob sha256:3b61febd4aefe982e0cb9c696d415137384d1a01052b50a85aae46439e15e49a
+ 848 B / 848 B [============================================================] 0s
+Copying blob sha256:9d99b9777eb02b8943c0e72d7a7baec5c782f8fd976825c9d3fb48b3101aacc2
+ 621 B / 621 B [============================================================] 0s
+Copying blob sha256:d010c8cf75d7eb5d2504d5ffa0d19696e8d745a457dd8d28ec6dd41d3763617e
+ 853 B / 853 B [============================================================] 0s
+Copying blob sha256:7fac07fb303e0589b9c23e6f49d5dc1ff9d6f3c8c88cabe768b430bdb47f03a9
+ 169 B / 169 B [============================================================] 0s
+Copying blob sha256:8e860504ff1ee5dc7953672d128ce1e4aa4d8e3716eb39fe710b849c64b20945
+ 53.75 MiB / 53.75 MiB [====================================================] 2s
+Copying config sha256:73d5b1025fbfa138f2cacf45bbf3f61f7de891559fa25b28ab365c7d9c3cbd82
+ 3.33 KiB / 3.33 KiB [======================================================] 0s
+Writing manifest to image destination
+Storing signatures
+INFO:    Creating SIF file...
+INFO:    Build complete: /home/vagrant/.singularity/cache/oci-tmp/a692b57abc43035b197b10390ea2c12855d21649f2ea2cc28094d18b93360eeb/lolcow_latest.sif
+INFO:    Image cached as SIF at /home/vagrant/.singularity/cache/oci-tmp/a692b57abc43035b197b10390ea2c12855d21649f2ea2cc28094d18b93360eeb/lolcow_latest.sif
+ ___________________________________
+/ Repartee is something we think of \
+| twenty-four hours too late.       |
+|                                   |
+\ -- Mark Twain                     /
+ -----------------------------------
+        \   ^__^
+         \  (oo)\_______
+            (__)\       )\/\
+                ||----w |
+                ||     ||
+</pre></div>
+</div>
+<p>URL前面的 <code class="docutils literal notranslate"><span class="pre">docker</span></code> 用来告诉 <code class="docutils literal notranslate"><span class="pre">run</span></code> 命令从这个URL顺序的下载Docker镜像 <a class="reference internal" href="#sec-oci-overview"><span class="std std-ref">各个 OCI blobs</span></a>,
+然后将它转换成一个SIF文件。转换后的SIF文件缓存在本地的 <code class="docutils literal notranslate"><span class="pre">$HOME/.singularity/cache/oci-tmp/&lt;org.opencontainers.image.ref.name&gt;/lolcow_latest.sif</span></code>,
+其中 <code class="docutils literal notranslate"><span class="pre">&lt;org.opencontainers.image.ref.name&gt;</span></code> 是一个blob的哈希值。下次使用 <code class="docutils literal notranslate"><span class="pre">run</span></code> 运行同一Docker镜像的时候，不需要重新下载。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity run docker://godlovedc/lolcow
+ _________________________________________
+/ Soap and education are not as sudden as \
+| a massacre, but they are more deadly in |
+| the long run.                           |
+|                                         |
+\ -- Mark Twain                           /
+ -----------------------------------------
+        \   ^__^
+         \  (oo)\_______
+            (__)\       )\/\
+                ||----w |
+                ||     ||
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>更多关于镜像缓存的内容请参考 <a class="reference internal" href="#sec-oci-overview"><span class="std std-ref">这里</span></a>.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>默认情况下使用 <code class="docutils literal notranslate"><span class="pre">$HOME/.singularity/cache</span></code> 目录缓存容器，如果想将容器缓存到其它地方，使用环境变量 <code class="docutils literal notranslate"><span class="pre">SINGULARITY_CACHEDIR</span></code> 控制。</p>
+</div>
+<p>由于容器被缓存成一个SIF文件文件，因此你可以直接到目录下运行容器。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>cd /home/vagrant/.singularity/cache/oci-tmp/a692b57abc43035b197b10390ea2c12855d21649f2ea2cc28094d18b93360eeb/
+</pre></div>
+</div>
+<p>接着执行这个SIF文件:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>./lolcow_latest.sif
+ _______________________________________
+/ The secret source of humor is not joy \
+| but sorrow; there is no humor in      |
+| Heaven.                               |
+|                                       |
+\ -- Mark Twain                         /
+ ---------------------------------------
+        \   ^__^
+         \  (oo)\_______
+            (__)\       )\/\
+                ||----w |
+                ||     ||
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>一个SIF文件可以直接执行。</p>
+</div>
+<p>使用 <code class="docutils literal notranslate"><span class="pre">run</span></code> 运行容器的时候 <code class="docutils literal notranslate"><span class="pre">fortune</span> <span class="pre">|</span> <span class="pre">cowsay</span> <span class="pre">|</span> <span class="pre">lolcat</span></code> 命令被执行。
+使用 <code class="docutils literal notranslate"><span class="pre">exec</span></code> 命令可以执行要运行的命令比如:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity exec docker://godlovedc/lolcow fortune
+Don&#39;t go around saying the world owes you a living.  The world owes you
+nothing.  It was here first.
+        -- Mark Twain
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">exec</span></code> 使用了同样的缓存， 下面的 <code class="docutils literal notranslate"><span class="pre">shell</span></code> 也使用了同样的缓存。</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>关于exec的更多内容，请查看 <a class="reference internal" href="#sec-def-files-execution"><span class="std std-ref">Directing Execution</span></a> 和 <a class="reference internal" href="#sec-inspect-container-metadata"><span class="std std-ref">Container Metadata</span></a>.</p>
+</div>
+<p>除了非交互式的执行, Singularity也提供了交互式的 <code class="docutils literal notranslate"><span class="pre">shell</span></code> 命令:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity shell docker://godlovedc/lolcow
+Singularity lolcow_latest.sif:~&gt; cat /etc/os-release
+NAME=&quot;Ubuntu&quot;
+VERSION=&quot;16.04.3 LTS (Xenial Xerus)&quot;
+ID=ubuntu
+ID_LIKE=debian
+PRETTY_NAME=&quot;Ubuntu 16.04.3 LTS&quot;
+VERSION_ID=&quot;16.04&quot;
+HOME_URL=&quot;http://www.ubuntu.com/&quot;
+SUPPORT_URL=&quot;http://help.ubuntu.com/&quot;
+BUG_REPORT_URL=&quot;http://bugs.launchpad.net/ubuntu/&quot;
+VERSION_CODENAME=xenial
+UBUNTU_CODENAME=xenial
+Singularity lolcow_latest.sif:~&gt;
+</pre></div>
+</div>
+<p>很明显，容器内是Ubuntu 16.04， 而容器外的host可以是更新版本的Ubuntu。</p>
+<p><code class="docutils literal notranslate"><span class="pre">inspect</span></code> 命令可以显示SIF容器的元数据， 更多关于元数据文档请参考 <a class="reference internal" href="#sec-inspect-container-metadata"><span class="std std-ref">这里</span></a>。</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">singularity</span> <span class="pre">search</span> <span class="pre">[search</span> <span class="pre">options...]</span> <span class="pre">&lt;search</span> <span class="pre">query&gt;</span></code> 不支持 <a class="reference external" href="https://hub.docker.com/">Docker Hub</a>，
+所以需要在Docker Hub页面搜索需要的Docker镜像。Docker <code class="docutils literal notranslate"><span class="pre">pull</span></code> 命令，比如 <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">pull</span> <span class="pre">godlovedc/lolcow</span></code>，
+Singualrity有对应的命令。</p>
+</div>
+</div>
+<div class="section" id="sec-use-prebuilt-public-docker-images">
+<span id="id5"></span><h2>使用Docker Hub上的公共镜像<a class="headerlink" href="#sec-use-prebuilt-public-docker-images" title="Permalink to this headline">¶</a></h2>
+<p>Singularity可以使用 <a class="reference external" href="https://hub.docker.com/">Docker Hub</a> 上的公共镜像。
+通过 <code class="docutils literal notranslate"><span class="pre">docker://</span></code> URI来表示镜像的位置，Singularity可以 <code class="docutils literal notranslate"><span class="pre">pull</span></code> 这些镜像:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity pull docker://godlovedc/lolcow
+INFO:    Starting build...
+Getting image source signatures
+Copying blob sha256:9fb6c798fa41e509b58bccc5c29654c3ff4648b608f5daa67c1aab6a7d02c118
+ 45.33 MiB / 45.33 MiB [====================================================] 2s
+Copying blob sha256:3b61febd4aefe982e0cb9c696d415137384d1a01052b50a85aae46439e15e49a
+ 848 B / 848 B [============================================================] 0s
+Copying blob sha256:9d99b9777eb02b8943c0e72d7a7baec5c782f8fd976825c9d3fb48b3101aacc2
+ 621 B / 621 B [============================================================] 0s
+Copying blob sha256:d010c8cf75d7eb5d2504d5ffa0d19696e8d745a457dd8d28ec6dd41d3763617e
+ 853 B / 853 B [============================================================] 0s
+Copying blob sha256:7fac07fb303e0589b9c23e6f49d5dc1ff9d6f3c8c88cabe768b430bdb47f03a9
+ 169 B / 169 B [============================================================] 0s
+Copying blob sha256:8e860504ff1ee5dc7953672d128ce1e4aa4d8e3716eb39fe710b849c64b20945
+ 53.75 MiB / 53.75 MiB [====================================================] 3s
+Copying config sha256:73d5b1025fbfa138f2cacf45bbf3f61f7de891559fa25b28ab365c7d9c3cbd82
+ 3.33 KiB / 3.33 KiB [======================================================] 0s
+Writing manifest to image destination
+Storing signatures
+INFO:    Creating SIF file...
+INFO:    Build complete: lolcow_latest.sif
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">pull</span></code> 命令会在本地创建一个SIF文件格式的容器</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ file lolcow_latest.sif
+lolcow_latest.sif: a /usr/bin/env run-singularity script executable (binary data)
+</pre></div>
+</div>
+<p>在pull过程中，Docker镜像中的多层被合并成一个SIF文件，现在你可以使用 <code class="docutils literal notranslate"><span class="pre">exec</span></code>, <code class="docutils literal notranslate"><span class="pre">run</span></code> 和 <code class="docutils literal notranslate"><span class="pre">shell</span></code> 操作Singularity容器,
+<a class="reference internal" href="#sec-action-commands-prebuilt-public-docker-images"><span class="std std-ref">正如上面描述的那样</span></a>。</p>
+<p id="sec-use-prebuilt-public-docker-images-sub-inspect">使用``inspect`` 命令可以查看SIF容器的元数据:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity inspect lolcow_latest.sif
+
+{
+    &quot;org.label-schema.build-date&quot;: &quot;Thursday_6_December_2018_17:29:48_UTC&quot;,
+    &quot;org.label-schema.schema-version&quot;: &quot;1.0&quot;,
+    &quot;org.label-schema.usage.singularity.deffile.bootstrap&quot;: &quot;docker&quot;,
+    &quot;org.label-schema.usage.singularity.deffile.from&quot;: &quot;godlovedc/lolcow&quot;,
+    &quot;org.label-schema.usage.singularity.version&quot;: &quot;3.0.1-40.g84083b4f&quot;
+}
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sec-inspect-container-metadata"><span class="std std-ref">Container Metadata</span></a>.</p>
+</div>
+<p>从Docker镜像转换成的SIF文件没有被签名:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity verify lolcow_latest.sif
+Verifying image: lolcow_latest.sif
+ERROR:   verification failed: error while searching for signature blocks: no signatures found for system partition
+</pre></div>
+</div>
+<p>后面使用 <code class="docutils literal notranslate"><span class="pre">sign</span></code> 命令可以签名容器，请参考 <a class="reference internal" href="signNverify.html#signnverify"><span class="std std-ref">Signing and Verifying Containers</span></a>。
+签名从Docker Hub获取的镜像要小心，因为你并不清楚Docker镜像中的Layer是否完整。</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">pull</span></code> 只是一次性的将Docker Hub上的镜像下载到本地，Docker Hub上镜像的更新并不会自动同步到本地。</p>
+</div>
+<p>我们例子中 <code class="docutils literal notranslate"><span class="pre">docker://godlovedc/lolcow</span></code>, <code class="docutils literal notranslate"><span class="pre">godlovedc</span></code> 是一个Docker Hub的用户名, <code class="docutils literal notranslate"><span class="pre">lolcow</span></code> 是repository的名字。
+你也可以在镜像后面添加tag <code class="docutils literal notranslate"><span class="pre">docker://&lt;user&gt;/&lt;repo-name&gt;[:&lt;tag&gt;]</span></code>,将会下载指定tag的镜像。
+更多信息请查看 <a class="reference external" href="https://docs.docker.com/docker-hub/repos/">Repositories on Docker Hub</a>。</p>
+</div>
+<div class="section" id="sec-using-prebuilt-private-images">
+<span id="id7"></span><h2>使用Docker Hub上的私有镜像<a class="headerlink" href="#sec-using-prebuilt-private-images" title="Permalink to this headline">¶</a></h2>
+<p>认证通过后, Singularity也可以使用 <a class="reference external" href="https://hub.docker.com/">Docker Hub</a> 上的私有镜像。
+当没有认证时，访问私有镜像会有下面的报错。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity pull docker://ilumb/mylolcow
+INFO:    Starting build...
+FATAL:   Unable to pull docker://ilumb/mylolcow: conveyor failed to get: Error reading manifest latest in docker.io/ilumb/mylolcow: errors:
+denied: requested access to the resource is denied
+unauthorized: authentication required
+</pre></div>
+</div>
+<p>这个例子中, 访问用户 <code class="docutils literal notranslate"><span class="pre">ilumb</span></code> 的 <code class="docutils literal notranslate"><span class="pre">mylolcow</span></code> repository需要提供有效的用户名和密码。</p>
+<div class="section" id="sec-authentication-via-docker-login">
+<span id="id9"></span><h3>使用交互登录的方式提供认证<a class="headerlink" href="#sec-authentication-via-docker-login" title="Permalink to this headline">¶</a></h3>
+<p>通过 <code class="docutils literal notranslate"><span class="pre">--docker-login</span></code> 标记可以提供交互登录的方式来提供认证，比如:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity pull --docker-login docker://ilumb/mylolcow
+Enter Docker Username: ilumb
+Enter Docker Password:
+INFO:    Starting build...
+Getting image source signatures
+Skipping fetch of repeat blob sha256:7b8b6451c85f072fd0d7961c97be3fe6e2f772657d471254f6d52ad9f158a580
+Skipping fetch of repeat blob sha256:ab4d1096d9ba178819a3f71f17add95285b393e96d08c8a6bfc3446355bcdc49
+Skipping fetch of repeat blob sha256:e6797d1788acd741d33f4530106586ffee568be513d47e6e20a4c9bc3858822e
+Skipping fetch of repeat blob sha256:e25c5c290bded5267364aa9f59a18dd22a8b776d7658a41ffabbf691d8104e36
+Skipping fetch of repeat blob sha256:258e068bc5e36969d3ba4b47fd3ca0d392c6de465726994f7432b14b0414d23b
+Copying config sha256:8a8f815257182b770d32dffff7f185013b4041d076e065893f9dd1e89ad8a671
+ 3.12 KiB / 3.12 KiB [======================================================] 0s
+Writing manifest to image destination
+Storing signatures
+INFO:    Creating SIF file...
+INFO:    Build complete: mylolcow_latest.sif
+</pre></div>
+</div>
+<p>认证成功后, 私有的Docker镜像就被下载下来并转换成SIF容器。</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">--docker-login</span></code> 是推荐的认证方式，英文明文密码是应该避免使用的。 认证数据和Docker Hub之间的交互通过Https。</p>
+</div>
+</div>
+<div class="section" id="sec-authentication-via-environment-variables">
+<span id="id10"></span><h3>通过环境变量提供认证<a class="headerlink" href="#sec-authentication-via-environment-variables" title="Permalink to this headline">¶</a></h3>
+<p>通过环境变量认证是一种非交互式的认证方式，需要使用的环境变量如下:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>export SINGULARITY_DOCKER_USERNAME=ilumb
+export SINGULARITY_DOCKER_PASSWORD=&lt;redacted&gt;
+</pre></div>
+</div>
+<p>当然 <code class="docutils literal notranslate"><span class="pre">&lt;redacted&gt;</span></code> 需要用一个名文的密码代替。</p>
+<p>然后 <code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">singularity</span> <span class="pre">pull</span> <span class="pre">docker://ilumb/mylolcow</span></code> 就可以获取私有镜像。</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>交互方式和非交互的方式都可以认证，但是非交互的方式需要将名文的密码赋值给环境变量，有一定的安全性隐患。</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>当我们指定密码的时候，如果包含特殊字符 (比如 <code class="docutils literal notranslate"><span class="pre">$</span></code>, <code class="docutils literal notranslate"><span class="pre">#</span></code>, <code class="docutils literal notranslate"><span class="pre">.</span></code>) 需要用转义。</p>
+</div>
+</div>
+</div>
+<div class="section" id="registries">
+<span id="sec-using-prebuilt-private-images-parivate-registries"></span><h2>使用私有Registries的私有镜像<a class="headerlink" href="#registries" title="Permalink to this headline">¶</a></h2>
+<p>访问Docker Hub上的私有镜像需要认证通过。当然访问私有registries的私有镜像也需要认证。
+私有registries的镜像url如下所示.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>docker://&lt;registry&gt;/&lt;user&gt;/&lt;repo-name&gt;[:&lt;tag&gt;]
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">registry</span></code> 默认是 <code class="docutils literal notranslate"><span class="pre">index.docker.io</span></code>，也就是说</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity pull docker://godlovedc/lolcow
+</pre></div>
+</div>
+<p>等同于</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity pull docker://index.docker.io/godlovedc/lolcow
+</pre></div>
+</div>
+<p>所以下面的例子</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity pull docker://nvcr.io/nvidia/pytorch:18.11-py3
+INFO:    Starting build...
+Getting image source signatures
+Skipping fetch of repeat blob sha256:18d680d616571900d78ee1c8fff0310f2a2afe39c6ed0ba2651ff667af406c3e
+&lt;blob fetching details deleted&gt;
+Skipping fetch of repeat blob sha256:c71aeebc266c779eb4e769c98c935356a930b16d881d7dde4db510a09cfa4222
+Copying config sha256:b77551af8073c85588088ab2a39007d04bc830831ba1eef4127b2d39aaf3a6b1
+ 21.28 KiB / 21.28 KiB [====================================================] 0s
+Writing manifest to image destination
+Storing signatures
+INFO:    Creating SIF file...
+INFO:    Build complete: pytorch_18.11-py3.sif
+</pre></div>
+</div>
+<p>将从NVIDIA GPU Cloud (NGC)获取一个指定版本的 <a class="reference external" href="https://pytorch.org/">PyTorch platform</a> 上的公共镜像。
+英文NGC是私有registry, 上面的 <code class="docutils literal notranslate"><span class="pre">pull</span></code> 假定已经 <a class="reference internal" href="#sec-authentication-via-environment-variables"><span class="std std-ref">通过环境变量完成了认证</span></a>
+在NGC的例子中，需要设置的环境变量如下:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>export SINGULARITY_DOCKER_USERNAME=&#39;$oauthtoken&#39;
+export SINGULARITY_DOCKER_PASSWORD=&lt;redacted&gt;
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">$oauthtoken</span></code> 不是环境变量，就是它字面的意思。这里的password实际上是一个 API token，这个token是使用NGC账号生成。
+更多关于NGC认证的内容请参考 NGC <a class="reference external" href="https://docs.nvidia.com/ngc/ngc-getting-started-guide/index.html">Getting Started</a>。</p>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--docker-login</span></code> 方式的认证:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity pull --docker-login docker://nvcr.io/nvidia/pytorch:18.11-py3
+Enter Docker Username: $oauthtoken
+Enter Docker Password:
+INFO:    Starting build...
+Getting image source signatures
+Skipping fetch of repeat blob sha256:18d680d616571900d78ee1c8fff0310f2a2afe39c6ed0ba2651ff667af406c3e
+&lt;blob fetching details deleted&gt;
+Skipping fetch of repeat blob sha256:c71aeebc266c779eb4e769c98c935356a930b16d881d7dde4db510a09cfa4222
+Copying config sha256:b77551af8073c85588088ab2a39007d04bc830831ba1eef4127b2d39aaf3a6b1
+21.28 KiB / 21.28 KiB [====================================================] 0s
+Writing manifest to image destination
+Storing signatures
+INFO:    Creating SIF file...
+INFO:    Build complete: pytorch_18.11-py3.sif
+</pre></div>
+</div>
+<p>上面命令生成的 Singularity容器是 <code class="docutils literal notranslate"><span class="pre">pytorch_18.11-py3.sif</span></code>。</p>
+</div>
+<div class="section" id="docker-registriesbuild-singularity">
+<h2>使用Docker Registries来Build SIngularity容器<a class="headerlink" href="#docker-registriesbuild-singularity" title="Permalink to this headline">¶</a></h2>
+<p>Singularity 使用 <code class="docutils literal notranslate"><span class="pre">build</span></code> 命令创建容器，因为这个命令在这个手册的其它章节已经给过详细的描述,
+这里主要讲怎么 <a class="reference internal" href="#sec-singularity-build-cli"><span class="std std-ref">通过命令行</span></a>
+和通过 <a class="reference internal" href="#sec-singularity-build-def-files"><span class="std std-ref">Singularity definition文件</span></a> 从Docker Hub build容器。</p>
+<div class="section" id="sec-singularity-build-cli">
+<span id="id11"></span><h3>使用命令行<a class="headerlink" href="#sec-singularity-build-cli" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id12">
+<h4>使用远程环境上的镜像<a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h4>
+<p>这个简单的例子中, <code class="docutils literal notranslate"><span class="pre">build</span></code> 和 <code class="docutils literal notranslate"><span class="pre">pull</span></code> 的功能差不多:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity build mylolcow_latest.sif docker://godlovedc/lolcow
+INFO:    Starting build...
+Getting image source signatures
+Skipping fetch of repeat blob sha256:9fb6c798fa41e509b58bccc5c29654c3ff4648b608f5daa67c1aab6a7d02c118
+Skipping fetch of repeat blob sha256:3b61febd4aefe982e0cb9c696d415137384d1a01052b50a85aae46439e15e49a
+Skipping fetch of repeat blob sha256:9d99b9777eb02b8943c0e72d7a7baec5c782f8fd976825c9d3fb48b3101aacc2
+Skipping fetch of repeat blob sha256:d010c8cf75d7eb5d2504d5ffa0d19696e8d745a457dd8d28ec6dd41d3763617e
+Skipping fetch of repeat blob sha256:7fac07fb303e0589b9c23e6f49d5dc1ff9d6f3c8c88cabe768b430bdb47f03a9
+Skipping fetch of repeat blob sha256:8e860504ff1ee5dc7953672d128ce1e4aa4d8e3716eb39fe710b849c64b20945
+Copying config sha256:73d5b1025fbfa138f2cacf45bbf3f61f7de891559fa25b28ab365c7d9c3cbd82
+ 3.33 KiB / 3.33 KiB [======================================================] 0s
+Writing manifest to image destination
+Storing signatures
+INFO:    Creating SIF file...
+INFO:    Build complete: mylolcow_latest.sif
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">build</span></code> 生成了一个叫mylolcow_latest.sif的sif文件。</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">docker://godlovedc/lolcow</span></code> 是URL，<code class="docutils literal notranslate"><span class="pre">build</span></code> 使用Singularity的bootstrap将这个Docker镜像转换成SIF容器，这个例子中使用的bootstrap是Docker Hub</p>
+</div>
+<p>除了build出一个只读的 SIF容器, 通过 <code class="docutils literal notranslate"><span class="pre">--sandbox</span></code> 选项， <code class="docutils literal notranslate"><span class="pre">build</span></code> 也可以创建一个可写的 <strong>sandbox</strong> （chroot 目录）。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity build --sandbox mylolcow_latest_sandbox docker://godlovedc/lolcow
+INFO:    Starting build...
+Getting image source signatures
+Skipping fetch of repeat blob sha256:9fb6c798fa41e509b58bccc5c29654c3ff4648b608f5daa67c1aab6a7d02c118
+Skipping fetch of repeat blob sha256:3b61febd4aefe982e0cb9c696d415137384d1a01052b50a85aae46439e15e49a
+Skipping fetch of repeat blob sha256:9d99b9777eb02b8943c0e72d7a7baec5c782f8fd976825c9d3fb48b3101aacc2
+Skipping fetch of repeat blob sha256:d010c8cf75d7eb5d2504d5ffa0d19696e8d745a457dd8d28ec6dd41d3763617e
+Skipping fetch of repeat blob sha256:7fac07fb303e0589b9c23e6f49d5dc1ff9d6f3c8c88cabe768b430bdb47f03a9
+Skipping fetch of repeat blob sha256:8e860504ff1ee5dc7953672d128ce1e4aa4d8e3716eb39fe710b849c64b20945
+Copying config sha256:73d5b1025fbfa138f2cacf45bbf3f61f7de891559fa25b28ab365c7d9c3cbd82
+ 3.33 KiB / 3.33 KiB [======================================================] 0s
+Writing manifest to image destination
+Storing signatures
+INFO:    Creating sandbox directory...
+INFO:    Build complete: mylolcow_latest_sandbox
+</pre></div>
+</div>
+<p>运行成功后, 上面的命令会创建一个叫 <code class="docutils literal notranslate"><span class="pre">mylolcow_latest_sandbox</span></code> 的目录， 目录文件如下:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>bin  boot  core  dev  environment  etc  home  lib  lib64  media  mnt  opt  proc  root  run  sbin  singularity  srv  sys  tmp  usr  var
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">build</span></code> 命令还可以将一个sandbox容器转换成SIF容器，反之亦然。</p>
+<p>上面的命令中Docker镜像是公共镜像，如果要从私有镜像build容器，也需要认证，认证方式和上面pull命令一样：</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>singularity build --docker-login mylolcow_latest_il.sif docker://ilumb/mylolcow
+</pre></div>
+</div>
+</div>
+<div class="section" id="build">
+<h4>远程build容器<a class="headerlink" href="#build" title="Permalink to this headline">¶</a></h4>
+<p>使用 <a class="reference external" href="https://cloud.sylabs.io/builder">Sylabs Cloud Remote Builder</a>, 我们可以使用Docker Hub上的镜像远程build Singularity的SIF容器。
+Sylabs Cloud Remote Builder是一个服务，通过singuarity的命令行或者web浏览器都能访问和使用它，这里我们主要讲怎么通过Singularity的命令行使用它。</p>
+<p>只要你有一个Sylabs Cloud的账号，你就可以登录到web页面，选择 <a class="reference external" href="https://cloud.sylabs.io/builder">Remote Builder</a>。我们这里主要讲通过命令行使用它，
+使用命令行以前，需要有一个在Sylabs Cloud上生成的认证token，请按照 <a class="reference external" href="https://cloud.sylabs.io/auth/tokens">这里的指导</a> 生成token。
+Token生成后，运行 <code class="docutils literal notranslate"><span class="pre">singularity</span> <span class="pre">remote</span> <span class="pre">login</span></code> 输入token。</p>
+<p>在使用 <code class="docutils literal notranslate"><span class="pre">--remote</span></code> 标记时，上面的token用来和Sylabs Cloud Remote Builder之间的认证。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity build --remote lolcow_rb.sif docker://godlovedc/lolcow
+searching for available build agent.........INFO:    Starting build...
+Getting image source signatures
+Copying blob sha256:9fb6c798fa41e509b58bccc5c29654c3ff4648b608f5daa67c1aab6a7d02c118
+ 45.33 MiB / 45.33 MiB  0s
+Copying blob sha256:3b61febd4aefe982e0cb9c696d415137384d1a01052b50a85aae46439e15e49a
+ 848 B / 848 B  0s
+Copying blob sha256:9d99b9777eb02b8943c0e72d7a7baec5c782f8fd976825c9d3fb48b3101aacc2
+ 621 B / 621 B  0s
+Copying blob sha256:d010c8cf75d7eb5d2504d5ffa0d19696e8d745a457dd8d28ec6dd41d3763617e
+ 853 B / 853 B  0s
+Copying blob sha256:7fac07fb303e0589b9c23e6f49d5dc1ff9d6f3c8c88cabe768b430bdb47f03a9
+ 169 B / 169 B  0s
+Copying blob sha256:8e860504ff1ee5dc7953672d128ce1e4aa4d8e3716eb39fe710b849c64b20945
+ 53.75 MiB / 53.75 MiB  0s
+Copying config sha256:73d5b1025fbfa138f2cacf45bbf3f61f7de891559fa25b28ab365c7d9c3cbd82
+ 3.33 KiB / 3.33 KiB  0s
+Writing manifest to image destination
+Storing signatures
+INFO:    Creating SIF file...
+INFO:    Build complete: /tmp/image-341891107
+INFO:    Now uploading /tmp/image-341891107 to the library
+ 87.94 MiB / 87.94 MiB  100.00% 38.96 MiB/s 2s
+INFO:    Setting tag latest
+ 87.94 MiB / 87.94 MiB [===============================================================================] 100.00% 17.23 MiB/s 5s
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>由于容器的build是在远程执行，因此使用Sylabs Cloud Remote Builder在build容器的时候不需要root权限。</p>
+</div>
+<p>镜像build过程中, 在Sylabs Cloud页面上可以监控build的状态，build完成后本地会生成一个 <code class="docutils literal notranslate"><span class="pre">lolcow_rb.sif</span></code> 的拷贝。
+原始的 <code class="docutils literal notranslate"><span class="pre">lolcow_rb.sif</span></code> 在 <a class="reference external" href="https://cloud.sylabs.io/library">Sylabs Cloud Singularity Library</a>。</p>
+<img alt="_images/lolcow_sylabsrb.png" src="_images/lolcow_sylabsrb.png" />
+</div>
+<div class="section" id="sec-mandatory-headers-docker-locally-boostrapped-cli">
+<span id="id14"></span><h4>本地Docker镜像<a class="headerlink" href="#sec-mandatory-headers-docker-locally-boostrapped-cli" title="Permalink to this headline">¶</a></h4>
+<p>Singularity可以从本地缓存的Docker镜像build出新的SIF容器，比如:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo docker images
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+godlovedc/lolcow    latest              577c1fe8e6d8        16 months ago       241MB
+</pre></div>
+</div>
+<p>我们卡到 <code class="docutils literal notranslate"><span class="pre">godlovedc/lolcow:latest</span></code> 镜像在本地已经存在。 接着</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo singularity build lolcow_from_docker_cache.sif docker-daemon://godlovedc/lolcow:latest
+INFO:    Starting build...
+Getting image source signatures
+Copying blob sha256:a2022691bf950a72f9d2d84d557183cb9eee07c065a76485f1695784855c5193
+ 119.83 MiB / 119.83 MiB [==================================================] 6s
+Copying blob sha256:ae620432889d2553535199dbdd8ba5a264ce85fcdcd5a430974d81fc27c02b45
+ 15.50 KiB / 15.50 KiB [====================================================] 0s
+Copying blob sha256:c561538251751e3685c7c6e7479d488745455ad7f84e842019dcb452c7b6fecc
+ 14.50 KiB / 14.50 KiB [====================================================] 0s
+Copying blob sha256:f96e6b25195f1b36ad02598b5d4381e41997c93ce6170cab1b81d9c68c514db0
+ 5.50 KiB / 5.50 KiB [======================================================] 0s
+Copying blob sha256:7f7a065d245a6501a782bf674f4d7e9d0a62fa6bd212edbf1f17bad0d5cd0bfc
+ 3.00 KiB / 3.00 KiB [======================================================] 0s
+Copying blob sha256:70ca7d49f8e9c44705431e3dade0636a2156300ae646ff4f09c904c138728839
+ 116.56 MiB / 116.56 MiB [==================================================] 6s
+Copying config sha256:73d5b1025fbfa138f2cacf45bbf3f61f7de891559fa25b28ab365c7d9c3cbd82
+ 3.33 KiB / 3.33 KiB [======================================================] 0s
+Writing manifest to image destination
+Storing signatures
+INFO:    Creating SIF file...
+INFO:    Build complete: lolcow_from_docker_cache.sif
+</pre></div>
+</div>
+<p>生成SIF格式的容器 <code class="docutils literal notranslate"><span class="pre">lolcow_from_docker_cache.sif</span></code>。
+上面build命令，在语法格式上和前面的有两个重要的不同:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">docker</span></code> 被 <code class="docutils literal notranslate"><span class="pre">docker-daemon</span></code> 代替。</p></li>
+<li><p>需要使用 <code class="docutils literal notranslate"><span class="pre">sudo</span></code> 来build容器，这是因为Docker daemon是以 <code class="docutils literal notranslate"><span class="pre">root</span></code> 运行， 如果运行build命令的用户是 <code class="docutils literal notranslate"><span class="pre">docker</span></code> Linux组的成员，不需要 <code class="docutils literal notranslate"><span class="pre">sudo</span></code>。</p></li>
+</ol>
+</div></blockquote>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>这个例子中, 每个镜像后面必须加上tag，即便这个镜像是latest的。</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Sylabs Cloud Remote Builder不能和本地的Docker daemons交互，因此本地缓存的Docker镜像不能用做远程build。
+当然，你本地SIF容器创建好以后，可以将其 <a class="reference internal" href="#sec-pushing-locally-available-images-to-library"><span class="std std-ref">push到Sylabs Cloud Singularity Library</span></a>。</p>
+</div>
+</div>
+<div class="section" id="tardocker">
+<span id="sec-mandatory-headers-docker-locally-stored-bootstrap-cli"></span><h4>Tar格式的Docker镜像<a class="headerlink" href="#tardocker" title="Permalink to this headline">¶</a></h4>
+<p>Singularity也可以基于tar格式的Docker镜像build容器。</p>
+<p>下面例子中用到的tar镜像 <code class="docutils literal notranslate"><span class="pre">lolcow.tar</span></code> 可以使用下面的步骤生成:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>从Docker Hub获取镜像 <code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">docker</span> <span class="pre">pull</span> <span class="pre">godlovedc/lolcow</span></code>，然后查看本地的镜像：</p></li>
+</ol>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo docker images
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+godlovedc/lolcow    latest              577c1fe8e6d8        17 months ago       241MB
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>镜像的ID是 <code class="docutils literal notranslate"><span class="pre">577c1fe8e6d8</span></code>, 我们可以使用 <code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">docker</span> <span class="pre">save</span> <span class="pre">577c1fe8e6d8</span> <span class="pre">-o</span> <span class="pre">lolcow.tar</span></code> 生成tar格式的镜像。</p></li>
+</ol>
+</div></blockquote>
+<p><code class="docutils literal notranslate"><span class="pre">lolcow.tar</span></code> 内容如下:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo tar tvf lolcow.tar
+drwxr-xr-x 0/0               0 2017-09-21 19:37 02aefa059d08482d344293d0ad27182a0a9d330ebc73abd92a1f9744844f91e9/
+-rw-r--r-- 0/0               3 2017-09-21 19:37 02aefa059d08482d344293d0ad27182a0a9d330ebc73abd92a1f9744844f91e9/VERSION
+-rw-r--r-- 0/0            1417 2017-09-21 19:37 02aefa059d08482d344293d0ad27182a0a9d330ebc73abd92a1f9744844f91e9/json
+-rw-r--r-- 0/0       122219008 2017-09-21 19:37 02aefa059d08482d344293d0ad27182a0a9d330ebc73abd92a1f9744844f91e9/layer.tar
+drwxr-xr-x 0/0               0 2017-09-21 19:37 3762e087ebbb895fd9c38981c1f7bfc76c9879fd3fdadef64df49e92721bb527/
+-rw-r--r-- 0/0               3 2017-09-21 19:37 3762e087ebbb895fd9c38981c1f7bfc76c9879fd3fdadef64df49e92721bb527/VERSION
+-rw-r--r-- 0/0             482 2017-09-21 19:37 3762e087ebbb895fd9c38981c1f7bfc76c9879fd3fdadef64df49e92721bb527/json
+-rw-r--r-- 0/0           14848 2017-09-21 19:37 3762e087ebbb895fd9c38981c1f7bfc76c9879fd3fdadef64df49e92721bb527/layer.tar
+-rw-r--r-- 0/0            4432 2017-09-21 19:37 577c1fe8e6d84360932b51767b65567550141af0801ff6d24ad10963e40472c5.json
+drwxr-xr-x 0/0               0 2017-09-21 19:37 5bad884501c0e760bc0c9ca3ae3dca3f12c4abeb7d18194c364fec522b91b4f9/
+-rw-r--r-- 0/0               3 2017-09-21 19:37 5bad884501c0e760bc0c9ca3ae3dca3f12c4abeb7d18194c364fec522b91b4f9/VERSION
+-rw-r--r-- 0/0             482 2017-09-21 19:37 5bad884501c0e760bc0c9ca3ae3dca3f12c4abeb7d18194c364fec522b91b4f9/json
+-rw-r--r-- 0/0            3072 2017-09-21 19:37 5bad884501c0e760bc0c9ca3ae3dca3f12c4abeb7d18194c364fec522b91b4f9/layer.tar
+drwxr-xr-x 0/0               0 2017-09-21 19:37 81ce2fd011bc8241ae72eaee9146116b7c289e941467ff276397720171e6c576/
+-rw-r--r-- 0/0               3 2017-09-21 19:37 81ce2fd011bc8241ae72eaee9146116b7c289e941467ff276397720171e6c576/VERSION
+-rw-r--r-- 0/0             406 2017-09-21 19:37 81ce2fd011bc8241ae72eaee9146116b7c289e941467ff276397720171e6c576/json
+-rw-r--r-- 0/0       125649920 2017-09-21 19:37 81ce2fd011bc8241ae72eaee9146116b7c289e941467ff276397720171e6c576/layer.tar
+drwxr-xr-x 0/0               0 2017-09-21 19:37 a10239905b060fd8b17ab31f37957bd126774f52f5280767d3b2639692913499/
+-rw-r--r-- 0/0               3 2017-09-21 19:37 a10239905b060fd8b17ab31f37957bd126774f52f5280767d3b2639692913499/VERSION
+-rw-r--r-- 0/0             482 2017-09-21 19:37 a10239905b060fd8b17ab31f37957bd126774f52f5280767d3b2639692913499/json
+-rw-r--r-- 0/0           15872 2017-09-21 19:37 a10239905b060fd8b17ab31f37957bd126774f52f5280767d3b2639692913499/layer.tar
+drwxr-xr-x 0/0               0 2017-09-21 19:37 ab6e1ca3392b2f4dbb60157cf99434b6975f37a767f530e293704a7348407634/
+-rw-r--r-- 0/0               3 2017-09-21 19:37 ab6e1ca3392b2f4dbb60157cf99434b6975f37a767f530e293704a7348407634/VERSION
+-rw-r--r-- 0/0             482 2017-09-21 19:37 ab6e1ca3392b2f4dbb60157cf99434b6975f37a767f530e293704a7348407634/json
+-rw-r--r-- 0/0            5632 2017-09-21 19:37 ab6e1ca3392b2f4dbb60157cf99434b6975f37a767f530e293704a7348407634/layer.tar
+-rw-r--r-- 0/0             574 1970-01-01 01:00 manifest.json
+</pre></div>
+</div>
+<p>也就是说，这个tarball是将Docker格式的镜像中的元数据和各层打包成一个tar文件。</p>
+<p>Build命令使用Singularity的 <code class="docutils literal notranslate"><span class="pre">docker-archive</span></code> bootstrap, 可以根据tar文件生成一个SIF文件 (<code class="docutils literal notranslate"><span class="pre">lolcow_tar.sif</span></code>)。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity build lolcow_tar.sif docker-archive://lolcow.tar
+INFO:    Starting build...
+Getting image source signatures
+Copying blob sha256:a2022691bf950a72f9d2d84d557183cb9eee07c065a76485f1695784855c5193
+ 119.83 MiB / 119.83 MiB [==================================================] 6s
+Copying blob sha256:ae620432889d2553535199dbdd8ba5a264ce85fcdcd5a430974d81fc27c02b45
+ 15.50 KiB / 15.50 KiB [====================================================] 0s
+Copying blob sha256:c561538251751e3685c7c6e7479d488745455ad7f84e842019dcb452c7b6fecc
+ 14.50 KiB / 14.50 KiB [====================================================] 0s
+Copying blob sha256:f96e6b25195f1b36ad02598b5d4381e41997c93ce6170cab1b81d9c68c514db0
+ 5.50 KiB / 5.50 KiB [======================================================] 0s
+Copying blob sha256:7f7a065d245a6501a782bf674f4d7e9d0a62fa6bd212edbf1f17bad0d5cd0bfc
+ 3.00 KiB / 3.00 KiB [======================================================] 0s
+Copying blob sha256:70ca7d49f8e9c44705431e3dade0636a2156300ae646ff4f09c904c138728839
+ 116.56 MiB / 116.56 MiB [==================================================] 6s
+Copying config sha256:73d5b1025fbfa138f2cacf45bbf3f61f7de891559fa25b28ab365c7d9c3cbd82
+ 3.33 KiB / 3.33 KiB [======================================================] 0s
+Writing manifest to image destination
+Storing signatures
+INFO:    Creating SIF file...
+INFO:    Build complete: lolcow_tar.sif
+</pre></div>
+</div>
+<p>上面build命令，在语法格式上和前面的有两个重要的不同:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">docker</span></code> 被 <code class="docutils literal notranslate"><span class="pre">docker-archive</span></code> 代替。</p></li>
+<li><p>不需要 <code class="docutils literal notranslate"><span class="pre">sudo</span></code>，用户只需要有访问这个tar文件的合适权限即可。</p></li>
+</ol>
+</div></blockquote>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">docker-archive</span></code> bootstrap支持 <code class="docutils literal notranslate"><span class="pre">.tar</span></code> 格式的文件，也支持压缩的 <code class="docutils literal notranslate"><span class="pre">.tar.gz</span></code> 格式的文件。</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Sylabs Cloud Remote Builder不能和本地的tar文件交互，因此本地tar镜像不能用做远程build。
+当然，你本地SIF容器创建好以后，可以将其 <a class="reference internal" href="#sec-pushing-locally-available-images-to-library"><span class="std std-ref">push到Sylabs Cloud Singularity Library</span></a>。</p>
+</div>
+</div>
+<div class="section" id="pushlibrary">
+<span id="sec-pushing-locally-available-images-to-library"></span><h4>Push本地容器到Library<a class="headerlink" href="#pushlibrary" title="Permalink to this headline">¶</a></h4>
+<p>使用 <code class="docutils literal notranslate"><span class="pre">push</span></code> 命令可以将本地的SIF容器（不管是通过什么方式生成的）push到 <a class="reference external" href="https://cloud.sylabs.io/library">Sylabs Cloud Singularity Library</a>。</p>
+<p>在 <a class="reference external" href="https://cloud.sylabs.io/library">Sylabs Cloud Singularity Library</a> 页面上,
+选择 <code class="docutils literal notranslate"><span class="pre">Create</span> <span class="pre">a</span> <span class="pre">new</span> <span class="pre">Project</span></code>， 如下所示:</p>
+<img alt="_images/create_project.png" src="_images/create_project.png" />
+<p>由于我们已经有了访问cloud service的token,因此关注下图中的2，3，4步:</p>
+<img alt="_images/push_prototype.png" src="_images/push_prototype.png" />
+<p>实际上, 你只要将 <code class="docutils literal notranslate"><span class="pre">image.sif</span></code> 替换成 <code class="docutils literal notranslate"><span class="pre">lolcow_tar.sif</span></code>, 然后执行命令:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity push lolcow_tar.sif library://ilumb/default/lolcow_tar
+INFO:    Now uploading lolcow_tar.sif to the library
+ 87.94 MiB / 87.94 MiB [=============================================================================] 100.00% 1.25 MiB/s 1m10s
+INFO:    Setting tag latest
+</pre></div>
+</div>
+<p>最后，我们在Library能看到生成的容器， 然后可以使用 <code class="docutils literal notranslate"><span class="pre">pull</span></code> 命令下载容器。</p>
+<img alt="_images/lolcow_lib_listing.png" src="_images/lolcow_lib_listing.png" />
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Sylabs Cloud Singularity Library提供了容器的版本管理， 也就是说，如果更新了本地的容器，也可以使用新的tag把更新后的容器push到Library。</p>
+</div>
+</div>
+</div>
+<div class="section" id="definition">
+<span id="sec-singularity-build-def-files"></span><h3>Definition文件<a class="headerlink" href="#definition" title="Permalink to this headline">¶</a></h3>
+<p id="sec-def-file-mandatory-headers-remotely-boostrapped">Singularity definition文件 (也叫def文件)  <a class="reference internal" href="definition_files.html#definitionfiles"><span class="std std-ref">在这个手册到处可见</span></a>。这里我们主要讲和Docker相关的部分。</p>
+<p>Singularity definition文件包含两部分 -  <strong>header</strong> 和 <strong>sections</strong>。</p>
+<p>header中的 <code class="docutils literal notranslate"><span class="pre">Bootstrap</span></code> 和 <code class="docutils literal notranslate"><span class="pre">From</span></code> 是两个必填字段。</p>
+<div class="section" id="boostrap">
+<h4>远程Boostrap<a class="headerlink" href="#boostrap" title="Permalink to this headline">¶</a></h4>
+<p>使用Docker Hub镜像, 比如文件 <code class="docutils literal notranslate"><span class="pre">lolcow.def</span></code> 的内容如下：</p>
+<div class="highlight-singularity notranslate"><div class="highlight"><pre><span></span><span class="k">Bootstrap</span>: docker
+<span class="k">From</span>: godlovedc/lolcow
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>sudo singularity build lolcow.sif lolcow.def
+</pre></div>
+</div>
+<p>这样将会从Docker Hub的公共镜像 <code class="docutils literal notranslate"><span class="pre">godlovedc/lolcow</span></code> 创建一个容器SIF文件。</p>
+<p>上面的definition文件, <code class="docutils literal notranslate"><span class="pre">docker</span></code> 是 <a class="reference internal" href="appendix.html#build-docker-module"><span class="std std-ref">所有bootstrap</span></a> 中的一种。</p>
+<p>definition文件也可以使用Docker Hub的私有镜像，当然和 <a class="reference internal" href="#sec-using-prebuilt-private-images"><span class="std std-ref">上面的方式</span></a> 一样也需要认证。
+比如, 如果文件 <code class="docutils literal notranslate"><span class="pre">mylolcow.def</span></code> 内容如下：</p>
+<div class="highlight-singularity notranslate"><div class="highlight"><pre><span></span><span class="k">Bootstrap</span>: docker
+<span class="k">From</span>: ilumb/mylolcow
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>sudo singularity build --docker-login mylolcow.sif mylolcow.def
+</pre></div>
+</div>
+<p>通过交互式的方式–docker-login， 可以使用私有镜像 <code class="docutils literal notranslate"><span class="pre">ilumb/mylolcow</span></code> 创建一个SIF容器。</p>
+<p>同样的, 通过 <a class="reference internal" href="#sec-authentication-via-environment-variables"><span class="std std-ref">上面已经设置的环境变量</span></a>, 也可以创建SIF容器。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo -E singularity build mylolcow.sif mylolcow.def
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">-E</span></code> 选项将用户设置的环境变量也应用到  <code class="docutils literal notranslate"><span class="pre">sudo</span></code>。</p>
+</div>
+</div>
+<div class="section" id="id17">
+<h4>使用Remote Builder<a class="headerlink" href="#id17" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-singularity notranslate"><div class="highlight"><pre><span></span><span class="k">Bootstrap</span>: docker
+<span class="k">From</span>: godlovedc/lolcow
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity build --remote lolcow_rb_def.sif lolcow.def
+searching for available build agent......INFO:    Starting build...
+Getting image source signatures
+Copying blob sha256:9fb6c798fa41e509b58bccc5c29654c3ff4648b608f5daa67c1aab6a7d02c118
+ 45.33 MiB / 45.33 MiB  0s
+Copying blob sha256:3b61febd4aefe982e0cb9c696d415137384d1a01052b50a85aae46439e15e49a
+ 848 B / 848 B  0s
+Copying blob sha256:9d99b9777eb02b8943c0e72d7a7baec5c782f8fd976825c9d3fb48b3101aacc2
+ 621 B / 621 B  0s
+Copying blob sha256:d010c8cf75d7eb5d2504d5ffa0d19696e8d745a457dd8d28ec6dd41d3763617e
+ 853 B / 853 B  0s
+Copying blob sha256:7fac07fb303e0589b9c23e6f49d5dc1ff9d6f3c8c88cabe768b430bdb47f03a9
+ 169 B / 169 B  0s
+Copying blob sha256:8e860504ff1ee5dc7953672d128ce1e4aa4d8e3716eb39fe710b849c64b20945
+ 53.75 MiB / 53.75 MiB  0s
+Copying config sha256:73d5b1025fbfa138f2cacf45bbf3f61f7de891559fa25b28ab365c7d9c3cbd82
+ 3.33 KiB / 3.33 KiB  0s
+Writing manifest to image destination
+Storing signatures
+INFO:    Creating SIF file...
+INFO:    Build complete: /tmp/image-994007654
+INFO:    Now uploading /tmp/image-994007654 to the library
+ 87.94 MiB / 87.94 MiB  100.00% 41.76 MiB/s 2s
+INFO:    Setting tag latest
+ 87.94 MiB / 87.94 MiB [===============================================================================] 100.00% 19.08 MiB/s 4s
+</pre></div>
+</div>
+<p>上面例子中， <code class="docutils literal notranslate"><span class="pre">build</span></code> 命令后面添加了 <code class="docutils literal notranslate"><span class="pre">--remote</span></code> 标记来使用 Remote Builder，另外不需要用sudo。</p>
+<p>除了命令行方式，Sylabs Cloud Remote Builder也提供了web页面，你可以拷贝definition文件的内容到web页面，然后点击build按钮。</p>
+<img alt="_images/build_gui.png" src="_images/build_gui.png" />
+<p>build完成后，你可以在web页面直接下载build好的SIF文件，或者通过命令pull来下载。web页面上也提供了build过程中生成的log文件，可以点击Download Log下载。</p>
+<img alt="_images/build_output.png" src="_images/build_output.png" />
+<p>build好的SIF文件是保存在Sylabs Cloud Singularity Library的。</p>
+<img alt="_images/mysylabslibrary.png" src="_images/mysylabslibrary.png" />
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Sylabs Cloud现在是Alpha版本，除了Singularity Library和Remote Builder, 还提供了Keystore的服务。
+这三种服务，对使用Singularity社区版的用户是一个免费的增值服务，对于SingularityPRO，当然这三种服务也包含其中，也是免费的。
+更多关于社区版和Pro版的区别, 请参考 <a class="reference external" href="https://www.sylabs.io/singularity/">Sylabs官网</a>。</p>
+</div>
+</div>
+<div class="section" id="sec-mandatory-headers-docker-locally-boostrapped-def-file">
+<span id="id18"></span><h4>本地Boostrap<a class="headerlink" href="#sec-mandatory-headers-docker-locally-boostrapped-def-file" title="Permalink to this headline">¶</a></h4>
+<p>使用 <code class="docutils literal notranslate"><span class="pre">docker-daemon</span></code> bootstrap,
+可以使用本地Docker daemon中的镜像build SIF容器。
+假定 definition 文件 <code class="docutils literal notranslate"><span class="pre">lolcow-d.def</span></code> 内容如下:</p>
+<div class="highlight-singularity notranslate"><div class="highlight"><pre><span></span><span class="k">Bootstrap</span>: docker-daemon
+<span class="k">From</span>: godlovedc/lolcow:latest
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>使用docker-daemon时，即便是 <code class="docutils literal notranslate"><span class="pre">latest</span></code> 的镜像，其tag也必须带上。</p>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo singularity build lolcow_from_docker_cache.sif lolcow-d.def
+Build target already exists. Do you want to overwrite? [N/y] y
+INFO:    Starting build...
+Getting image source signatures
+Copying blob sha256:a2022691bf950a72f9d2d84d557183cb9eee07c065a76485f1695784855c5193
+ 119.83 MiB / 119.83 MiB [==================================================] 6s
+Copying blob sha256:ae620432889d2553535199dbdd8ba5a264ce85fcdcd5a430974d81fc27c02b45
+ 15.50 KiB / 15.50 KiB [====================================================] 0s
+Copying blob sha256:c561538251751e3685c7c6e7479d488745455ad7f84e842019dcb452c7b6fecc
+ 14.50 KiB / 14.50 KiB [====================================================] 0s
+Copying blob sha256:f96e6b25195f1b36ad02598b5d4381e41997c93ce6170cab1b81d9c68c514db0
+ 5.50 KiB / 5.50 KiB [======================================================] 0s
+Copying blob sha256:7f7a065d245a6501a782bf674f4d7e9d0a62fa6bd212edbf1f17bad0d5cd0bfc
+ 3.00 KiB / 3.00 KiB [======================================================] 0s
+Copying blob sha256:70ca7d49f8e9c44705431e3dade0636a2156300ae646ff4f09c904c138728839
+ 116.56 MiB / 116.56 MiB [==================================================] 6s
+Copying config sha256:73d5b1025fbfa138f2cacf45bbf3f61f7de891559fa25b28ab365c7d9c3cbd82
+ 3.33 KiB / 3.33 KiB [======================================================] 0s
+Writing manifest to image destination
+Storing signatures
+INFO:    Creating SIF file...
+INFO:    Build complete: lolcow_from_docker_cache.sif
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>需要使用 <code class="docutils literal notranslate"><span class="pre">sudo</span></code> 来build容器，这是因为Docker daemon是以 <code class="docutils literal notranslate"><span class="pre">root</span></code> 运行， 如果运行build命令的用户是``docker`` Linux组的成员，不需要 <code class="docutils literal notranslate"><span class="pre">sudo</span></code>。</p>
+</div>
+<p>使用 <code class="docutils literal notranslate"><span class="pre">docker-archive</span></code> bootstrap, 可以使用本地的tar格式的Docker镜像来build Singularity的SIF容器。
+假定 definition文件 <code class="docutils literal notranslate"><span class="pre">lolcow-da.def</span></code> 的内容如下:</p>
+<div class="highlight-singularity notranslate"><div class="highlight"><pre><span></span><span class="k">Bootstrap</span>: docker-archive
+<span class="k">From</span>: lolcow.tar
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo singularity build lolcow_tar_def.sif lolcow-da.def
+INFO:    Starting build...
+Getting image source signatures
+Copying blob sha256:a2022691bf950a72f9d2d84d557183cb9eee07c065a76485f1695784855c5193
+ 119.83 MiB / 119.83 MiB [==================================================] 6s
+Copying blob sha256:ae620432889d2553535199dbdd8ba5a264ce85fcdcd5a430974d81fc27c02b45
+ 15.50 KiB / 15.50 KiB [====================================================] 0s
+Copying blob sha256:c561538251751e3685c7c6e7479d488745455ad7f84e842019dcb452c7b6fecc
+ 14.50 KiB / 14.50 KiB [====================================================] 0s
+Copying blob sha256:f96e6b25195f1b36ad02598b5d4381e41997c93ce6170cab1b81d9c68c514db0
+ 5.50 KiB / 5.50 KiB [======================================================] 0s
+Copying blob sha256:7f7a065d245a6501a782bf674f4d7e9d0a62fa6bd212edbf1f17bad0d5cd0bfc
+ 3.00 KiB / 3.00 KiB [======================================================] 0s
+Copying blob sha256:70ca7d49f8e9c44705431e3dade0636a2156300ae646ff4f09c904c138728839
+ 116.56 MiB / 116.56 MiB [==================================================] 6s
+Copying config sha256:73d5b1025fbfa138f2cacf45bbf3f61f7de891559fa25b28ab365c7d9c3cbd82
+ 3.33 KiB / 3.33 KiB [======================================================] 0s
+Writing manifest to image destination
+Storing signatures
+INFO:    Creating SIF file...
+INFO:    Build complete: lolcow_tar_def.sif
+</pre></div>
+</div>
+</div>
+<div class="section" id="headernamespace">
+<span id="sec-optional-headers-def-files"></span><h4>Header可选字段Namespace<a class="headerlink" href="#headernamespace" title="Permalink to this headline">¶</a></h4>
+<p>上面例子中,  <code class="docutils literal notranslate"><span class="pre">From</span></code> 中包含了 <code class="docutils literal notranslate"><span class="pre">user</span></code> 和 <code class="docutils literal notranslate"><span class="pre">repo-name</span></code> 两部分的内容。使用可选的 <code class="docutils literal notranslate"><span class="pre">Namespace</span></code> 关键字将两部分分开表示。</p>
+<div class="highlight-singularity notranslate"><div class="highlight"><pre><span></span><span class="k">Bootstrap</span>: docker
+<span class="k">Namespace</span>: godlovedc
+<span class="k">From</span>: lolcow
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference external" href="https://docs.docker.com/docker-hub/repos/">Docker文档中</a>, <code class="docutils literal notranslate"><span class="pre">Docker</span> <span class="pre">ID</span> <span class="pre">namespace</span></code> 和这里 <code class="docutils literal notranslate"><span class="pre">user</span></code> 是同样的概念。</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">Namespace</span></code> 默认值是 <code class="docutils literal notranslate"><span class="pre">library</span></code>。</p>
+</div>
+</div>
+<div class="section" id="id20">
+<h4>私有镜像和私有Registries<a class="headerlink" href="#id20" title="Permalink to this headline">¶</a></h4>
+<p>header中通过可选的关键字Registry来要使用的Docker registry，下面使用NVIDIA GPU Cloud (NGC)上的Docker镜像:</p>
+<div class="highlight-singularity notranslate"><div class="highlight"><pre><span></span><span class="k">Bootstrap</span>: docker
+<span class="k">From</span>: nvidia/pytorch:<span class="m">18.11</span>-py3
+<span class="k">Registry</span>: nvcr.io
+</pre></div>
+</div>
+<p>假定def文件名字为 <code class="docutils literal notranslate"><span class="pre">ngc_pytorch.def</span></code>，build容器:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo singularity build --docker-login mypytorch.sif ngc_pytorch.def
+Enter Docker Username: $oauthtoken
+Enter Docker Password: &lt;obscured&gt;
+INFO:    Starting build...
+Getting image source signatures
+Copying blob sha256:18d680d616571900d78ee1c8fff0310f2a2afe39c6ed0ba2651ff667af406c3e
+ 41.34 MiB / 41.34 MiB [====================================================] 2s
+&lt;blob copying details deleted&gt;
+Copying config sha256:b77551af8073c85588088ab2a39007d04bc830831ba1eef4127b2d39aaf3a6b1
+21.28 KiB / 21.28 KiB [====================================================] 0s
+Writing manifest to image destination
+Storing signatures
+INFO:    Creating SIF file...
+INFO:    Build complete: mypytorch.sif
+</pre></div>
+</div>
+<p>这里使用的是交互的–docker-login完成登录认证， 你也可以通过 <a class="reference internal" href="#sec-authentication-via-environment-variables"><span class="std std-ref">设置环境变量</span></a> 来完成登录认证，
+环境变量只需要设置一次。</p>
+</div>
+<div class="section" id="sec-def-files-execution">
+<span id="id21"></span><h4>直接执行<a class="headerlink" href="#sec-def-files-execution" title="Permalink to this headline">¶</a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">godlovedc/lolcow</span></code> 的 <code class="docutils literal notranslate"><span class="pre">Dockerfile</span></code> (<a class="reference external" href="https://hub.docker.com/r/godlovedc/lolcow/dockerfile">在这里</a>)。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>FROM ubuntu:16.04
+
+RUN apt-get update &amp;&amp; apt-get install -y fortune cowsay lolcat
+
+ENV PATH /usr/games:${PATH}
+ENV LC_ALL=C
+
+ENTRYPOINT fortune | cowsay | lolcat
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Dockerfile</span></code> 中的 <code class="docutils literal notranslate"><span class="pre">ENTRYPOINT</span></code> 是Docker的执行部分。
+当将Docker镜像转为SIF后， 执行SIF文件， <code class="docutils literal notranslate"><span class="pre">fortune</span> <span class="pre">|</span> <span class="pre">cowsay</span> <span class="pre">|</span> <span class="pre">lolcat</span></code> 会被执行。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ ./mylolcow.sif
+ ______________________________________
+/ Q: How did you get into artificial   \
+| intelligence? A: Seemed logical -- I |
+\ didn&#39;t have any real intelligence.   /
+ --------------------------------------
+        \   ^__^
+         \  (oo)\_______
+            (__)\       )\/\
+                ||----w |
+                ||     ||
+</pre></div>
+</div>
+<p>假定你在def文件中添加了  <code class="docutils literal notranslate"><span class="pre">%runscript</span></code>:</p>
+<div class="highlight-singularity notranslate"><div class="highlight"><pre><span></span><span class="k">Bootstrap</span>: docker
+<span class="k">Namespace</span>: godlovedc
+<span class="k">From</span>: lolcow
+
+<span class="gh">%runscript</span>
+
+    fortune
+</pre></div>
+</div>
+<p>build生成容器后，执行SIF文件:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ ./lolcow.sif
+This was the most unkindest cut of all.
+        -- William Shakespeare, &quot;Julius Caesar&quot;
+</pre></div>
+</div>
+<p>上面例子说明，如果有def文件中如果有  <code class="docutils literal notranslate"><span class="pre">%runscript</span></code> 会覆盖掉 <code class="docutils literal notranslate"><span class="pre">Dockerfile``中定义的</span> <span class="pre">``ENTRYPOINT</span></code>。 <code class="docutils literal notranslate"><span class="pre">%runscript</span></code> 也会覆盖掉``Dockerfile`` 中定义的 <code class="docutils literal notranslate"><span class="pre">CMD</span></code>。</p>
+<p>如果要使用 <code class="docutils literal notranslate"><span class="pre">Dockerfile</span></code> 中定义的  <code class="docutils literal notranslate"><span class="pre">ENTRYPOINT</span></code> 和 <code class="docutils literal notranslate"><span class="pre">CMD</span></code>, def文件中不能有 <code class="docutils literal notranslate"><span class="pre">%runscript</span></code>，同时如果要只执行  <code class="docutils literal notranslate"><span class="pre">CMD</span></code>, 可选关键字 <code class="docutils literal notranslate"><span class="pre">IncludeCmd</span></code> 需要设置为非空:</p>
+<div class="highlight-singularity notranslate"><div class="highlight"><pre><span></span><span class="k">Bootstrap</span>: docker
+<span class="k">Namespace</span>: godlovedc
+<span class="k">From</span>: lolcow
+<span class="k">IncludeCmd</span>: yes
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">IncludeCmd</span></code> 只需要是一个非空的字符串，因此不管是 <code class="docutils literal notranslate"><span class="pre">yes</span></code> 还是 <code class="docutils literal notranslate"><span class="pre">no</span></code>，都会执行 <code class="docutils literal notranslate"><span class="pre">CMD</span></code>。</p>
+</div>
+<p id="sec-def-files-execution-sub-execution-precedence">总结下执行的顺序:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>如果 <code class="docutils literal notranslate"><span class="pre">%runscript</span></code> 存在，执行 <code class="docutils literal notranslate"><span class="pre">%runscript</span></code>。</p></li>
+<li><p>如果 <code class="docutils literal notranslate"><span class="pre">IncludeCmd</span></code> 是非空的字符串, <code class="docutils literal notranslate"><span class="pre">CMD</span></code> 被执行。</p></li>
+<li><p>如果 <code class="docutils literal notranslate"><span class="pre">Dockerfile</span></code> 中定义有 <code class="docutils literal notranslate"><span class="pre">ENTRYPOINT</span></code> 和 <code class="docutils literal notranslate"><span class="pre">CMD</span></code>， <code class="docutils literal notranslate"><span class="pre">ENTRYPOINT</span></code> +  <code class="docutils literal notranslate"><span class="pre">CMD</span></code> 被执行。</p></li>
+<li><p>执行默认的 <code class="docutils literal notranslate"><span class="pre">bash</span></code>。</p></li>
+</ol>
+</div></blockquote>
+</div>
+<div class="section" id="sec-inspect-container-metadata">
+<span id="id23"></span><h4>容器元数据<a class="headerlink" href="#sec-inspect-container-metadata" title="Permalink to this headline">¶</a></h4>
+<p>正如 <a class="reference internal" href="#sec-def-files-execution-sub-execution-precedence"><span class="std std-ref">上面的描述</span></a>, def文件中的 <code class="docutils literal notranslate"><span class="pre">%runscript</span></code> 会覆盖 <code class="docutils literal notranslate"><span class="pre">Dockerfile</span></code> 的``ENTRYPOINT`` 和 <code class="docutils literal notranslate"><span class="pre">CMD</span></code>。</p>
+<p>如果def文件中没有 <code class="docutils literal notranslate"><span class="pre">%runscript</span></code>，那么:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity inspect --deffile lolcow.sif
+
+from: lolcow
+bootstrap: docker
+namespace: godlovedc
+</pre></div>
+</div>
+<p>这时候的 <code class="docutils literal notranslate"><span class="pre">%runscript</span></code> 继承自从 <code class="docutils literal notranslate"><span class="pre">Dockerfile</span></code>：</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity inspect --runscript lolcow.sif
+
+#!/bin/sh
+OCI_ENTRYPOINT=&#39;&quot;/bin/sh&quot; &quot;-c&quot; &quot;fortune | cowsay | lolcat&quot;&#39;
+OCI_CMD=&#39;&#39;
+# ENTRYPOINT only - run entrypoint plus args
+if [ -z &quot;$OCI_CMD&quot; ] &amp;&amp; [ -n &quot;$OCI_ENTRYPOINT&quot; ]; then
+    SINGULARITY_OCI_RUN=&quot;${OCI_ENTRYPOINT} $@&quot;
+fi
+
+# CMD only - run CMD or override with args
+if [ -n &quot;$OCI_CMD&quot; ] &amp;&amp; [ -z &quot;$OCI_ENTRYPOINT&quot; ]; then
+    if [ $# -gt 0 ]; then
+        SINGULARITY_OCI_RUN=&quot;$@&quot;
+    else
+        SINGULARITY_OCI_RUN=&quot;${OCI_CMD}&quot;
+    fi
+fi
+
+# ENTRYPOINT and CMD - run ENTRYPOINT with CMD as default args
+# override with user provided args
+if [ $# -gt 0 ]; then
+    SINGULARITY_OCI_RUN=&quot;${OCI_ENTRYPOINT} $@&quot;
+else
+    SINGULARITY_OCI_RUN=&quot;${OCI_ENTRYPOINT} ${OCI_CMD}&quot;
+fi
+
+eval ${SINGULARITY_OCI_RUN}
+</pre></div>
+</div>
+<p>从上面的输出可以看出， <code class="docutils literal notranslate"><span class="pre">Dockerfile</span></code> 中只定义了 <code class="docutils literal notranslate"><span class="pre">ENTRYPOINT</span></code>，
+因此执行的时候是执行 <code class="docutils literal notranslate"><span class="pre">ENTRYPOINT+传递的参数</span></code> 。</p>
+<p>从上面的输出中还可以看出怎么处理下面两种情况：</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>只有 <code class="docutils literal notranslate"><span class="pre">CMD</span></code> 的情况。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ENTRYPOINT</span></code> 和 <code class="docutils literal notranslate"><span class="pre">CMD</span></code> 都存在的情况。</p></li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+</div>
+<div class="section" id="oci">
+<h2>OCI镜像<a class="headerlink" href="#oci" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="sec-oci-overview">
+<span id="id24"></span><h3>概述<a class="headerlink" href="#sec-oci-overview" title="Permalink to this headline">¶</a></h3>
+<p>OCI是 <a class="reference external" href="https://www.opencontainers.org/">Open Containers Initiative</a> 首字母的缩写，
+OCI是一个独立的组织，目标是开发关于容器化的开放标准，
+主要包括开放的容器格式和容器运行环境。我们这里主要关注容器的格式，
+OCI镜像的内容保存在 <code class="docutils literal notranslate"><span class="pre">OCI</span> <span class="pre">Blob</span></code> 中，这里的 <code class="docutils literal notranslate"><span class="pre">OCI</span> <span class="pre">Blob</span></code> 和Docker镜像layer对应。</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>为了简化和Docker的交互， Singularity使用 <code class="docutils literal notranslate"><span class="pre">containers/image</span></code> <a class="reference external" href="https://github.com/containers/image/">library</a>
+来操作Docker镜像，以及和各中Docker Registry交互。</p>
+</div>
+<div class="section" id="pull">
+<h4>回顾下Pull命令<a class="headerlink" href="#pull" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity pull docker://godlovedc/lolcow
+INFO:    Starting build...
+Getting image source signatures
+Copying blob sha256:9fb6c798fa41e509b58bccc5c29654c3ff4648b608f5daa67c1aab6a7d02c118
+ 45.33 MiB / 45.33 MiB [====================================================] 1s
+Copying blob sha256:3b61febd4aefe982e0cb9c696d415137384d1a01052b50a85aae46439e15e49a
+ 848 B / 848 B [============================================================] 0s
+Copying blob sha256:9d99b9777eb02b8943c0e72d7a7baec5c782f8fd976825c9d3fb48b3101aacc2
+ 621 B / 621 B [============================================================] 0s
+Copying blob sha256:d010c8cf75d7eb5d2504d5ffa0d19696e8d745a457dd8d28ec6dd41d3763617e
+ 853 B / 853 B [============================================================] 0s
+Copying blob sha256:7fac07fb303e0589b9c23e6f49d5dc1ff9d6f3c8c88cabe768b430bdb47f03a9
+ 169 B / 169 B [============================================================] 0s
+Copying blob sha256:8e860504ff1ee5dc7953672d128ce1e4aa4d8e3716eb39fe710b849c64b20945
+ 53.75 MiB / 53.75 MiB [====================================================] 2s
+Copying config sha256:73d5b1025fbfa138f2cacf45bbf3f61f7de891559fa25b28ab365c7d9c3cbd82
+ 3.33 KiB / 3.33 KiB [======================================================] 0s
+Writing manifest to image destination
+Storing signatures
+INFO:    Creating SIF file...
+INFO:    Build complete: lolcow_latest.sif
+</pre></div>
+</div>
+<p>使用Singularity的 <code class="docutils literal notranslate"><span class="pre">pull</span></code> 命令可以将Docker镜像的layer拷贝成OCI blobs，然后创建SIF文件。</p>
+</div>
+<div class="section" id="id26">
+<h4>镜像缓存<a class="headerlink" href="#id26" title="Permalink to this headline">¶</a></h4>
+<p>第二次pull的时候:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity pull docker://godlovedc/lolcow
+INFO:    Starting build...
+Getting image source signatures
+Skipping fetch of repeat blob sha256:9fb6c798fa41e509b58bccc5c29654c3ff4648b608f5daa67c1aab6a7d02c118
+Skipping fetch of repeat blob sha256:3b61febd4aefe982e0cb9c696d415137384d1a01052b50a85aae46439e15e49a
+Skipping fetch of repeat blob sha256:9d99b9777eb02b8943c0e72d7a7baec5c782f8fd976825c9d3fb48b3101aacc2
+Skipping fetch of repeat blob sha256:d010c8cf75d7eb5d2504d5ffa0d19696e8d745a457dd8d28ec6dd41d3763617e
+Skipping fetch of repeat blob sha256:7fac07fb303e0589b9c23e6f49d5dc1ff9d6f3c8c88cabe768b430bdb47f03a9
+Skipping fetch of repeat blob sha256:8e860504ff1ee5dc7953672d128ce1e4aa4d8e3716eb39fe710b849c64b20945
+Copying config sha256:73d5b1025fbfa138f2cacf45bbf3f61f7de891559fa25b28ab365c7d9c3cbd82
+ 3.33 KiB / 3.33 KiB [======================================================] 0s
+Writing manifest to image destination
+Storing signatures
+INFO:    Creating SIF file...
+INFO:    Build complete: lolcow_latest.sif
+</pre></div>
+</div>
+<p>我们发现跳过了拷贝的步骤，这些OCI blobs在本地有缓存。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ tree .singularity/
+.singularity/
+└── cache
+    └── oci
+        ├── blobs
+        │   └── sha256
+        │       ├── 3b61febd4aefe982e0cb9c696d415137384d1a01052b50a85aae46439e15e49a
+        │       ├── 73d5b1025fbfa138f2cacf45bbf3f61f7de891559fa25b28ab365c7d9c3cbd82
+        │       ├── 7fac07fb303e0589b9c23e6f49d5dc1ff9d6f3c8c88cabe768b430bdb47f03a9
+        │       ├── 8e860504ff1ee5dc7953672d128ce1e4aa4d8e3716eb39fe710b849c64b20945
+        │       ├── 9d99b9777eb02b8943c0e72d7a7baec5c782f8fd976825c9d3fb48b3101aacc2
+        │       ├── 9fb6c798fa41e509b58bccc5c29654c3ff4648b608f5daa67c1aab6a7d02c118
+        │       ├── d010c8cf75d7eb5d2504d5ffa0d19696e8d745a457dd8d28ec6dd41d3763617e
+        │       └── f2a852991b0a36a9f3d6b2a33b98a461e9ede8393482f0deb5287afcbae2ce10
+        ├── index.json
+        └── oci-layout
+
+4 directories, 10 files
+</pre></div>
+</div>
+</div>
+<div class="section" id="ocisingularity">
+<span id="misc-oci-image-layout-specification"></span><h4>OCI镜像和Singularity缓存<a class="headerlink" href="#ocisingularity" title="Permalink to this headline">¶</a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">$HOME/.singularity/cache/oci</span></code> 下的内容符合 <a class="reference external" href="https://github.com/opencontainers/image-spec/blob/master/image-layout.md">OCI Image Layout Specification</a>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">blobs</span></code> - 镜像内容。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">oci-layout</span></code>  - 一个必须有的文件，json格式，包含一些必填和和选填的内容。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">index.json</span></code>  - 一个必须有文件，包含镜像的索引。</p></li>
+</ul>
+</div></blockquote>
+<p><code class="docutils literal notranslate"><span class="pre">$OCI_BUNDLE_DIR</span></code> 环境变量指向 <code class="docutils literal notranslate"><span class="pre">$HOME/.singularity/cache/oci</span></code>。</p>
+<p>更多关于OCI镜像格式的内容，请参考 <a class="reference external" href="https://github.com/opencontainers/image-spec">这里</a>。</p>
+<p>OCI blobs具有唯一的名字:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ shasum -a 256 ./blobs/sha256/9fb6c798fa41e509b58bccc5c29654c3ff4648b608f5daa67c1aab6a7d02c118
+9fb6c798fa41e509b58bccc5c29654c3ff4648b608f5daa67c1aab6a7d02c118  ./blobs/sha256/9fb6c798fa41e509b58bccc5c29654c3ff4648b608f5daa67c1aab6a7d02c118
+
+$ file ./blobs/sha256/9fb6c798fa41e509b58bccc5c29654c3ff4648b608f5daa67c1aab6a7d02c118 ./blobs/sha256/9fb6c798fa41e509b58bccc5c29654c3ff4648b608f5daa67c1aab6a7d02c118: gzip compressed data
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">oci-layout</span></code> 文件:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="nx">$</span> <span class="nx">cat</span> <span class="nx">oci</span><span class="o">-</span><span class="nx">layout</span> <span class="o">|</span> <span class="nx">jq</span>
+<span class="p">{</span>
+  <span class="s2">&quot;imageLayoutVersion&quot;</span><span class="o">:</span> <span class="s2">&quot;1.0.0&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>上面使用了jq，是将输出变为JSON格式查看。</p>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">index.json</span></code> 文件:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="nx">$</span> <span class="nx">cat</span> <span class="nx">index</span><span class="p">.</span><span class="nx">json</span> <span class="o">|</span> <span class="nx">jq</span>
+<span class="p">{</span>
+  <span class="s2">&quot;schemaVersion&quot;</span><span class="o">:</span> <span class="mi">2</span><span class="p">,</span>
+  <span class="s2">&quot;manifests&quot;</span><span class="o">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="s2">&quot;mediaType&quot;</span><span class="o">:</span> <span class="s2">&quot;application/vnd.oci.image.manifest.v1+json&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;digest&quot;</span><span class="o">:</span> <span class="s2">&quot;sha256:f2a852991b0a36a9f3d6b2a33b98a461e9ede8393482f0deb5287afcbae2ce10&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;size&quot;</span><span class="o">:</span> <span class="mi">1125</span><span class="p">,</span>
+      <span class="s2">&quot;annotations&quot;</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s2">&quot;org.opencontainers.image.ref.name&quot;</span><span class="o">:</span> <span class="s2">&quot;a692b57abc43035b197b10390ea2c12855d21649f2ea2cc28094d18b93360eeb&quot;</span>
+      <span class="p">},</span>
+      <span class="s2">&quot;platform&quot;</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s2">&quot;architecture&quot;</span><span class="o">:</span> <span class="s2">&quot;amd64&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;os&quot;</span><span class="o">:</span> <span class="s2">&quot;linux&quot;</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>index文件中的 <code class="docutils literal notranslate"><span class="pre">digest</span></code> blob包含了所有组成 <code class="docutils literal notranslate"><span class="pre">godlovedc/lolcow</span></code> 镜像的blob信息:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="nx">$</span> <span class="nx">cat</span>  <span class="p">.</span><span class="o">/</span><span class="nx">blobs</span><span class="o">/</span><span class="nx">sha256</span><span class="o">/</span><span class="nx">f2a852991b0a36a9f3d6b2a33b98a461e9ede8393482f0deb5287afcbae2ce10</span> <span class="o">|</span> <span class="nx">jq</span>
+<span class="p">{</span>
+  <span class="s2">&quot;schemaVersion&quot;</span><span class="o">:</span> <span class="mi">2</span><span class="p">,</span>
+  <span class="s2">&quot;config&quot;</span><span class="o">:</span> <span class="p">{</span>
+    <span class="s2">&quot;mediaType&quot;</span><span class="o">:</span> <span class="s2">&quot;application/vnd.oci.image.config.v1+json&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;digest&quot;</span><span class="o">:</span> <span class="s2">&quot;sha256:73d5b1025fbfa138f2cacf45bbf3f61f7de891559fa25b28ab365c7d9c3cbd82&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;size&quot;</span><span class="o">:</span> <span class="mi">3410</span>
+  <span class="p">},</span>
+  <span class="s2">&quot;layers&quot;</span><span class="o">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="s2">&quot;mediaType&quot;</span><span class="o">:</span> <span class="s2">&quot;application/vnd.oci.image.layer.v1.tar+gzip&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;digest&quot;</span><span class="o">:</span> <span class="s2">&quot;sha256:9fb6c798fa41e509b58bccc5c29654c3ff4648b608f5daa67c1aab6a7d02c118&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;size&quot;</span><span class="o">:</span> <span class="mi">47536248</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+      <span class="s2">&quot;mediaType&quot;</span><span class="o">:</span> <span class="s2">&quot;application/vnd.oci.image.layer.v1.tar+gzip&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;digest&quot;</span><span class="o">:</span> <span class="s2">&quot;sha256:3b61febd4aefe982e0cb9c696d415137384d1a01052b50a85aae46439e15e49a&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;size&quot;</span><span class="o">:</span> <span class="mi">848</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+      <span class="s2">&quot;mediaType&quot;</span><span class="o">:</span> <span class="s2">&quot;application/vnd.oci.image.layer.v1.tar+gzip&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;digest&quot;</span><span class="o">:</span> <span class="s2">&quot;sha256:9d99b9777eb02b8943c0e72d7a7baec5c782f8fd976825c9d3fb48b3101aacc2&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;size&quot;</span><span class="o">:</span> <span class="mi">621</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+      <span class="s2">&quot;mediaType&quot;</span><span class="o">:</span> <span class="s2">&quot;application/vnd.oci.image.layer.v1.tar+gzip&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;digest&quot;</span><span class="o">:</span> <span class="s2">&quot;sha256:d010c8cf75d7eb5d2504d5ffa0d19696e8d745a457dd8d28ec6dd41d3763617e&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;size&quot;</span><span class="o">:</span> <span class="mi">853</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+      <span class="s2">&quot;mediaType&quot;</span><span class="o">:</span> <span class="s2">&quot;application/vnd.oci.image.layer.v1.tar+gzip&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;digest&quot;</span><span class="o">:</span> <span class="s2">&quot;sha256:7fac07fb303e0589b9c23e6f49d5dc1ff9d6f3c8c88cabe768b430bdb47f03a9&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;size&quot;</span><span class="o">:</span> <span class="mi">169</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+      <span class="s2">&quot;mediaType&quot;</span><span class="o">:</span> <span class="s2">&quot;application/vnd.oci.image.layer.v1.tar+gzip&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;digest&quot;</span><span class="o">:</span> <span class="s2">&quot;sha256:8e860504ff1ee5dc7953672d128ce1e4aa4d8e3716eb39fe710b849c64b20945&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;size&quot;</span><span class="o">:</span> <span class="mi">56355961</span>
+    <span class="p">}</span>
+  <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">digest</span></code> blob下面的config的digest指向配置文件的blob，其内容如下。</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="nx">$</span> <span class="nx">cat</span> <span class="p">.</span><span class="o">/</span><span class="nx">blobs</span><span class="o">/</span><span class="nx">sha256</span><span class="o">/</span><span class="mi">73</span><span class="nx">d5b1025fbfa138f2cacf45bbf3f61f7de891559fa25b28ab365c7d9c3cbd82</span> <span class="o">|</span> <span class="nx">jq</span>
+<span class="p">{</span>
+  <span class="s2">&quot;created&quot;</span><span class="o">:</span> <span class="s2">&quot;2017-09-21T18:37:47.278336798Z&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;architecture&quot;</span><span class="o">:</span> <span class="s2">&quot;amd64&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;os&quot;</span><span class="o">:</span> <span class="s2">&quot;linux&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;config&quot;</span><span class="o">:</span> <span class="p">{</span>
+    <span class="s2">&quot;Env&quot;</span><span class="o">:</span> <span class="p">[</span>
+      <span class="s2">&quot;PATH=/usr/games:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;LC_ALL=C&quot;</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;Entrypoint&quot;</span><span class="o">:</span> <span class="p">[</span>
+      <span class="s2">&quot;/bin/sh&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;-c&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;fortune | cowsay | lolcat&quot;</span>
+    <span class="p">]</span>
+  <span class="p">},</span>
+  <span class="s2">&quot;rootfs&quot;</span><span class="o">:</span> <span class="p">{</span>
+    <span class="s2">&quot;type&quot;</span><span class="o">:</span> <span class="s2">&quot;layers&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;diff_ids&quot;</span><span class="o">:</span> <span class="p">[</span>
+      <span class="s2">&quot;sha256:a2022691bf950a72f9d2d84d557183cb9eee07c065a76485f1695784855c5193&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;sha256:ae620432889d2553535199dbdd8ba5a264ce85fcdcd5a430974d81fc27c02b45&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;sha256:c561538251751e3685c7c6e7479d488745455ad7f84e842019dcb452c7b6fecc&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;sha256:f96e6b25195f1b36ad02598b5d4381e41997c93ce6170cab1b81d9c68c514db0&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;sha256:7f7a065d245a6501a782bf674f4d7e9d0a62fa6bd212edbf1f17bad0d5cd0bfc&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;sha256:70ca7d49f8e9c44705431e3dade0636a2156300ae646ff4f09c904c138728839&quot;</span>
+    <span class="p">]</span>
+  <span class="p">},</span>
+  <span class="s2">&quot;history&quot;</span><span class="o">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="s2">&quot;created&quot;</span><span class="o">:</span> <span class="s2">&quot;2017-09-18T23:31:37.453092323Z&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;created_by&quot;</span><span class="o">:</span> <span class="s2">&quot;/bin/sh -c #(nop) ADD file:5ed435208da6621b45db657dd6549ee132cde58c4b6763920030794c2f31fbc0 in / &quot;</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+      <span class="s2">&quot;created&quot;</span><span class="o">:</span> <span class="s2">&quot;2017-09-18T23:31:38.196268404Z&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;created_by&quot;</span><span class="o">:</span> <span class="s2">&quot;/bin/sh -c set -xe \t\t&amp;&amp; echo &#39;#!/bin/sh&#39; &gt; /usr/sbin/policy-rc.d \t&amp;&amp; echo &#39;exit 101&#39; &gt;&gt; /usr/sbin/policy-rc.d \t&amp;&amp; chmod +x /usr/sbin/policy-rc.d \t\t&amp;&amp; dpkg-divert --local --rename --add /sbin/initctl \t&amp;&amp; cp -a /usr/sbin/policy-rc.d /sbin/initctl \t&amp;&amp; sed -i &#39;s/^exit.*/exit 0/&#39; /sbin/initctl \t\t&amp;&amp; echo &#39;force-unsafe-io&#39; &gt; /etc/dpkg/dpkg.cfg.d/docker-apt-speedup \t\t&amp;&amp; echo &#39;DPkg::Post-Invoke { \&quot;rm -f /var/cache/apt/archives/*.deb /var/cache/apt/archives/partial/*.deb /var/cache/apt/*.bin || true\&quot;; };&#39; &gt; /etc/apt/apt.conf.d/docker-clean \t&amp;&amp; echo &#39;APT::Update::Post-Invoke { \&quot;rm -f /var/cache/apt/archives/*.deb /var/cache/apt/archives/partial/*.deb /var/cache/apt/*.bin || true\&quot;; };&#39; &gt;&gt; /etc/apt/apt.conf.d/docker-clean \t&amp;&amp; echo &#39;Dir::Cache::pkgcache \&quot;\&quot;; Dir::Cache::srcpkgcache \&quot;\&quot;;&#39; &gt;&gt; /etc/apt/apt.conf.d/docker-clean \t\t&amp;&amp; echo &#39;Acquire::Languages \&quot;none\&quot;;&#39; &gt; /etc/apt/apt.conf.d/docker-no-languages \t\t&amp;&amp; echo &#39;Acquire::GzipIndexes \&quot;true\&quot;; Acquire::CompressionTypes::Order:: \&quot;gz\&quot;;&#39; &gt; /etc/apt/apt.conf.d/docker-gzip-indexes \t\t&amp;&amp; echo &#39;Apt::AutoRemove::SuggestsImportant \&quot;false\&quot;;&#39; &gt; /etc/apt/apt.conf.d/docker-autoremove-suggests&quot;</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+      <span class="s2">&quot;created&quot;</span><span class="o">:</span> <span class="s2">&quot;2017-09-18T23:31:38.788043199Z&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;created_by&quot;</span><span class="o">:</span> <span class="s2">&quot;/bin/sh -c rm -rf /var/lib/apt/lists/*&quot;</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+      <span class="s2">&quot;created&quot;</span><span class="o">:</span> <span class="s2">&quot;2017-09-18T23:31:39.411670721Z&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;created_by&quot;</span><span class="o">:</span> <span class="s2">&quot;/bin/sh -c sed -i &#39;s/^#\\s*\\(deb.*universe\\)$/\\1/g&#39; /etc/apt/sources.list&quot;</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+      <span class="s2">&quot;created&quot;</span><span class="o">:</span> <span class="s2">&quot;2017-09-18T23:31:40.055188541Z&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;created_by&quot;</span><span class="o">:</span> <span class="s2">&quot;/bin/sh -c mkdir -p /run/systemd &amp;&amp; echo &#39;docker&#39; &gt; /run/systemd/container&quot;</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+      <span class="s2">&quot;created&quot;</span><span class="o">:</span> <span class="s2">&quot;2017-09-18T23:31:40.215057796Z&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;created_by&quot;</span><span class="o">:</span> <span class="s2">&quot;/bin/sh -c #(nop)  CMD [\&quot;/bin/bash\&quot;]&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;empty_layer&quot;</span><span class="o">:</span> <span class="kc">true</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+      <span class="s2">&quot;created&quot;</span><span class="o">:</span> <span class="s2">&quot;2017-09-21T18:37:46.483638061Z&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;created_by&quot;</span><span class="o">:</span> <span class="s2">&quot;/bin/sh -c apt-get update &amp;&amp; apt-get install -y fortune cowsay lolcat&quot;</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+      <span class="s2">&quot;created&quot;</span><span class="o">:</span> <span class="s2">&quot;2017-09-21T18:37:47.041333952Z&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;created_by&quot;</span><span class="o">:</span> <span class="s2">&quot;/bin/sh -c #(nop)  ENV PATH=/usr/games:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;empty_layer&quot;</span><span class="o">:</span> <span class="kc">true</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+      <span class="s2">&quot;created&quot;</span><span class="o">:</span> <span class="s2">&quot;2017-09-21T18:37:47.170535967Z&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;created_by&quot;</span><span class="o">:</span> <span class="s2">&quot;/bin/sh -c #(nop)  ENV LC_ALL=C&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;empty_layer&quot;</span><span class="o">:</span> <span class="kc">true</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+      <span class="s2">&quot;created&quot;</span><span class="o">:</span> <span class="s2">&quot;2017-09-21T18:37:47.278336798Z&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;created_by&quot;</span><span class="o">:</span> <span class="s2">&quot;/bin/sh -c #(nop)  ENTRYPOINT [\&quot;/bin/sh\&quot; \&quot;-c\&quot; \&quot;fortune | cowsay | lolcat\&quot;]&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;empty_layer&quot;</span><span class="o">:</span> <span class="kc">true</span>
+    <span class="p">}</span>
+  <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>即使容器需要的所有OCI blobs在本地都有缓存，多次build的时候, <code class="docutils literal notranslate"><span class="pre">oci-layout</span></code> 和 <code class="docutils literal notranslate"><span class="pre">index.json</span></code> 两个文件还是会被更新。</p>
+</div>
+</div>
+<div class="section" id="ocibuild">
+<h3>从OCI镜像build容器<a class="headerlink" href="#ocibuild" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="oci-boostrap-ocibuild">
+<span id="cli-oci-bootstrap-agent"></span><h4>使用 <code class="docutils literal notranslate"><span class="pre">oci</span></code> Boostrap 来从OCI镜像build容器<a class="headerlink" href="#oci-boostrap-ocibuild" title="Permalink to this headline">¶</a></h4>
+<p>通过 <code class="docutils literal notranslate"><span class="pre">build</span></code> 命令使用 <code class="docutils literal notranslate"><span class="pre">oci</span></code> boostrap 来build容器:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity build ~/lolcow_oci_cache.sif oci://$HOME/.singularity/cache/oci:a692b57abc43035b197b10390ea2c12855d21649f2ea2cc28094d18b93360eeb
+INFO:    Starting build...
+Getting image source signatures
+Skipping fetch of repeat blob sha256:9fb6c798fa41e509b58bccc5c29654c3ff4648b608f5daa67c1aab6a7d02c118
+Skipping fetch of repeat blob sha256:3b61febd4aefe982e0cb9c696d415137384d1a01052b50a85aae46439e15e49a
+Skipping fetch of repeat blob sha256:9d99b9777eb02b8943c0e72d7a7baec5c782f8fd976825c9d3fb48b3101aacc2
+Skipping fetch of repeat blob sha256:d010c8cf75d7eb5d2504d5ffa0d19696e8d745a457dd8d28ec6dd41d3763617e
+Skipping fetch of repeat blob sha256:7fac07fb303e0589b9c23e6f49d5dc1ff9d6f3c8c88cabe768b430bdb47f03a9
+Skipping fetch of repeat blob sha256:8e860504ff1ee5dc7953672d128ce1e4aa4d8e3716eb39fe710b849c64b20945
+Copying config sha256:73d5b1025fbfa138f2cacf45bbf3f61f7de891559fa25b28ab365c7d9c3cbd82
+ 3.33 KiB / 3.33 KiB [======================================================] 0s
+Writing manifest to image destination
+Storing signatures
+INFO:    Creating SIF file...
+INFO:    Build complete: /home/vagrant/lolcow_oci_cache.sif
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>除了使用Singularity <code class="docutils literal notranslate"><span class="pre">pull</span></code> 命令生成的OCI镜像 <strong>bundle</strong>，<code class="docutils literal notranslate"><span class="pre">oci</span></code> bootstrap可以用于任何满足 OCI镜像格式的 <strong>bundle</strong>。</p>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">$HOME/.singularity/cache/oci</span></code> 的内容如下:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ ls
+blobs  index.json  oci-layout
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">$OCI_BUNDLE_DIR</span></code> 指向的目录 <code class="docutils literal notranslate"><span class="pre">$HOME/.singularity/cache/oci</span></code> 保存了所有缓存的OCI镜像：</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity build ~/lolcow_oci_cache.sif oci://$HOME/.singularity/cache/oci
+INFO:    Starting build...
+FATAL:   While performing build: conveyor failed to get: more than one image in oci, choose an image
+</pre></div>
+</div>
+<p>如果不指定一个镜像的话，是不能build成功的。
+你需要查看 <code class="docutils literal notranslate"><span class="pre">index.json</span></code> 文件中的 <code class="docutils literal notranslate"><span class="pre">org.opencontainers.image.ref.name</span></code> 来找到容器的名字，这个例子中需要在命令后面加上
+<code class="docutils literal notranslate"><span class="pre">:a692b57abc43035b197b10390ea2c12855d21649f2ea2cc28094d18b93360eeb</span></code>。</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>执行多次Singularity <code class="docutils literal notranslate"><span class="pre">pull</span></code> 命令会在 <code class="docutils literal notranslate"><span class="pre">index.json</span></code> 文件中产生多个  <code class="docutils literal notranslate"><span class="pre">org.opencontainers.image.ref.name</span></code>。</p>
+</div>
+</div>
+<div class="section" id="oci-archive-boostrap-ocibuild">
+<span id="cli-oci-archive-bootstrap-agent"></span><h4>使用 <code class="docutils literal notranslate"><span class="pre">oci-archive</span></code> Boostrap 来从OCI镜像build容器<a class="headerlink" href="#oci-archive-boostrap-ocibuild" title="Permalink to this headline">¶</a></h4>
+<p>可以颈OCI镜像打包成 <code class="docutils literal notranslate"><span class="pre">tar</span></code> 文件，通过 <code class="docutils literal notranslate"><span class="pre">build</span></code> 命令使用 <code class="docutils literal notranslate"><span class="pre">oci-archive</span></code> boostrap 来build容器。</p>
+<p>这里我们可以先把Singularity缓存 <code class="docutils literal notranslate"><span class="pre">$HOME/.singularity/cache/oci</span></code> 中的镜像打包成tar文件。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ tar cvf $HOME/godlovedc_lolcow.tar *
+blobs/
+blobs/sha256/
+blobs/sha256/73d5b1025fbfa138f2cacf45bbf3f61f7de891559fa25b28ab365c7d9c3cbd82
+blobs/sha256/8e860504ff1ee5dc7953672d128ce1e4aa4d8e3716eb39fe710b849c64b20945
+blobs/sha256/9d99b9777eb02b8943c0e72d7a7baec5c782f8fd976825c9d3fb48b3101aacc2
+blobs/sha256/3b61febd4aefe982e0cb9c696d415137384d1a01052b50a85aae46439e15e49a
+blobs/sha256/9fb6c798fa41e509b58bccc5c29654c3ff4648b608f5daa67c1aab6a7d02c118
+blobs/sha256/d010c8cf75d7eb5d2504d5ffa0d19696e8d745a457dd8d28ec6dd41d3763617e
+blobs/sha256/f2a852991b0a36a9f3d6b2a33b98a461e9ede8393482f0deb5287afcbae2ce10
+blobs/sha256/7fac07fb303e0589b9c23e6f49d5dc1ff9d6f3c8c88cabe768b430bdb47f03a9
+index.json
+oci-layout
+</pre></div>
+</div>
+<p>然后使用tar文件build容器:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity build lolcow_oci_tarfile.sif oci-archive://godlovedc_lolcow.tar
+Build target already exists. Do you want to overwrite? [N/y] y
+INFO:    Starting build...
+Getting image source signatures
+Skipping fetch of repeat blob sha256:9fb6c798fa41e509b58bccc5c29654c3ff4648b608f5daa67c1aab6a7d02c118
+Skipping fetch of repeat blob sha256:3b61febd4aefe982e0cb9c696d415137384d1a01052b50a85aae46439e15e49a
+Skipping fetch of repeat blob sha256:9d99b9777eb02b8943c0e72d7a7baec5c782f8fd976825c9d3fb48b3101aacc2
+Skipping fetch of repeat blob sha256:d010c8cf75d7eb5d2504d5ffa0d19696e8d745a457dd8d28ec6dd41d3763617e
+Skipping fetch of repeat blob sha256:7fac07fb303e0589b9c23e6f49d5dc1ff9d6f3c8c88cabe768b430bdb47f03a9
+Skipping fetch of repeat blob sha256:8e860504ff1ee5dc7953672d128ce1e4aa4d8e3716eb39fe710b849c64b20945
+Copying config sha256:73d5b1025fbfa138f2cacf45bbf3f61f7de891559fa25b28ab365c7d9c3cbd82
+ 3.33 KiB / 3.33 KiB [======================================================] 0s
+Writing manifest to image destination
+Storing signatures
+INFO:    Creating SIF file...
+INFO:    Build complete: lolcow_oci_tarfile.sif
+</pre></div>
+</div>
+<p>这里假定 <code class="docutils literal notranslate"><span class="pre">tar</span></code> 文件就在当前目录下。</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>现在，缓存只能手动的维护，也就是说你可以使用命令 <code class="docutils literal notranslate"><span class="pre">rm</span> <span class="pre">-rf</span> <span class="pre">$HOME/.singularity/cache</span></code> 删除所有缓存。</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>由于Docker镜像的layer和OCI镜像的Blobs已经是压缩的 <code class="docutils literal notranslate"><span class="pre">gzip</span></code>, 因此不需要压缩，所以上面的bootstrap只支持 <code class="docutils literal notranslate"><span class="pre">tar</span></code> 文件。</p>
+</div>
+</div>
+<div class="section" id="id28">
+<h4>使用网络上的OCI镜像<a class="headerlink" href="#id28" title="Permalink to this headline">¶</a></h4>
+<p>对于网络上的OCI镜像，比如Amazon S3上的一个 Alpine Linux OCI的tar文件。可以使用 <code class="docutils literal notranslate"><span class="pre">pull</span></code> 将tar文件下载到本地。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity pull https://s3.amazonaws.com/singularity-ci-public/alpine-oci-archive.tar
+ 1.98 MiB / 1.98 MiB [==================================================================================] 100.00% 7.48 MiB/s 0s
+
+$ tar tvf alpine-oci-archive.tar
+drwxr-xr-x 1000/1000         0 2018-06-25 14:45 blobs/
+drwxr-xr-x 1000/1000         0 2018-06-25 14:45 blobs/sha256/
+-rw-r--r-- 1000/1000       585 2018-06-25 14:45 blobs/sha256/b1a7f144ece0194921befe57ab30ed1fd98c5950db7996719429020986092058
+-rw-r--r-- 1000/1000       348 2018-06-25 14:45 blobs/sha256/d0ff39a54244ba25ac7447f19941765bee97b05f37ceb438a72e80c9ed39854a
+-rw-r--r-- 1000/1000   2065537 2018-06-25 14:45 blobs/sha256/ff3a5c916c92643ff77519ffa742d3ec61b7f591b6b7504599d95a4a41134e28
+-rw-r--r-- 1000/1000       296 2018-06-25 14:45 index.json
+-rw-r--r-- 1000/1000        31 2018-06-25 14:45 oci-layout
+
+$ singularity build alpine_oci_archive.sif oci-archive://alpine-oci-archive.tar
+INFO:    Starting build...
+Getting image source signatures
+Copying blob sha256:ff3a5c916c92643ff77519ffa742d3ec61b7f591b6b7504599d95a4a41134e28
+ 1.97 MiB / 1.97 MiB [======================================================] 0s
+Copying config sha256:b1a7f144ece0194921befe57ab30ed1fd98c5950db7996719429020986092058
+ 585 B / 585 B [============================================================] 0s
+Writing manifest to image destination
+Storing signatures
+INFO:    Creating SIF file...
+INFO:    Build complete: alpine_oci_archive.sif
+</pre></div>
+</div>
+<p>验证生成的SIF文件:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ ./alpine_oci_archive.sif
+Singularity&gt; cat /etc/os-release
+NAME=&quot;Alpine Linux&quot;
+ID=alpine
+VERSION_ID=3.7.0
+PRETTY_NAME=&quot;Alpine Linux v3.7&quot;
+HOME_URL=&quot;http://alpinelinux.org&quot;
+BUG_REPORT_URL=&quot;http://bugs.alpinelinux.org&quot;
+Singularity&gt;
+$
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>OCI镜像的发布 <a class="reference external" href="https://www.opencontainers.org/about/oci-scope-table">不在讨论范围之内</a>。
+也就是说，现在没有现成的registry方案。只需要一个web服务器，任何组织和个人都能管理OCI镜像。</p>
+</div>
+</div>
+<div class="section" id="definitionoci">
+<h4>Definition文件支持OCI镜像<a class="headerlink" href="#definitionoci" title="Permalink to this headline">¶</a></h4>
+<p>definition文件 <code class="docutils literal notranslate"><span class="pre">lolcow-oci.def</span></code>:</p>
+<div class="highlight-singularity notranslate"><div class="highlight"><pre><span></span><span class="k">Bootstrap</span>: oci
+<span class="k">From</span>: .singularity/cache/oci:a692b57abc43035b197b10390ea2c12855d21649f2ea2cc28094d18b93360eeb
+</pre></div>
+</div>
+<p>a692b57abc43035b197b10390ea2c12855d21649f2ea2cc28094d18b93360eeb是 <code class="docutils literal notranslate"><span class="pre">index.json</span></code> 中  <code class="docutils literal notranslate"><span class="pre">org.opencontainers.image.ref.name</span></code> 字段中镜像的名字。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo singularity build ~/lolcow_oci_cache.sif lolcow-oci.def
+WARNING: Authentication token file not found : Only pulls of public images will succeed
+Build target already exists. Do you want to overwrite? [N/y] y
+INFO:    Starting build...
+Getting image source signatures
+Copying blob sha256:9fb6c798fa41e509b58bccc5c29654c3ff4648b608f5daa67c1aab6a7d02c118
+ 45.33 MiB / 45.33 MiB [====================================================] 0s
+Copying blob sha256:3b61febd4aefe982e0cb9c696d415137384d1a01052b50a85aae46439e15e49a
+ 848 B / 848 B [============================================================] 0s
+Copying blob sha256:9d99b9777eb02b8943c0e72d7a7baec5c782f8fd976825c9d3fb48b3101aacc2
+ 621 B / 621 B [============================================================] 0s
+Copying blob sha256:d010c8cf75d7eb5d2504d5ffa0d19696e8d745a457dd8d28ec6dd41d3763617e
+ 853 B / 853 B [============================================================] 0s
+Copying blob sha256:7fac07fb303e0589b9c23e6f49d5dc1ff9d6f3c8c88cabe768b430bdb47f03a9
+ 169 B / 169 B [============================================================] 0s
+Copying blob sha256:8e860504ff1ee5dc7953672d128ce1e4aa4d8e3716eb39fe710b849c64b20945
+ 53.75 MiB / 53.75 MiB [====================================================] 0s
+Copying config sha256:73d5b1025fbfa138f2cacf45bbf3f61f7de891559fa25b28ab365c7d9c3cbd82
+ 3.33 KiB / 3.33 KiB [======================================================] 0s
+Writing manifest to image destination
+Storing signatures
+INFO:    Creating SIF file...
+INFO:    Build complete: /home/vagrant/lolcow_oci_cache.sif
+</pre></div>
+</div>
+<p>下面是使用OCI archive的例子, definition文件 <code class="docutils literal notranslate"><span class="pre">lolcow-ocia.def</span></code> 如下:</p>
+<div class="highlight-singularity notranslate"><div class="highlight"><pre><span></span><span class="k">Bootstrap</span>: oci-archive
+<span class="k">From</span>: godlovedc_lolcow.tar
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">build</span></code> 容器。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo singularity build lolcow_oci_tarfile.sif lolcow-ocia.def
+WARNING: Authentication token file not found : Only pulls of public images will succeed
+INFO:    Starting build...
+Getting image source signatures
+Skipping fetch of repeat blob sha256:9fb6c798fa41e509b58bccc5c29654c3ff4648b608f5daa67c1aab6a7d02c118
+Skipping fetch of repeat blob sha256:3b61febd4aefe982e0cb9c696d415137384d1a01052b50a85aae46439e15e49a
+Skipping fetch of repeat blob sha256:9d99b9777eb02b8943c0e72d7a7baec5c782f8fd976825c9d3fb48b3101aacc2
+Skipping fetch of repeat blob sha256:d010c8cf75d7eb5d2504d5ffa0d19696e8d745a457dd8d28ec6dd41d3763617e
+Skipping fetch of repeat blob sha256:7fac07fb303e0589b9c23e6f49d5dc1ff9d6f3c8c88cabe768b430bdb47f03a9
+Skipping fetch of repeat blob sha256:8e860504ff1ee5dc7953672d128ce1e4aa4d8e3716eb39fe710b849c64b20945
+Copying config sha256:73d5b1025fbfa138f2cacf45bbf3f61f7de891559fa25b28ab365c7d9c3cbd82
+ 3.33 KiB / 3.33 KiB [======================================================] 0s
+Writing manifest to image destination
+Storing signatures
+INFO:    Creating SIF file...
+INFO:    Build complete: lolcow_oci_tarfile.sif
+</pre></div>
+</div>
+<p>生成容器 <code class="docutils literal notranslate"><span class="pre">lolcow_oci_tarfile.sif</span></code>。</p>
+</div>
+<div class="section" id="id30">
+<h4>使用Definition文件的注意事项<a class="headerlink" href="#id30" title="Permalink to this headline">¶</a></h4>
+<p>使用Def文件的时候, 有几点需要注意:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>OCI bundles 和 archive的发布不在我们讨论范围，下载OCI bundle和archive可能需要认证。</p></li>
+<li><p>和 <a class="reference internal" href="#sec-def-files-execution"><span class="std std-ref">上面一样</span></a>，SIF容器的 <code class="docutils literal notranslate"><span class="pre">runscript</span></code> 也会覆盖OCI镜像的执行脚本。</p></li>
+<li><p>SIF的metadata可以看出容器是从oci还是oci-archive生成的。</p></li>
+</ul>
+</div></blockquote>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="nx">$</span> <span class="nx">singularity</span> <span class="nx">inspect</span> <span class="o">--</span><span class="nx">labels</span> <span class="nx">lolcow_oci_tarfile</span><span class="p">.</span><span class="nx">sif</span> <span class="o">|</span> <span class="nx">jq</span>
+<span class="p">{</span>
+  <span class="s2">&quot;org.label-schema.build-date&quot;</span><span class="o">:</span> <span class="s2">&quot;Sunday_27_January_2019_0:5:29_UTC&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;org.label-schema.schema-version&quot;</span><span class="o">:</span> <span class="s2">&quot;1.0&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;org.label-schema.usage.singularity.deffile.bootstrap&quot;</span><span class="o">:</span> <span class="s2">&quot;oci-archive&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;org.label-schema.usage.singularity.deffile.from&quot;</span><span class="o">:</span> <span class="s2">&quot;godlovedc_lolcow.tar&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;org.label-schema.usage.singularity.version&quot;</span><span class="o">:</span> <span class="s2">&quot;3.0.3-1&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="sec-docker-cache">
+<span id="id31"></span><h2>容器缓存<a class="headerlink" href="#sec-docker-cache" title="Permalink to this headline">¶</a></h2>
+<p>使用 <code class="docutils literal notranslate"><span class="pre">run</span></code>, <code class="docutils literal notranslate"><span class="pre">exec</span></code> 等命令使用 <code class="docutils literal notranslate"><span class="pre">docker://</span></code> or <code class="docutils literal notranslate"><span class="pre">oci://</span></code> 容器时，会在本地生成SIF的缓存,
+这样下次在运行的时候会比较快。</p>
+<p>默认的缓存文件夹是 <code class="docutils literal notranslate"><span class="pre">$HOME/.singularity/cache</span></code>， 你可以通过环境变量 <code class="docutils literal notranslate"><span class="pre">SINGULARITY_CACHEDIR</span></code> 修改缓存文件夹的位置。
+你也可以通过环境变量 <code class="docutils literal notranslate"><span class="pre">SINGULARITY_DISABLE_CACHE</span></code> 来取消缓存。</p>
+<p><code class="docutils literal notranslate"><span class="pre">singularity</span> <span class="pre">cache</span></code> 命令可以列出你的缓存文件夹下的内容，你也可以清空缓存。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity cache list
+There are 10 container file(s) using 4.75 GB and 78 oci blob file(s) using 5.03 GB of space
+Total space used: 9.78 GB
+
+$ singularity cache clean
+This will delete everything in your cache (containers from all sources and OCI blobs).
+Hint: You can see exactly what would be deleted by canceling and using the --dry-run option.
+Do you want to continue? [N/y] y
+Removing /home/dave/.singularity/cache/library
+Removing /home/dave/.singularity/cache/oci-tmp
+Removing /home/dave/.singularity/cache/shub
+Removing /home/dave/.singularity/cache/oci
+Removing /home/dave/.singularity/cache/net
+Removing /home/dave/.singularity/cache/oras
+</pre></div>
+</div>
+<p>关于 <code class="docutils literal notranslate"><span class="pre">cache</span></code> 命令更详细的文档, 请参考 <a class="reference internal" href="build_env.html#build-environment"><span class="std std-ref">Build 环境</span></a>。</p>
+</div>
+<div class="section" id="sec-best-practices">
+<span id="id32"></span><h2>最佳实践<a class="headerlink" href="#sec-best-practices" title="Permalink to this headline">¶</a></h2>
+<p>Singularity can make use of most Docker and OCI images without complication. However, there exist  known cases where complications can arise. Thus a brief compilation of best practices follows below.</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>安全信任机制</p></li>
+</ol>
+<p>Docker允许在容器内使用root权限。Singularity运行时能保证在一个多租户的资源环境上，多个不被信任的用户运行不被信任的容器但不会对资源环境造成破坏和影响。
+这是因为，当运行一个容器时，容器内的用户和host上的用户是同一个用户，singularity动态的将UID和GID信息加入容器文件中，这样就保证容器内和容器外的用户是同一用户。
+比如，如果你在容器外是一个普通用户，你在进入容器后还是普通用户，并且SIF文件在用户空间执行，不能提权。</p>
+<p>Singularity运行时在用户空间执行，因此如果要提权，需要在容器外部通过 <code class="docutils literal notranslate"><span class="pre">capability</span></code> 命令来提权。
+<a class="reference internal" href="security_options.html#security-options"><span class="std std-ref">这里</span></a>, Singularity 允许赋予或者取消用户的 capabilties。
+对于Singularity的安全信任机制:</p>
+<blockquote>
+<div><p>“使用 <code class="docutils literal notranslate"><span class="pre">singularity</span> <span class="pre">capability</span></code> 管理容器的权限”</p>
+</div></blockquote>
+<ol class="arabic simple" start="2">
+<li><p>为容器维护一个definition文件</p></li>
+</ol>
+<p>为一个容器维护一个definition文件，这样可以知道容器中做了哪些改动，而不会是一个黑盒。使用 <code class="docutils literal notranslate"><span class="pre">diff</span></code> 可以比较definition文件的不同。</p>
+<blockquote>
+<div><p>“维护一个definition文件”</p>
+</div></blockquote>
+<ol class="arabic simple" start="3">
+<li><p>在容器的定义文件中定义环境变量，不要在交互的shell中定义环境变量</p></li>
+</ol>
+<p><code class="docutils literal notranslate"><span class="pre">Dockerfile</span></code> 中 <code class="docutils literal notranslate"><span class="pre">ENV</span></code> 下的中key-value来定义 <a class="reference external" href="https://docs.docker.com/engine/reference/builder/#env">环境变量</a>。
+我们推荐通过容器的定义文件来定义环境变量，而不是在交互式的shell中通过 <code class="docutils literal notranslate"><span class="pre">.bashrc</span></code>, <code class="docutils literal notranslate"><span class="pre">.profile</span></code> 或者其它配置文件
+设置环境变量。<code class="docutils literal notranslate"><span class="pre">Dockerfile</span></code> 中的 <code class="docutils literal notranslate"><span class="pre">ENV</span></code> 内容会转换成singularity容器的 <code class="docutils literal notranslate"><span class="pre">%environment</span></code> 的内容。</p>
+<blockquote>
+<div><p>“在容器的定义文件中定义环境变量，不要在交互的shell中定义环境变量”</p>
+</div></blockquote>
+<ol class="arabic simple" start="4">
+<li><p>避免在容器的 <code class="docutils literal notranslate"><span class="pre">/root</span></code> 下安装软件</p></li>
+</ol>
+<p>通常使用 <code class="docutils literal notranslate"><span class="pre">root</span></code> 用户运行Docker和OCI容器，因此host上的 <code class="docutils literal notranslate"><span class="pre">/root</span></code> (用户的 <code class="docutils literal notranslate"><span class="pre">$HOME</span></code> 目录) 会被映射进容器中，容器中的/root会被覆盖。</p>
+<blockquote>
+<div><p>“避免在容器的 <code class="docutils literal notranslate"><span class="pre">/root</span></code> 下安装软件”</p>
+</div></blockquote>
+<ol class="arabic simple" start="5">
+<li><p>确保Docer容器满足Singularity的只读文件系统的要求</p></li>
+</ol>
+<p>Singularity的文件系统默认是只读模式，所以确保docker容器满足Singularity的要求，
+你可以通过 <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">run</span> <span class="pre">--read-only</span> <span class="pre">--tmpfs</span> <span class="pre">/run</span> <span class="pre">--tmpfs</span> <span class="pre">/tmp</span> <span class="pre">godlovedc/lolcow</span></code> 查看docker镜像是不是能如你所预期的工作，
+如果能正常工作，那么转换成SIF只读模式才没有问题。</p>
+<blockquote>
+<div><p>“确保Docer容器满足Singularity的只读文件系统的要求。”</p>
+</div></blockquote>
+<ol class="arabic simple" start="6">
+<li><p>避免将容器中重要的内容放在 $HOME 和 $TMP下</p></li>
+</ol>
+<p>运行Singularity容器的时候， <code class="docutils literal notranslate"><span class="pre">$USER</span></code> 在host上的 <code class="docutils literal notranslate"><span class="pre">$HOME</span></code> 和 <code class="docutils literal notranslate"><span class="pre">$TMP</span></code> 目录会默认被映射到容器:</p>
+<blockquote>
+<div><p>“避免将容器中重要的内容放在 $HOME 和 $TMP下”</p>
+</div></blockquote>
+<ol class="arabic simple" start="7">
+<li><p>确保在容器定义文件的最后执行 <code class="docutils literal notranslate"><span class="pre">ldconfig</span></code></p></li>
+</ol>
+<p><a class="reference external" href="https://codeyarns.com/2014/01/14/how-to-fix-shared-object-file-error/">一个常见的运行时错误</a> 是找不到需要的库文件。
+假定，我们需要在Singularity容器中创建一个库的软链，如果在创建容器的过程中没有更新缓存成功，那么运行程序将会出现缺少库的错误。
+研究后你会发现这个库是有的，支持少了一个软链。</p>
+<blockquote>
+<div><p>“确保在容器定义文件的最后执行 <code class="docutils literal notranslate"><span class="pre">ldconfig</span></code>，这样容器创建后，缓存会被更新。”</p>
+</div></blockquote>
+<ol class="arabic simple" start="8">
+<li><p>不要使用名文的密码做认证</p></li>
+</ol>
+<p>很明显,避免使用名文的密码。 在交互的认证中，推荐使用 <code class="docutils literal notranslate"><span class="pre">--docker-login</span></code>。而非交互认证，
+只能 <a class="reference internal" href="#sec-authentication-via-environment-variables"><span class="std std-ref">通过环境变量设置密码</span></a>。
+由于 Sylabs Cloud Singularity Library使用 <a class="reference external" href="https://cloud.sylabs.io/auth">有效期的 API tokens来认证</a>, 因此不管交互和非交互认证，
+都可以使用这种方式。</p>
+<blockquote>
+<div><p>“不要使用名文的密码做认证”</p>
+</div></blockquote>
+<ol class="arabic simple" start="9">
+<li><p>Execution ambiguity</p></li>
+</ol>
+<p>由于将Docker镜像转为Singularity容器的时候，Singularity definition文件中的 <code class="docutils literal notranslate"><span class="pre">%runscript</span></code>
+会覆盖Docker镜像中的 <code class="docutils literal notranslate"><span class="pre">ENTRYPOINT</span></code> 和 <code class="docutils literal notranslate"><span class="pre">CMD</span></code>，最终的 <a class="reference internal" href="#sec-def-files-execution"><span class="std std-ref">执行顺序</span></a>。</p>
+<blockquote>
+<div><p>“容器定义文件都要定要定义 <code class="docutils literal notranslate"><span class="pre">%runscript</span></code>，这样可以避免执行脚本的不明确性”</p>
+</div></blockquote>
+</div></blockquote>
+<p>我们鼓励你分享你的经验 <a class="reference internal" href="contributing.html#contributing"><span class="std std-ref">Contributing</span></a></p>
+</div>
+<div class="section" id="sec-troubleshooting">
+<span id="id35"></span><h2>常见问题<a class="headerlink" href="#sec-troubleshooting" title="Permalink to this headline">¶</a></h2>
+<p>In making use of Docker and OCI images through Singularity the need to troubleshoot may arise. A brief compilation of issues and their resolution is provided here.</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>认证的问题</p></li>
+</ol>
+<p>使用Docker私有镜像或者私有registry的时候，需要提供认证账号。上面的例子我们用Docker Hub上的私有镜像作为私有镜像的例子，
+使用NVIDIA GPU Cloud(NGC)作为私有registry的例子，当我们使用非交互式的环境变量来提供认证的时候，
+如果碰到问题，使用交互式的 <code class="docutils literal notranslate"><span class="pre">--docker-login</span></code> 来调试解决问题。</p>
+<ol class="arabic simple" start="2">
+<li><p>执行的命令不是期望的命令</p></li>
+</ol>
+<p>基于Docker镜像制作的SIF容器，由于我们在制作SIF容器的时候可能定义了runscript， 而runscript会覆盖掉Docker镜像中的Entry和CMD。
+可以使用 <code class="docutils literal notranslate"><span class="pre">singularity</span> <span class="pre">inspect</span> <span class="pre">--runscript</span> <span class="pre">&lt;somecontainer&gt;.sif</span></code> 查看容器运行时真正运行的脚本。</p>
+<ol class="arabic simple" start="3">
+<li><p>OCI bundle下面有不止一个镜像</p></li>
+</ol>
+<p>当使用oci bootstrap的时候， <code class="docutils literal notranslate"><span class="pre">oci://$OCI_BUNDLE_DIR</span></code>, OCI bundle下面如果有不止一个镜像，会报fatal error。
+这时候我们需要在 <code class="docutils literal notranslate"><span class="pre">$OCI_BUNDLE_DIR/index.json</span></code> 文件中找到一个镜像的名字，
+然后使用 <code class="docutils literal notranslate"><span class="pre">oci://$OCI_BUNDLE_DIR:org.opencontainers.image.ref.name</span></code> 指定镜像。
+找镜像的名字需要花费时间在 <code class="docutils literal notranslate"><span class="pre">$OCI_BUNDLE_DIR/index.json</span></code> 中寻找，所以建议一个 <code class="docutils literal notranslate"><span class="pre">$OCI_BUNDLE_DIR</span></code> 下面只包含一个镜像。</p>
+<ol class="arabic simple" start="4">
+<li><p>缓存</p></li>
+</ol>
+<p>Singularity 缓存( <code class="docutils literal notranslate"><span class="pre">$HOME/.singularity/cache</span></code>) 的维护需要手动的操作，
+你可以使用 <code class="docutils literal notranslate"><span class="pre">rm</span> <span class="pre">-rf</span> <span class="pre">$HOME/.singularity/cache</span></code> 清除所有的缓存。</p>
+<ol class="arabic simple" start="5">
+<li><p><code class="docutils literal notranslate"><span class="pre">http</span></code> 和 <code class="docutils literal notranslate"><span class="pre">https</span></code> 只能在 <code class="docutils literal notranslate"><span class="pre">pull</span></code> 里面使用</p></li>
+</ol>
+<p><code class="docutils literal notranslate"><span class="pre">http</span></code> 和 <code class="docutils literal notranslate"><span class="pre">https</span></code> 只能在 <code class="docutils literal notranslate"><span class="pre">pull</span></code> 里面使用，pull里面使用http和https只是把文件（比如 OCI的tar文件）copy到本地。
+后面还是需要使用build命令 <code class="docutils literal notranslate"><span class="pre">oci-archive</span></code> 去创建一个SIF格式的容器。</p>
+</div></blockquote>
+<p>我们鼓励你分享你的经验 <a class="reference internal" href="contributing.html#contributing"><span class="std std-ref">Contributing</span></a>。</p>
+</div>
+<div class="section" id="singularity-definition-dockerfile">
+<span id="sec-deffile-vs-dockerfile"></span><h2>Singularity Definition 文件和Dockerfile的比较<a class="headerlink" href="#singularity-definition-dockerfile" title="Permalink to this headline">¶</a></h2>
+<p>下面的表格比较了definition文件和Dockerfile相似的地方和不同的地方。</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 18%" />
+<col style="width: 30%" />
+<col style="width: 18%" />
+<col style="width: 34%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head" colspan="2"><p>Singularity Definition file</p></th>
+<th class="head" colspan="2"><p>Dockerfile</p></th>
+</tr>
+<tr class="row-even"><th class="head"><p>Section</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Section</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Bootstrap</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Defines from which</div>
+<div class="line">library to build</div>
+<div class="line">your container from.</div>
+<div class="line">You are free to choose</div>
+<div class="line">between <code class="docutils literal notranslate"><span class="pre">library</span></code></div>
+<div class="line">(Our cloud library)</div>
+<div class="line">, <code class="docutils literal notranslate"><span class="pre">docker</span></code> , <code class="docutils literal notranslate"><span class="pre">shub</span></code></div>
+<div class="line">and <code class="docutils literal notranslate"><span class="pre">oras</span></code>.</div>
+</div>
+</td>
+<td><p>-</p></td>
+<td><div class="line-block">
+<div class="line">Can only bootstrap</div>
+<div class="line">from Docker Hub.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">From:</span></code></p></td>
+<td><div class="line-block">
+<div class="line">To specify the provider</div>
+<div class="line">from which to build the</div>
+<div class="line">container.</div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">FROM</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Creates a layer from</div>
+<div class="line">the described docker image.</div>
+<div class="line">For example, if you got a</div>
+<div class="line">Dockerfile with the <code class="docutils literal notranslate"><span class="pre">FROM</span></code></div>
+<div class="line">section set like:</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">FROM:ubuntu:18.04</span></code>,</div>
+<div class="line">this means that a layer</div>
+<div class="line">will be created from the</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">ubuntu:18.04</span></code></div>
+<div class="line"><strong>Docker</strong> image.</div>
+<div class="line">(You cannot choose any</div>
+<div class="line">other bootstrap provider)</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">%setup</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Commands that run</div>
+<div class="line">outside the</div>
+<div class="line">container (in the host</div>
+<div class="line">system) after the base</div>
+<div class="line">OS has been installed.</div>
+</div>
+</td>
+<td><p>-</p></td>
+<td><div class="line-block">
+<div class="line">Not supported.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">%files</span></code></p></td>
+<td><div class="line-block">
+<div class="line">To copy files from</div>
+<div class="line">your local</div>
+<div class="line">to the host.</div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">COPY</span></code></p></td>
+<td><div class="line-block">
+<div class="line">To copy files from your</div>
+<div class="line">Docker’s client current</div>
+<div class="line">directory.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">%environment</span></code></p></td>
+<td><div class="line-block">
+<div class="line">To declare and set</div>
+<div class="line">your environment</div>
+<div class="line">variables.</div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ENV</span></code></p></td>
+<td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">ENV</span></code> will take the name</div>
+<div class="line">of the variable and the</div>
+<div class="line">value and set it.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">%help</span></code></p></td>
+<td><div class="line-block">
+<div class="line">To provide a help</div>
+<div class="line">section to your</div>
+<div class="line">container image.</div>
+</div>
+</td>
+<td><p>-</p></td>
+<td><div class="line-block">
+<div class="line">Not supported on the</div>
+<div class="line">Dockerfile.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">%post</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Commands that will</div>
+<div class="line">be run at</div>
+<div class="line">build-time.</div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">RUN</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Commands to build your</div>
+<div class="line">application image</div>
+<div class="line">with <code class="docutils literal notranslate"><span class="pre">make</span></code></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">%runscript`</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Commands that will</div>
+<div class="line">be run at</div>
+<div class="line">running your</div>
+<div class="line">container image.</div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">CMD</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Commands that run</div>
+<div class="line">within the Docker</div>
+<div class="line">container.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">%startscript</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Commands that will</div>
+<div class="line">be run when</div>
+<div class="line">an instance is started.</div>
+<div class="line">This is useful for</div>
+<div class="line">container images</div>
+<div class="line">using services.</div>
+</div>
+</td>
+<td><p>-</p></td>
+<td><div class="line-block">
+<div class="line">Not supported.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">%test</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Commands that run</div>
+<div class="line">at the very end</div>
+<div class="line">of the build process</div>
+<div class="line">to validate the</div>
+<div class="line">container using</div>
+<div class="line">a method of your</div>
+<div class="line">choice. (to verify</div>
+<div class="line">distribution or</div>
+<div class="line">software versions</div>
+<div class="line">installed inside</div>
+<div class="line">the container)</div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">HEALTHCHECK</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Commands that verify</div>
+<div class="line">the health status of</div>
+<div class="line">the container.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">%apps</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Allows you to install</div>
+<div class="line">internal modules</div>
+<div class="line">based on the concept</div>
+<div class="line">of SCIF-apps.</div>
+</div>
+</td>
+<td><p>-</p></td>
+<td><div class="line-block">
+<div class="line">Not supported.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">%labels</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Section to add and</div>
+<div class="line">define metadata</div>
+<div class="line">within your container.</div>
+</div>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">LABEL</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Section to declare</div>
+<div class="line">metadata as a</div>
+<div class="line">key-value pair.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="fakeroot.html" class="btn btn-neutral float-right" title="Fakeroot" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="build_env.html" class="btn btn-neutral float-left" title="Build 环境" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017-2019, Sylabs Inc
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

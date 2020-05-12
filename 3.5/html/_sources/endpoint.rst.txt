@@ -1,0 +1,195 @@
+================
+容器仓库
+================
+
+--------
+概述
+--------
+`Sylabs Cloud <https://cloud.sylabs.io/home>`_ 是公有的容器仓库，
+允许用户 `创建 <https://cloud.sylabs.io/builder>`_, `签名 <https://cloud.sylabs.io/keystore?sign=true>`_, 
+和 `分享 <https://cloud.sylabs.io/library/guide#create>`_ 他们的容器。
+Singularity Enterprise提供了私有容器仓库（Container Library, Remote Builder和Key Store）。
+
+使用 ``remote`` 命令可以登录Sylabs Cloud的账号, 如果你本地安装有Singularity企业版，也可以指定使用本地的私有容器仓库。
+
+用户可以在多个容器仓库之间切换，容器仓库的配置保存在 ``~/.singularity/remote.yaml``。
+管理员可以设置系统级别的容器仓库，所有用户都可以使用。
+
+.. note::
+
+   ``remote`` 命令可以连接公有的Sylabs Cloud, 或者安装有Singularity Enterprise的私有的仓库, 或者社区开发的API兼容的服务。 
+
+   ``remote`` 命令 *不能* 存储访问docker的账号。关于singularity和docker的关系，详细请查看 :ref:`singularity-and-docker`
+
+-------------------
+Sylabs Cloud
+-------------------
+
+一个全新安装的Singularity默认连接公共的 `cloud.sylabs.io <https://cloud.sylabs.io>`_。
+你需要获取一个认证token，然后 ``singularity remote login`` 登陆:
+
+  1) 访问: https://cloud.sylabs.io/
+  2) 点击 "Sign in to Sylabs"
+  3) 点击你的id
+  4) 在下拉菜单中选择 "Access Tokens"
+  5) 输入你的access token的名字，比如 "test token"
+  6) 点击 "Create a New Access Token" 按钮
+  7) 在"New API Token" 页面点击 "Copy token to Clipboard"
+  8) 运行 ``singularity remote login``，根据提示输入access token
+
+然后你可以使用remote status查看连接到syslabs cloud的状态。
+
+.. code:: none
+
+    $ singularity remote status
+    INFO:    Checking status of default remote.
+    SERVICE           STATUS  VERSION
+    Builder Service   OK      v1.1.4-0-g3ef2555
+    Consent Service   OK      v1.0.2-0-g2a24b4a
+    Keystore Service  OK      v1.9.0-0-g112eb0e-dirty
+    Library Service   OK      v1.0.4-0-g24d3b74
+    Token Service     OK      v1.0.2-0-g2a24b4a
+
+如果你看到任何错误，检查下你是否需要设置代理，或者你的防火墙是不是不允许访问 ``*.sylabs.io``。
+
+接着你就可以使用singularity命令来直接使用Sylabs Cloud上的容器。
+
+`pull <https://www.sylabs.io/guides/\{version\}/user-guide/cli/singularity_pull.html>`_,
+`push <https://www.sylabs.io/guides/\{version\}/user-guide/cli/singularity_push.html>`_,
+`build --remote <https://www.sylabs.io/guides/\{version\}/user-guide/cli/singularity_build.html#options>`_,
+`key <https://www.sylabs.io/guides/\{version\}/user-guide/cli/singularity_key.html>`_,
+`search <https://www.sylabs.io/guides/\{version\}/user-guide/cli/singularity_search.html>`_,
+`verify <https://www.sylabs.io/guides/\{version\}/user-guide/cli/singularity_verify.html>`_,
+`exec <https://www.sylabs.io/guides/\{version\}/user-guide/cli/singularity_exec.html>`_,
+`shell <https://www.sylabs.io/guides/\{version\}/user-guide/cli/singularity_shell.html>`_,
+`run <https://www.sylabs.io/guides/\{version\}/user-guide/cli/singularity_run.html>`_,
+`instance <https://www.sylabs.io/guides/\{version\}/user-guide/cli/singularity_instance.html>`_
+
+.. note::
+
+   当使用 ``docker://``, ``oras://`` 和 ``shub://`` 等URI的时候， 这些命令不会和Sylabs Cloud交互。
+
+-------------------------
+管理容器仓库
+-------------------------
+
+通常，用户和管理员可以使用 ``singularity remote`` 命令管理容器仓库, 尽量不要直接编辑 ``remote.yaml`` 文件。
+
+查看和登录容器仓库
+=========================
+
+``list`` 命令可以列出已经配置的容器仓库：
+
+.. code-block:: none
+
+    $ singularity remote list
+
+    NAME           URI              GLOBAL
+    [SylabsCloud]  cloud.sylabs.io  YES
+
+``[...]`` 表示这个容器仓库是现在默认的容器仓库。
+   
+第一次使用的时候或者你的token过期的时候，使用 ``login`` 登录容器仓库。
+
+.. code-block:: none
+
+    # Login to the default remote endpoint
+    $ singularity remote login
+                
+    # Login to another remote endpoint                
+    $ singularity remote login <remote_name>
+
+    # example...
+    $ singularity remote login SylabsCloud
+    singularity remote login SylabsCloud
+    INFO:    Authenticating with remote: SylabsCloud
+    Generate an API Key at https://cloud.sylabs.io/auth/tokens, and paste here:
+    API Key: 
+    INFO:    API Key Verified!
+
+    
+添加和删除容器仓库
+====================
+
+使用 ``add`` 命令添加一个容器仓库(只有当前用户可以使用容器仓库):
+
+.. code-block:: none
+
+    $ singularity remote add <remote_name> <remote_uri>
+
+比如，如果你安装有Singularity企业版，其提供的容器仓库是enterprise.example.com:
+
+.. code-block:: none
+
+    $ singularity remote add myremote https://enterprise.example.com
+   
+    INFO:    Remote "myremote" added.
+    INFO:    Authenticating with remote: myremote
+    Generate an API Key at https://enterprise.example.com/auth/tokens, and paste here:
+    API Key:
+
+命令会提示你创建一个API Key。
+
+
+管理员可以使用 ``add --global`` 命令添加一个全局容器仓库(所有用户都可以使用这个容器仓库)。
+
+.. code-block:: none
+
+    $ sudo singularity remote add --global <remote_name> <remote_uri>
+
+    # example..
+
+    $ sudo singularity remote add --global company-remote https://enterprise.example.com
+    [sudo] password for dave: 
+    INFO:    Remote "company-remote" added.
+    INFO:    Global option detected. Will not automatically log into remote.
+   
+.. note:: 全局容器仓库只能被root用户添加和修改，容器仓库信息存储在 ``etc/singularity/remote.yaml``。
+
+相应地, 使用 ``remove`` 命令删除一个容器仓库:
+
+.. code-block:: none
+
+    $ singularity remote remove <remote_name>
+
+root用户可以使用 ``--global`` 标记删除一个全局的容器仓库:
+
+.. code-block:: none
+
+    $ sudo singularity remote remove --global <remote_name>
+
+
+设置默认容器仓库
+======================
+    
+可以使用命令 ``remote use`` 来设置默认的容器仓库。
+
+.. code-block:: none
+
+    $ singularity remote use <remote_name>
+
+默认的容器仓库在容器仓库列表中会被中括号包围:
+
+.. code-block:: none
+
+    $ singularity remote list
+    NAME            URI                     GLOBAL
+    [SylabsCloud]   cloud.sylabs.io         YES
+    company-remote  enterprise.example.com  YES
+    myremote        enterprise.example.com  NO
+
+    $ singularity remote use myremote
+    INFO:    Remote "myremote" now in use.
+
+    $ singularity remote list
+    NAME            URI                     GLOBAL
+    SylabsCloud     cloud.sylabs.io         YES
+    company-remote  enterprise.example.com  YES
+    [myremote]      enterprise.example.com  NO
+
+    
+如果你不想切换默认的容器仓库，你也可以在命令中直接指定使用的容器仓库:
+
+* ``push`` 和 ``pull`` 命令可以使用 ``--library`` 标记指定要使用的容器仓库。
+* ``build --remote`` 命令可以使用 ``--builder`` 标记指定要使用的容器仓库。
+* ``keys`` 使用 ``-url`` 标记指定要使用的keyserver。

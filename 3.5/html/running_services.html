@@ -1,0 +1,684 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>运行服务 &mdash; Singularity container 3.5 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="_static/favicon.png"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script src="_static/js/ga.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="环境变量和元数据" href="environment_and_metadata.html" />
+    <link rel="prev" title="持久化Overlay" href="persistent_overlays.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Singularity container
+          
+
+          
+            
+            <img src="_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">介绍</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html">快速入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security.html">Singularity安全</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="build_a_container.html">Build容器</a></li>
+<li class="toctree-l1"><a class="reference internal" href="definition_files.html">Definition文件</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build_env.html">Build环境</a></li>
+<li class="toctree-l1"><a class="reference internal" href="singularity_and_docker.html">Singularity和Docker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fakeroot.html">Fakeroot</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="signNverify.html">签名和认证</a></li>
+<li class="toctree-l1"><a class="reference internal" href="key_commands.html">Key管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="encryption.html">容器加密</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="endpoint.html">容器仓库</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cloud_library.html">Cloud Library</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="bind_paths_and_mounts.html">路径映射</a></li>
+<li class="toctree-l1"><a class="reference internal" href="persistent_overlays.html">持久化Overlay</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">运行服务</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id2">概述</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#instance">容器Instance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#nginx-hello-world">Nginx “Hello-world”</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">一个完整的例子</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#build">Build容器</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">运行服务</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id6">改进上面的例子</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#system-integration-pid-files">System integration / PID files</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="environment_and_metadata.html">环境变量和元数据</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oci_runtime.html">OCI运行时</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugins.html">插件</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security_options.html">安全选项</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networking.html">网络选项</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cgroups.html">Cgroups</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mpi.html">MPI应用</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gpu.html">GPU支持</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="appendix.html">Appendix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Singularity container</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>运行服务</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/sylabs/singularity-userdocs/blob/master/running_services.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="running-services">
+<span id="id1"></span><h1>运行服务<a class="headerlink" href="#running-services" title="Permalink to this headline">¶</a></h1>
+<p>有 <a class="reference internal" href="quick_start.html#runcontainer"><span class="std std-ref">许多方式</span></a> 可以运行容器，使用 <code class="docutils literal notranslate"><span class="pre">run</span></code>, <code class="docutils literal notranslate"><span class="pre">exec</span></code> 和 <code class="docutils literal notranslate"><span class="pre">shell</span></code> 等命令运行容器，是一种交互式的运行方式，
+Singularity也可以让用户以daemon方式运行容器,这样在后台运行服务。一个服务是在后台运用的一个进程，多个客户端能使用它，
+比如一个web server或者一个database， 使用 <em>instances</em> 命令可以让容器以daemon方式运行。</p>
+<div class="section" id="id2">
+<h2>概述<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p id="sec-instances">Singularity从2.4开始引入 <em>instances</em> 的概念，允许用户使用Singularity运行服务。
+这篇文档主要使用NGINX web服务器作为例子讲述怎么使用 <em>instances</em>。
+在文档最后的例子提供将URL转换为PDF的API。</p>
+<p>如果没有容器，在Ubuntu的host上，你需要以如下方式启动一个NGINX服务。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo apt-get update &amp;&amp; sudo apt-get install -y nginx
+
+$ sudo service nginx start
+</pre></div>
+</div>
+<p>如果你在容器内做如上的操作，你会发现服务也能启动。但是当你退出容器，这个服务的进程将继续在一个不可访问的namespace继续运行，
+你kill不掉进程，也没法访问服务，这叫做孤儿进程。 Singularity instances将解决这个问题。</p>
+</div>
+<div class="section" id="instance">
+<h2>容器Instance<a class="headerlink" href="#instance" title="Permalink to this headline">¶</a></h2>
+<p>我们使用一个来自于 <a class="reference external" href="https://cloud.sylabs.io/library/">container library</a> 的简单的容器
+<a class="reference external" href="https://cloud.sylabs.io/library/_container/5baba5e594feb900016ea41c">alpine_latest.sif</a>
+作为例子</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity pull library://alpine
+</pre></div>
+</div>
+<p>从Container Library下载``alpine_latest.sif``。</p>
+<p>启动一个instance:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>[command]                      [image]              [name of instance]
+
+$ singularity instance start   alpine_latest.sif     instance1
+</pre></div>
+</div>
+<p>设个命令将为容器中的服务创建一个隔离的环境。 你可以使用 <code class="docutils literal notranslate"><span class="pre">instance</span> <span class="pre">list</span></code> 查看正在运行的instance。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity instance list
+
+INSTANCE NAME    PID      IP              IMAGE
+instance1        22084                    /home/dave/instances/alpine_latest.sif
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>instances是和你的用户关联的，用户只能看到自己启动的instance，所以要么你在启动instance的时候如果用了  <code class="docutils literal notranslate"><span class="pre">sudo</span></code>
+你在 <code class="docutils literal notranslate"><span class="pre">list</span></code> instance的时候也需要使用 <code class="docutils literal notranslate"><span class="pre">sudo</span></code>。</p>
+</div>
+<p>如果你想运行一个容器的多个instance，只需要简单的运行多次启动的命令，但是需要保证启动的instance具有不同的名字。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity instance start alpine_latest.sif instance2
+
+$ singularity instance start alpine_latest.sif instance3
+</pre></div>
+</div>
+<p>查看现在有哪些instance在运行:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity instance list
+
+INSTANCE NAME    PID      IP              IMAGE
+instance1        22084                    /home/dave/instances/alpine_latest.sif
+instance2        22443                    /home/dave/instances/alpine_latest.sif
+instance3        22493                    /home/dave/instances/alpine_latest.sif
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">list</span></code> 命令也支持过滤显示运行的instance。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity instance list &#39;*2&#39;
+
+INSTANCE NAME    PID      IP              IMAGE
+instance2        22443                    /home/dave/instances/alpine_latest.s
+</pre></div>
+</div>
+<p>instance启动后，你可以使用命令 <code class="docutils literal notranslate"><span class="pre">singularity</span> <span class="pre">run/exec</span></code> 在instance的容器中运行命令:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity run instance://instance1
+
+$ singularity exec instance://instance2 cat /etc/os-release
+</pre></div>
+</div>
+<p>当使用 <code class="docutils literal notranslate"><span class="pre">run</span></code> 命令的时候，instance中的 <code class="docutils literal notranslate"><span class="pre">runscript</span></code> 将会被执行。而 <code class="docutils literal notranslate"><span class="pre">exec</span></code> 在instance中执行给定的命令。</p>
+<p>你也可以通过 <code class="docutils literal notranslate"><span class="pre">singularity</span> <span class="pre">shell</span></code> 命令进入instance:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity shell instance://instance3
+
+Singularity&gt;
+</pre></div>
+</div>
+<p>你可以使用 <code class="docutils literal notranslate"><span class="pre">instance</span> <span class="pre">stop</span></code> 命令停止instance。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity instance stop instance1
+</pre></div>
+</div>
+<p>如果你有多个instance，你想停止所有的instance，使用通配符或者添加–all标记。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity instance stop \*
+
+$ singularity instance stop --all
+
+$ singularity instance stop --a
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>当使用通配符的时候，必须以反斜杠转移通配符，比如 <code class="docutils literal notranslate"><span class="pre">\*</span></code> 。</p>
+</div>
+</div>
+<div class="section" id="nginx-hello-world">
+<h2>Nginx “Hello-world”<a class="headerlink" href="#nginx-hello-world" title="Permalink to this headline">¶</a></h2>
+<p>上面的例子讲述了可以是用instance让服务在后台运行。下面将讲述一个更实用NGINX web server的例子。
+首先我们创建一个基本的 <a class="reference internal" href="definition_files.html#definitionfiles"><span class="std std-ref">definition 文件</span></a> (假定文件名字为nginx.def):</p>
+<div class="highlight-singularity notranslate"><div class="highlight"><pre><span></span><span class="k">Bootstrap</span>: docker
+<span class="k">From</span>: nginx
+<span class="k">Includecmd</span>: no
+
+<span class="gh">%startscript</span>
+   nginx
+</pre></div>
+</div>
+<p>这个文件将使用Docker的NGINX容器作为基础，build容器的时候，会将其转换为singularity容器，启动instance的时候会运行startscript。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo singularity build nginx.sif nginx.def
+
+$ sudo singularity instance start --writable-tmpfs nginx.sif web
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>上面的 <code class="docutils literal notranslate"><span class="pre">start</span></code> 命令需要 <code class="docutils literal notranslate"><span class="pre">sudo</span></code> 权限，因为我们需要运行一个web server的例子。
+并且由于nginx需要写文件，所以我们在启动instance的时候需要添加 <code class="docutils literal notranslate"><span class="pre">--writable-tmpfs</span></code> 标记。</p>
+</div>
+<p>下面我们确认下服务是否在运行:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ curl localhost
+
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;Welcome to nginx!&lt;/title&gt;
+&lt;style&gt;
+ body {
+     width: 35em;
+     margin: 0 auto;
+     font-family: Tahoma, Verdana, Arial, sans-serif;
+ }
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;h1&gt;Welcome to nginx!&lt;/h1&gt;
+&lt;p&gt;If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.&lt;/p&gt;
+
+&lt;p&gt;For online documentation and support please refer to
+&lt;a href=&quot;http://nginx.org/&quot;&gt;nginx.org&lt;/a&gt;.&lt;br/&gt;
+Commercial support is available at
+&lt;a href=&quot;http://nginx.com/&quot;&gt;nginx.com&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Thank you for using nginx.&lt;/em&gt;&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</pre></div>
+</div>
+<p>通过浏览器访问localhost，你也能看到同样的welcome页面!</p>
+</div>
+<div class="section" id="id3">
+<h2>一个完整的例子<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<p>这一段将展示将服务打包到容器，并运行服务的完整过程。 这个服务是一个API server，它提供的API可以将web页面转换成PDF,
+<a class="reference external" href="https://github.com/alvarcarto/url-to-pdf-api">这里</a> 是它的源码，
+你可以从基础容器build出一个容器，也可以从Container Library上下载已经做好的容器。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity pull url-to-pdf.sif library://sylabs/doc-examples/url-to-pdf:latest
+</pre></div>
+</div>
+<div class="section" id="build">
+<h3>Build容器<a class="headerlink" href="#build" title="Permalink to this headline">¶</a></h3>
+<p>这里将使用definition文件(url-to-pdf.def)从基础容器开始build新容器。
+<code class="docutils literal notranslate"><span class="pre">url-to-pdf-api</span></code> 是基于Node 8 server，所以我们的基础容器选择Docker容器 <code class="docutils literal notranslate"><span class="pre">node:8</span></code>:</p>
+<div class="highlight-singularity notranslate"><div class="highlight"><pre><span></span><span class="k">Bootstrap</span>: docker
+<span class="k">From</span>: node:<span class="m">8</span>
+<span class="k">Includecmd</span>: no
+</pre></div>
+</div>
+<p>除了Node 8, 我们还可以使用 <code class="docutils literal notranslate"><span class="pre">post</span></code> 安装其它的依赖软件，同时编译安装url-to-pdf-api:</p>
+<div class="highlight-singularity notranslate"><div class="highlight"><pre><span></span><span class="gh">%post</span>
+
+    apt-get update <span class="o">&amp;&amp;</span> apt-get install -yq gconf-service libasound2 <span class="se">\</span>
+        libatk1.0-0 libc6 libcairo2 libcups2 libdbus-1-3 libexpat1 <span class="se">\</span>
+        libfontconfig1 libgcc1 libgconf-2-4 libgdk-pixbuf2.0-0 <span class="se">\</span>
+        libglib2.0-0 libgtk-3-0 libnspr4 libpango-1.0-0 <span class="se">\</span>
+        libpangocairo-1.0-0 libstdc++6 libx11-6 libx11-xcb1 libxcb1 <span class="se">\</span>
+        libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 <span class="se">\</span>
+        libxrandr2 libxrender1 libxss1 libxtst6 ca-certificates <span class="se">\</span>
+        fonts-liberation libappindicator1 libnss3 lsb-release xdg-utils <span class="se">\</span>
+        wget curl <span class="o">&amp;&amp;</span> rm -r /var/lib/apt/lists/*
+    git clone https://github.com/alvarcarto/url-to-pdf-api.git pdf_server
+    <span class="nb">cd</span> pdf_server
+    npm install
+    chmod -R <span class="m">0755</span> .
+</pre></div>
+</div>
+<p>接下来我们需要定义当启动instance的时候运行的脚本，这里我们在startscript中启动这个服务:</p>
+<div class="highlight-singularity notranslate"><div class="highlight"><pre><span></span><span class="gh">%startscript</span>
+    <span class="nb">cd</span> /pdf_server
+    <span class="c1"># Use nohup and /dev/null to completely detach server process from terminal</span>
+    nohup npm start &gt; /dev/null <span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span> &lt; /dev/null <span class="p">&amp;</span>
+</pre></div>
+</div>
+<p>同时,  <code class="docutils literal notranslate"><span class="pre">url-to-pdf</span></code> 服务还依赖一些环境变量，所以我们在environment中可以定义一些环境变量。</p>
+<div class="highlight-singularity notranslate"><div class="highlight"><pre><span></span><span class="gh">%environment</span>
+    <span class="nv">NODE_ENV</span><span class="o">=</span>development
+    <span class="nv">PORT</span><span class="o">=</span><span class="m">9000</span>
+    <span class="nv">ALLOW_HTTP</span><span class="o">=</span><span class="nb">true</span>
+    <span class="nv">URL</span><span class="o">=</span>localhost
+    <span class="nb">export</span> NODE_ENV PORT ALLOW_HTTP URL
+</pre></div>
+</div>
+<p>完整的definition文件如下:</p>
+<div class="highlight-singularity notranslate"><div class="highlight"><pre><span></span><span class="k">Bootstrap</span>: docker
+<span class="k">From</span>: node:<span class="m">8</span>
+<span class="k">Includecmd</span>: no
+
+<span class="gh">%post</span>
+
+    apt-get update <span class="o">&amp;&amp;</span> apt-get install -yq gconf-service libasound2 <span class="se">\</span>
+        libatk1.0-0 libc6 libcairo2 libcups2 libdbus-1-3 libexpat1 <span class="se">\</span>
+        libfontconfig1 libgcc1 libgconf-2-4 libgdk-pixbuf2.0-0 <span class="se">\</span>
+        libglib2.0-0 libgtk-3-0 libnspr4 libpango-1.0-0 <span class="se">\</span>
+        libpangocairo-1.0-0 libstdc++6 libx11-6 libx11-xcb1 libxcb1 <span class="se">\</span>
+        libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 <span class="se">\</span>
+        libxrandr2 libxrender1 libxss1 libxtst6 ca-certificates <span class="se">\</span>
+        fonts-liberation libappindicator1 libnss3 lsb-release xdg-utils <span class="se">\</span>
+        wget curl <span class="o">&amp;&amp;</span> rm -r /var/lib/apt/lists/*
+    git clone https://github.com/alvarcarto/url-to-pdf-api.git pdf_server
+    <span class="nb">cd</span> pdf_server
+    npm install
+    chmod -R <span class="m">0755</span> .
+
+<span class="gh">%startscript</span>
+    <span class="nb">cd</span> /pdf_server
+    <span class="c1"># Use nohup and /dev/null to completely detach server process from terminal</span>
+    nohup npm start &gt; /dev/null <span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span> &lt; /dev/null <span class="p">&amp;</span>
+
+<span class="gh">%environment</span>
+    <span class="nv">NODE_ENV</span><span class="o">=</span>development
+    <span class="nv">PORT</span><span class="o">=</span><span class="m">9000</span>
+    <span class="nv">ALLOW_HTTP</span><span class="o">=</span><span class="nb">true</span>
+    <span class="nv">URL</span><span class="o">=</span>localhost
+    <span class="nb">export</span> NODE_ENV PORT ALLOW_HTTP URL
+</pre></div>
+</div>
+<p>然后我们可以build容器:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo singularity build url-to-pdf.sif url-to-pdf.def
+</pre></div>
+</div>
+</div>
+<div class="section" id="id5">
+<h3>运行服务<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<p>现在我们可以启动instance来运行服务了:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo singularity instance start url-to-pdf.sif pdf
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>如果你碰到port冲突的错误，你可以修改definition文件中的 <code class="docutils literal notranslate"><span class="pre">%environment</span></code> 下的PORT。</p>
+</div>
+<p>然后我们可以使用curl来测试一下这个服务是否已经在运行。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ curl -o sylabs.pdf localhost:9000/api/render?url=http://sylabs.io/docs
+
+% Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                         Dload  Upload   Total   Spent    Left  Speed
+
+100 73750  100 73750    0     0  14583      0  0:00:05  0:00:05 --:--:-- 19130
+</pre></div>
+</div>
+<p>你应该能看到生成了一个如下的PDF文件:</p>
+<img alt="Screenshot of the PDF generated!" src="_images/docpage.png" />
+<p>如果你shell进instance，你能看到正在运行的进程。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo singularity shell instance://pdf
+Singularity: Invoking an interactive shell within container...
+
+Singularity final.sif:/home/ysub&gt; ps auxf
+USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root       461  0.0  0.0  18204  3188 pts/1    S    17:58   0:00 /bin/bash --norc
+root       468  0.0  0.0  36640  2880 pts/1    R+   17:59   0:00  \_ ps auxf
+root         1  0.0  0.1 565392 12144 ?        Sl   15:10   0:00 sinit
+root        16  0.0  0.4 1113904 39492 ?       Sl   15:10   0:00 npm
+root        26  0.0  0.0   4296   752 ?        S    15:10   0:00  \_ sh -c nodemon --watch ./src -e js src/index.js
+root        27  0.0  0.5 1179476 40312 ?       Sl   15:10   0:00      \_ node /pdf_server/node_modules/.bin/nodemon --watch ./src -e js src/index.js
+root        39  0.0  0.7 936444 61220 ?        Sl   15:10   0:02          \_ /usr/local/bin/node src/index.js
+
+Singularity final.sif:/home/ysub&gt; exit
+</pre></div>
+</div>
+</div>
+<div class="section" id="id6">
+<h3>改进上面的例子<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+<p>上面的例子已经能正常工作，但是每次都需要通过 <code class="docutils literal notranslate"><span class="pre">curl</span></code> 访问，需要记住url的格式。
+这里我们将使用Scientific Filesystem (SCIF)的app来简化生成PDF的过程。</p>
+<p>首先，我们将安装url-to-pdf移到app中:</p>
+<div class="highlight-singularity notranslate"><div class="highlight"><pre><span></span><span class="gh">%appinstall</span> pdf_server
+    git clone https://github.com/alvarcarto/url-to-pdf-api.git pdf_server
+    <span class="nb">cd</span> pdf_server
+    npm install
+    chmod -R <span class="m">0755</span> .
+</pre></div>
+</div>
+<p>然后需要更新 <code class="docutils literal notranslate"><span class="pre">startscript</span></code> 指定app的位置:</p>
+<div class="highlight-singularity notranslate"><div class="highlight"><pre><span></span><span class="gh">%startscript</span>
+    <span class="nb">cd</span> /scif/apps/pdf_server/scif/pdf_server
+    <span class="c1"># Use nohup and /dev/null to completely detach server process from terminal</span>
+    nohup npm start &gt; /dev/null <span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span> &lt; /dev/null <span class="p">&amp;</span>
+</pre></div>
+</div>
+<p>接着我们定义一个叫做pdf_client的app, 这个app负责发送请求到server。</p>
+<div class="highlight-singularity notranslate"><div class="highlight"><pre><span></span><span class="gh">%apprun</span> pdf_client
+    <span class="k">if</span> <span class="o">[</span> -z <span class="s2">&quot;</span><span class="si">${</span><span class="nv">1</span><span class="k">:-</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+        <span class="nb">echo</span> <span class="s2">&quot;Usage: singularity run --app pdf &lt;instance://name&gt; &lt;URL&gt; [output file]&quot;</span>
+        <span class="nb">exit</span> <span class="m">1</span>
+    <span class="k">fi</span>
+    curl -o <span class="s2">&quot;</span><span class="si">${</span><span class="nv">SINGULARITY_APPDATA</span><span class="si">}</span><span class="s2">/output/</span><span class="si">${</span><span class="nv">2</span><span class="k">:-</span><span class="nv">output</span><span class="p">.pdf</span><span class="si">}</span><span class="s2">&quot;</span> <span class="s2">&quot;</span><span class="si">${</span><span class="nv">URL</span><span class="si">}</span><span class="s2">:</span><span class="si">${</span><span class="nv">PORT</span><span class="si">}</span><span class="s2">/api/render?url=</span><span class="si">${</span><span class="nv">1</span><span class="si">}</span><span class="s2">&quot;</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">pdf_client</span></code> 会要求至少要传递一个参数。</p>
+<p>整个definition文件如下:</p>
+<div class="highlight-singularity notranslate"><div class="highlight"><pre><span></span><span class="k">Bootstrap</span>: docker
+<span class="k">From</span>: node:<span class="m">8</span>
+<span class="k">Includecmd</span>: no
+
+<span class="gh">%post</span>
+
+    apt-get update <span class="o">&amp;&amp;</span> apt-get install -yq gconf-service libasound2 <span class="se">\</span>
+        libatk1.0-0 libc6 libcairo2 libcups2 libdbus-1-3 libexpat1 <span class="se">\</span>
+        libfontconfig1 libgcc1 libgconf-2-4 libgdk-pixbuf2.0-0 <span class="se">\</span>
+        libglib2.0-0 libgtk-3-0 libnspr4 libpango-1.0-0 <span class="se">\</span>
+        libpangocairo-1.0-0 libstdc++6 libx11-6 libx11-xcb1 libxcb1 <span class="se">\</span>
+        libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 <span class="se">\</span>
+        libxrandr2 libxrender1 libxss1 libxtst6 ca-certificates <span class="se">\</span>
+        fonts-liberation libappindicator1 libnss3 lsb-release xdg-utils <span class="se">\</span>
+        wget curl <span class="o">&amp;&amp;</span> rm -r /var/lib/apt/lists/*
+
+<span class="gh">%appinstall</span> pdf_server
+    git clone https://github.com/alvarcarto/url-to-pdf-api.git pdf_server
+    <span class="nb">cd</span> pdf_server
+    npm install
+    chmod -R <span class="m">0755</span> .
+
+<span class="gh">%startscript</span>
+    <span class="nb">cd</span> /scif/apps/pdf_server/scif/pdf_server
+    <span class="c1"># Use nohup and /dev/null to completely detach server process from terminal</span>
+    nohup npm start &gt; /dev/null <span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span> &lt; /dev/null <span class="p">&amp;</span>
+
+<span class="gh">%environment</span>
+    <span class="nv">NODE_ENV</span><span class="o">=</span>development
+    <span class="nv">PORT</span><span class="o">=</span><span class="m">9000</span>
+    <span class="nv">ALLOW_HTTP</span><span class="o">=</span><span class="nb">true</span>
+    <span class="nv">URL</span><span class="o">=</span>localhost
+    <span class="nb">export</span> NODE_ENV PORT ALLOW_HTTP URL
+
+<span class="gh">%apprun</span> pdf_client
+    <span class="k">if</span> <span class="o">[</span> -z <span class="s2">&quot;</span><span class="si">${</span><span class="nv">1</span><span class="k">:-</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+        <span class="nb">echo</span> <span class="s2">&quot;Usage: singularity run --app pdf &lt;instance://name&gt; &lt;URL&gt; [output file]&quot;</span>
+        <span class="nb">exit</span> <span class="m">1</span>
+    <span class="k">fi</span>
+    curl -o <span class="s2">&quot;</span><span class="si">${</span><span class="nv">SINGULARITY_APPDATA</span><span class="si">}</span><span class="s2">/output/</span><span class="si">${</span><span class="nv">2</span><span class="k">:-</span><span class="nv">output</span><span class="p">.pdf</span><span class="si">}</span><span class="s2">&quot;</span> <span class="s2">&quot;</span><span class="si">${</span><span class="nv">URL</span><span class="si">}</span><span class="s2">:</span><span class="si">${</span><span class="nv">PORT</span><span class="si">}</span><span class="s2">/api/render?url=</span><span class="si">${</span><span class="nv">1</span><span class="si">}</span><span class="s2">&quot;</span>
+</pre></div>
+</div>
+<p>由于我们以前已经创建了容器，这里使用 <code class="docutils literal notranslate"><span class="pre">--force</span></code> 标记覆盖原来的容器。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo singularity build --force url-to-pdf.sif url-to-pdf.def
+</pre></div>
+</div>
+<p>容器中有一个生成PDF文件的存储路径，我们需要host上的一个路径和这个路径做映射，比如将host上的 <code class="docutils literal notranslate"><span class="pre">/tmp/out</span></code> 映射到容器中的路径。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ mkdir /tmp/out
+</pre></div>
+</div>
+<p>启动instance:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity instance start --bind /tmp/out/:/output url-to-pdf.sif pdf
+</pre></div>
+</div>
+<p>请求生成一个sylabs.pdf文件:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity run --app pdf_client instance://pdf http://sylabs.io/docs sylabs.pdf
+</pre></div>
+</div>
+<p>确认是否生成:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ ls /tmp/out/
+sylabs.pdf
+</pre></div>
+</div>
+<p>当我们不需要的时候，可以stop掉instance.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity instance stop --all
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>如果你想将容器内的文件在host上使用，你需要使用 <code class="docutils literal notranslate"><span class="pre">--bind</span></code> 选项将host上的目录和容器中的目录做映射。
+当你启动一个叫web的instance的时候，如果你需要将instance中 <code class="docutils literal notranslate"><span class="pre">/output/</span></code> 映射到host上，如下方式运行：</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity instance start --bind output/dir/outside/:/output/ nginx.sif  web
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="system-integration-pid-files">
+<h2>System integration / PID files<a class="headerlink" href="#system-integration-pid-files" title="Permalink to this headline">¶</a></h2>
+<p>如果你在容器中运行服务，并且希望当host启动能自动的启动服务，
+当关机的时候能自动的关闭这些服务。这个可以通过init或者supervisor来控制。许多init和supervisor通过pid文件控制进程。
+daemons support managing processes via pid files.</p>
+<p>当你启动instance的时候通过 <cite>–pid-file</cite> 选项可以指定pid文件的位置：</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ singularity instance start --pid-file /home/dave/alpine.pid alpine_latest.sif instanceA
+
+$ cat /home/dave/alpine.pid
+23727
+</pre></div>
+</div>
+<p>下面是host上的一个service的配置文件的例子。</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>[Unit]
+Description=Web Instance
+After=network.target
+
+[Service]
+Type=forking
+Restart=always
+User=www-data
+Group=www-data
+PIDFile=/run/web-instance.pid
+ExecStart=/usr/local/bin/singularity instance start --pid-file /run/web-instance.pid /data/containers/web.sif web-instance
+ExecStop=/usr/local/bin/singularity instance stop web-instance
+
+[Install]
+WantedBy=multi-user.target
+</pre></div>
+</div>
+<p>注意由于 <code class="docutils literal notranslate"><span class="pre">instance</span> <span class="pre">start</span></code> 启动一个instance，然后直接结束，因此 <code class="docutils literal notranslate"><span class="pre">Type</span></code> 必须是 <code class="docutils literal notranslate"><span class="pre">forking</span></code>。</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="environment_and_metadata.html" class="btn btn-neutral float-right" title="环境变量和元数据" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="persistent_overlays.html" class="btn btn-neutral float-left" title="持久化Overlay" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017-2019, Sylabs Inc
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

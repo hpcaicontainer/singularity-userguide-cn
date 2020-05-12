@@ -1,0 +1,212 @@
+.. _cloud_library:
+
+Cloud Library
+=============
+
+--------
+概述
+--------
+
+你可以 :ref:`push <push>` 你的容器到Sylabs Cloud Library，
+这样其他人就可以 :ref:`pull <pull>` 容器到本地来使用。
+
+Sylabs Cloud还提供了:ref:`Remote Builder <remote_builder>` 的功能，
+这样你就可以在本机没有root权限的情况下使用Sylabs Cloud远程build容器。
+
+.. _make_a_account:
+
+---------------
+创建一个账号
+---------------
+
+Making an account is easy, and straightforward:
+
+ 1. 访问: https://cloud.sylabs.io/library
+ 2. 点击 "Sign in to Sylabs" (右上角)
+ 3. 选择你登录的方式（Google, GitHub, GitLab, or Microsoft）
+ 4. 输入密码
+
+.. _creating_a_access_token:
+
+-----------------------
+创建access token
+-----------------------
+
+在push容器和远程build的时候需要access token。
+
+  1) 访问: https://cloud.sylabs.io/
+  2) 点击 "Sign in to Sylabs"
+  3) 点击你的id
+  4) 在下拉菜单中选择 "Access Tokens"
+  5) 输入你的access token的名字，比如 "test token"
+  6) 点击 "Create a New Access Token" 按钮
+  7) 在"New API Token" 页面点击 "Copy token to Clipboard"
+  8) 运行 ``singularity remote login``，根据提示输入access token
+
+现在你已经有自己的token，可以开始push你的容器了。
+
+.. _push:
+
+-------------------
+Push容器
+-------------------
+
+使用 ``singularity push`` 命令可以push一个容器到到cloud library。
+
+.. code-block:: none
+
+    $ singularity push my-container.sif library://your-name/project-dir/my-container:latest
+
+``:latest`` 是容器的tag， tag用来区分一个容器的不同版本。
+
+.. note::
+    当你push容器的时候，你不需要在容器名字后面加上 ``.sif`` (Singularity Image Format), 英文在cloud library上所有的容器都是sif格式的。
+
+假定你本地有一个容器(版本是1.0.1), 你想把这个容器push到library，同时又不删除原来的 ``:latest`` 版本的容器:
+
+.. code-block:: none
+
+    $ singularity push my-container.sif library://your-name/project-dir/my-container:1.0.1
+
+下载容器的时候也可以使用tag指定下载特定的版本。
+
+.. _pull:
+
+-------------------
+Pull容器
+-------------------
+
+使用 ``singularity pull`` 命令可以从 `Library <https://cloud.sylabs.io/library>`_
+(``library://``), `Docker Hub <https://hub.docker.com/>`_ (``docker://``), 
+`Shub <https://singularity-hub.org/collections>`_ (``shub://``)下载容器。
+
+.. note::
+    当你从dockerhub pull容器的时候, pull这个命令会自动的将docker容器转为SIF格式的容器。
+
+下面是pull容器的几个例子:
+
+.. code-block:: none
+
+    $ singularity pull file-out.sif library://alpine:latest
+
+    # or pull from docker:
+
+    $ singularity pull file-out.sif docker://alpine:latest
+
+.. note::
+    如果在容器后面没有跟tag，那么将自动的下载tag是 ``:latest`` 的容器。
+
+如果要pull一个指定tag的容器，在容器后面加上tag:
+
+.. code-block:: none
+
+    $ singularity pull file-out.sif library://alpine:3.8
+
+上面是pull公共的容器， 你也可以pull自己的容器:
+
+Pull自己的容器
+--------------------------
+
+.. code-block:: none
+
+    $ singularity pull out-file.sif library://your-name/project-dir/my-container:latest
+
+    # or use a different tag:
+
+    $ singularity pull out-file.sif library://your-name/project-dir/my-container:1.0.1
+
+.. note::
+    你 *不需要* 指定一个输出文件, 这个命令会自动创建, 但是作为一个好的使用习惯，建议你每次都指定输出文件的名字。
+
+--------------------------
+Verify/Sign容器
+--------------------------
+
+你能verify容器，从而查看你下载的容器是不是被别人修改过或者是不是有bit数据的丢失。
+
+你可以访问 :ref:`这一页 <signNverify>` 去查看: :ref:`verify a container <verify_container_from_library>`,
+:ref:`making PGP key, and sign your own containers <sign_your_own_containers>`。
+
+.. _search_the_library:
+
+------------------------------------
+Search容器
+------------------------------------
+
+你可以在: https://cloud.sylabs.io/library 上search容器，也可以使用search命令 ``singularity search <container/user>``。
+
+使用命令search
+--------------------
+
+下面是一个search容器 ``centos`` 的例子:
+
+.. code-block:: none
+
+    $ singularity search centos
+    No users found for 'centos'
+    
+    No collections found for 'centos'
+    
+    Found 6 containers for 'centos'
+    	library://dtrudg/linux/centos
+    		Tags: 6 7 centos6 centos7 latest
+    	library://library/default/centos
+    		Tags: 6 7 latest
+    	library://gmk/demo/centos-vim
+    		Tags: latest
+    	library://mroche/baseline/centos
+    		Tags: 7 7.5 7.5.1804 7.6 7.6.1810 latest
+    	library://gmk/default/centos7-devel
+    		Tags: latest
+    	library://emmeff/default/centos7-python36
+    		Tags: 1.0
+
+注意，同一容器有不同的tag。
+
+.. _remote_builder:
+
+--------------
+Remote Builder
+--------------
+
+远程build允许你在cloud library上build容器。
+
+下面是一个例子:
+
+.. code-block:: none
+
+    $ singularity build --remote file-out.sif docker://ubuntu:18.04
+
+
+远程build definition文件:
+--------------------------------
+
+本地有一个叫 ``ubuntu.def`` 的definition文件：
+
+.. code-block:: singularity
+
+    bootstrap: library
+    from: ubuntu:18.04
+
+    %runscript
+        echo "hello world from ubuntu container!"
+
+然后使用 ``--remote`` 标记来远程build容器, 这样不需要root权限或 ``sudo`` 来build:
+
+.. code-block:: none
+
+    $ singularity build --remote ubuntu.sif ubuntu.def
+
+.. note::
+    在远程build前确认你已经有一个 :ref:`access token <creating_a_access_token>`, 否则build会失败。
+
+build完成后，你可以测试这个容器:
+
+.. code-block:: none
+
+    $ ./ubuntu.sif
+    hello world from ubuntu container!
+
+你也可以使用web GUI来build容器： 首先, 登陆 https://cloud.sylabs.io/builder，
+接着拷贝或者上传你的definition文件，然后点击build按钮，build完成后你可以下载容器。
+
